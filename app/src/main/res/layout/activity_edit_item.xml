@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/layoutToDo"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:paddingLeft="16dp"
+              android:paddingRight="16dp"
+              android:weightSum="1"
+              android:background="@drawable/rounded_corners"
+              tools:context="${relativePackage}.${activityClass}"
+        >
+    <com.gtfp.workingmemory.edit.EditedText
+            android:id="@+id/txtToDoItem"
+            android:layout_centerHorizontal="true"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:hint="@string/enter_your_todo"
+            android:enabled="true"
+            android:lines="1"
+            android:maxLines="2"
+            android:minLines="1"
+            android:textSize="20sp"
+            android:typeface="sans"
+            android:inputType="textCapSentences"
+            />
+    <!--                 android:windowSoftInputMode="stateVisible" -->
+    <TextView
+            android:id="@+id/txtToDoTime"
+            android:layout_width="314dp"
+            android:layout_height="wrap_content"
+            android:ems="8"
+            android:background="#00000000"
+            android:hint="@string/time_hint"
+            android:textSize="@dimen/smallTextSize"
+            android:layout_below="@+id/txtToDoItem"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_horizontal"
+            />
+    <LinearLayout
+            android:id="@+id/ButtonsGroup"
+            android:layout_below="@+id/txtToDoTime"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+
+            android:gravity="top"
+            >
+<!--            android:orientation="horizontal" -->
+        <com.gtfp.workingmemory.edit.RadioGroupTableLayout
+                android:id="@+id/MinsRadioGroup"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginStart="20dp">
+            <!--                android:layout_gravity="center_horizontal" -->
+            <TableRow>
+                <RadioButton android:id="@+id/Min0"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="@string/zero_min"
+                        />
+                <RadioButton android:id="@+id/Min5"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="@string/five_min"
+                        />
+                <RadioButton android:id="@+id/Min10"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="@string/ten_min"
+                        />
+                <RadioButton android:id="@+id/Min15"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="@string/fifthteen_min"
+                        />
+            </TableRow>
+            <TableRow>
+                <RadioButton android:id="@+id/Min20"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="@string/twenty_min"
+                        />
+                <RadioButton android:id="@+id/Min30"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="@string/thirty_min"
+                        />
+                <RadioButton android:id="@+id/Min40"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="@string/forty_min"
+                        />
+                <RadioButton android:id="@+id/Min60"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="@string/sixty_min"
+                        />
+            </TableRow>
+        </com.gtfp.workingmemory.edit.RadioGroupTableLayout>
+        <ImageButton
+                android:id="@+id/imgSettings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="settings"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="20dp"
+                android:src="@drawable/settings"
+                android:contentDescription="@string/settings"
+                android:background="@android:color/transparent"
+                />
+    </LinearLayout>
+    <LinearLayout
+            android:layout_below="@+id/ButtonsGroup"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:orientation="horizontal"
+            android:gravity="top"
+            android:layout_marginTop="10dp">
+        <!-- android:layout_marginBottom="10dp" -->
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.30"
+                android:background="@drawable/rounded_button"
+                android:onClick="saveToDoItem"
+                android:text="@string/save"
+                android:typeface="sans"
+                android:textColor="@color/black"
+                android:layout_marginBottom="5dp"/>
+        <!--                    android:textColor="@color/black"  -->
+    </LinearLayout>
+</RelativeLayout>

@@ -1,0 +1,7 @@
+C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\classes\debug
+C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\classes-62fbfc092edc678d3608e537100c90dacade8e31.jar
+C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\opencsv-3.3-f9ad8d64226ddbb64ea0977c18bc9d154a579dfb.jar
+C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\commons-io-2.4-547ab8211b008f0caec3f04ba55d62e45ed6df96.jar
+C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\commons-lang3-3.0-8f414753625b68f01224750350077549ecd0f601.jar
+C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\support-v4-19.1.0-927a101e2836c57fe569a6e15605da8e090188d4.jar
+C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\joda-time-2.3-c4106232a7f6a368f497dfbb2c263f157cc7a51d.jar

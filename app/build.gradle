@@ -1,0 +1,63 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        Release {
+            keyAlias 'WorkingMemory'
+            keyPassword 'gtfpwork'
+            storeFile file('C:/Users/Drawn/Keystore/workingmemory.jks')
+            storePassword 'gtfpwork'
+        }
+    }
+    compileSdkVersion 19
+    buildToolsVersion "21.1.2"
+    defaultConfig {
+        applicationId "com.gtfp.workingmemory"
+        minSdkVersion 19
+        targetSdkVersion 19
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+            'proguard-rules.pro'
+            signingConfig signingConfigs.Release
+        }
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:19.1.0'
+
+//    compile files('../../../libs/exceptionhandler/exceptionhandler.jar')
+
+    compile 'joda-time:joda-time:2.3'
+
+    compile files('../../../libs/opencsv/opencsv-3.3.jar')
+
+    compile 'org.apache.commons:commons-lang3:3.0'
+
+    compile "commons-io:commons-io:+"
+
+    // Depend on another module(project)
+    compile project (':ErrorHandler')
+}
+
+android {
+    packagingOptions {
+        exclude '.readme'
+        exclude 'LICENSE.txt'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LGPL2.1'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/README.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+}

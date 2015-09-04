@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/layoutColorPicker"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:weightSum="1"
+            android:background="@drawable/rounded_corners"
+            >
+
+        <com.gtfp.workingmemory.colorPicker.colorPickerView
+                android:id="@+id/colorPickerView"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/layout_topMargin"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="0.37"
+                />
+
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
+            android:weightSum="1">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/secs_on"
+                android:id="@+id/LEDsecsOn"
+                android:layout_weight="0.29"
+                android:gravity="bottom"
+                android:layout_marginStart="9dp"
+                />
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="match_parent"
+                  android:textAppearance="?android:attr/textAppearanceSmall"
+                  android:text="@string/secs_off"
+                  android:id="@+id/LEDsecsOff"
+                  android:layout_weight="0.29"
+                  android:gravity="bottom"
+                  android:layout_marginStart="50dp"
+                />
+    </LinearLayout>
+    <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_weight="0.08"
+                android:layout_marginTop="@dimen/topMargin"
+                android:layout_gravity="center_horizontal"
+                >
+            <Spinner
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/spnLedOnMs"
+                    android:layout_weight="1"
+                    />
+            <Spinner
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/spnLedOffMs"
+                    android:layout_weight="1"
+                    />
+    </LinearLayout>
+</LinearLayout>

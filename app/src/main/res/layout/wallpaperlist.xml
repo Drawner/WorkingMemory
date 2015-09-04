@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/rlid"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <ListView
+            android:id="@+id/lvToDos"
+            android:layout_width="206dp"
+            android:layout_height="380dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:smoothScrollbar="false"
+            android:layout_alignParentTop="true">
+    </ListView>
+</RelativeLayout>

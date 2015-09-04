@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\commons-io\commons-io\2.4\b1b6ea3b7e4aa4f492509a4952029cd8e48019ad\commons-io-2.4.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="b1b6ea3b7e4aa4f492509a4952029cd8e48019ad">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\commons-io-2.4-547ab8211b008f0caec3f04ba55d62e45ed6df96.jar" />
+    </item>
+    <item
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\joda-time\joda-time\2.3\56498efd17752898cfcc3868c1b6211a07b12b8f\joda-time-2.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="56498efd17752898cfcc3868c1b6211a07b12b8f">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\joda-time-2.3-c4106232a7f6a368f497dfbb2c263f157cc7a51d.jar" />
+    </item>
+    <item
+        jar="C:\Programs\Tools\AndroidSDK\extras\android\m2repository\com\android\support\support-v4\19.1.0\support-v4-19.1.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\support-v4-19.1.0-927a101e2836c57fe569a6e15605da8e090188d4.jar" />
+    </item>
+    <item
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\joda-time\joda-time\2.3\56498efd17752898cfcc3868c1b6211a07b12b8f\joda-time-2.3.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="56498efd17752898cfcc3868c1b6211a07b12b8f">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\joda-time-2.3-c4106232a7f6a368f497dfbb2c263f157cc7a51d.jar" />
+    </item>
+    <item
+        jar="C:\Programs\Tools\Projects\libs\opencsv\opencsv-3.3.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="2858373af0681aafd3d79fdd533cc9127959c9ea">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\opencsv-3.3-f9ad8d64226ddbb64ea0977c18bc9d154a579dfb.jar" />
+    </item>
+    <item
+        jar="C:\Programs\Tools\AndroidSDK\extras\android\m2repository\com\android\support\support-v4\19.1.0\support-v4-19.1.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\support-v4-19.1.0-927a101e2836c57fe569a6e15605da8e090188d4.jar" />
+    </item>
+    <item
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\org.apache.commons\commons-lang3\3.0\8873bd0bb5cb9ee37f1b04578eb7e26fcdd44cb0\commons-lang3-3.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="8873bd0bb5cb9ee37f1b04578eb7e26fcdd44cb0">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\commons-lang3-3.0-8f414753625b68f01224750350077549ecd0f601.jar" />
+    </item>
+    <item
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\commons-io\commons-io\2.4\b1b6ea3b7e4aa4f492509a4952029cd8e48019ad\commons-io-2.4.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="b1b6ea3b7e4aa4f492509a4952029cd8e48019ad">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\commons-io-2.4-547ab8211b008f0caec3f04ba55d62e45ed6df96.jar" />
+    </item>
+    <item
+        jar="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\exploded-aar\WorkingMemory\ErrorHandler\unspecified\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="e0d3b146f6af3b3efbbe754330fbaa06c0e757f0">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\classes-62fbfc092edc678d3608e537100c90dacade8e31.jar" />
+    </item>
+    <item
+        jar="C:\Programs\Tools\Projects\libs\opencsv\opencsv-3.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2858373af0681aafd3d79fdd533cc9127959c9ea">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\opencsv-3.3-f9ad8d64226ddbb64ea0977c18bc9d154a579dfb.jar" />
+    </item>
+    <item
+        jar="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\exploded-aar\WorkingMemory\ErrorHandler\unspecified\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="cdd5023290a3fa0583dec8f9a4f1c58425e15fdc">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\classes-62fbfc092edc678d3608e537100c90dacade8e31.jar" />
+    </item>
+    <item
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\org.apache.commons\commons-lang3\3.0\8873bd0bb5cb9ee37f1b04578eb7e26fcdd44cb0\commons-lang3-3.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="8873bd0bb5cb9ee37f1b04578eb7e26fcdd44cb0">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\debug\commons-lang3-3.0-8f414753625b68f01224750350077549ecd0f601.jar" />
+    </item>
+
+</items>

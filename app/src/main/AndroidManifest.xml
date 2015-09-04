@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.gtfp.workingmemory"
+    android:versionCode="4"
+    android:versionName="1.0" >
+
+    <!-- Start an Alarm When the Device Boots if past due -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Needed to write the database to a CSV file -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- Set the wallpaper -->
+    <uses-permission android:name="android.permission.SET_WALLPAPER"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".app.appController"
+            android:theme="@android:style/Theme.Holo"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+                android:name=".edit.editToDoItem"
+                android:parentActivityName="app.appController"
+                android:windowSoftInputMode="stateVisible"
+                android:theme="@android:style/Theme.Holo.Dialog"
+                >
+        </activity>
+        <receiver android:name=".todo.ToDoAlarm">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <activity
+                android:name=".edit.AlarmActivity"
+                android:theme="@android:style/Theme.Holo"
+                android:noHistory="true"
+                >
+        </activity>
+        <activity
+                android:name=".settings.SettingsActivity"
+                android:parentActivityName="app.appController"
+                >
+        </activity>
+        <activity
+                android:name=".colorPicker.colorPickerActivity"
+                android:parentActivityName="settings.SettingsActivity"
+                android:theme="@android:style/Theme.Holo.Dialog"
+                >
+        </activity>
+<!--        <activity
+                android:name=".dialog"
+                android:theme="@android:style/Theme.Holo.Dialog"
+                >
+        </activity>       -->
+    </application>
+
+</manifest>
