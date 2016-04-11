@@ -28,11 +28,6 @@ import android.view.View;
  * // In this quick example, a custom class, ColorPanelView, is assigned colours
  * mNewColor = (ColorPanelView) layout.findViewById(R.id.new_color_panel);
  *
- * @Override
- * public void colorChanged(int color) {
- *
- * mNewColor.setColor(color);
- * }
  */
 public class colorPickerView extends View {
 
@@ -69,7 +64,7 @@ public class colorPickerView extends View {
 //    public colorPickerView(Context c, int color) {
 //         super(c);
 //    protected void setupColorPicker(int color) {
-    protected void setupColorPicker() {
+    private void setupColorPicker() {
 
 //            mListener = l;
 //            mColors = new int[]{
@@ -96,7 +91,7 @@ public class colorPickerView extends View {
     }
 
 
-    protected void setupSize(){
+    private void setupSize(){
 
         DisplayMetrics metrics = getResources().getDisplayMetrics();
 

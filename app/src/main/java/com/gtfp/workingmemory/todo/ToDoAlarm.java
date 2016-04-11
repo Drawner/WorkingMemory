@@ -212,7 +212,7 @@ public class ToDoAlarm extends BroadcastReceiver {
                 time = null;
             } else {
 
-                Calendar remDate = itemToDo.EpochToCalendar(itemToDo.getReminderEpoch());
+                Calendar remDate = ToDoItem.EpochToCalendar(itemToDo.getReminderEpoch());
 
                 // Take off a minute to be accurate???
                 remDate.add(Calendar.MINUTE, -1);
@@ -479,7 +479,7 @@ public class ToDoAlarm extends BroadcastReceiver {
                 notify.defaults |= Notification.DEFAULT_VIBRATE;
             }
 
-            // This is a static call and NotificationManager may be null
+            // This is a static call and so NotificationManager may be null
             if (mNotificationManager == null) {
 
                 mNotificationManager = (NotificationManager) context

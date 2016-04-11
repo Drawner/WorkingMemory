@@ -20,4 +20,8 @@
     </style>
 
     <style name="Button" parent="@style/BaseButton"></style>
+
+    <style name="MyCustomBetterPickerTheme">
+
+    </style>
 </resources>

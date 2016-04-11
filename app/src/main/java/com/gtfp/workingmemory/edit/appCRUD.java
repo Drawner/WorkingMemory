@@ -15,7 +15,7 @@ import android.content.Intent;
  */
 public class appCRUD implements dialog.DialogBoxListener {
 
-    appView mAppView;
+    private appView mAppView;
 
     private Intent mEditIntent;
 

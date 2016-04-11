@@ -8,7 +8,7 @@ import android.util.AttributeSet;
  */
 public class RingtonePreference extends android.preference.RingtonePreference {
 
-    String mRingtone;
+    private String mRingtone;
 
     public RingtonePreference(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);

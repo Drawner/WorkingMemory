@@ -1,10 +1,10 @@
 package com.gtfp.workingmemory.edit;
 
+import com.codetroopers.betterpickers.radialtimepicker.RadialTimePickerDialogFragment;
 import com.gtfp.workingmemory.BuildConfig;
 import com.gtfp.workingmemory.R;
 import com.gtfp.workingmemory.colorPicker.colorPickerActivity;
 import com.gtfp.workingmemory.colorPicker.colorPickerView;
-import com.gtfp.workingmemory.frmwrk.frmwrkActivity;
 import com.gtfp.workingmemory.settings.SettingsActivity;
 import com.gtfp.workingmemory.settings.appSettings;
 import com.gtfp.workingmemory.todo.ToDoAlarm;
@@ -33,9 +33,12 @@ import java.util.Calendar;
 /**
  * Created by Drawn on 2015-02-19.
  */
-public class editToDoItem extends frmwrkActivity
+
+public class editToDoItem extends android.support.v4.app.FragmentActivity
         implements TimePicker.OnTimeChangedListener, DatePicker.OnDateChangedListener,
-        colorPickerView.OnColorChangedListener {
+        colorPickerView.OnColorChangedListener, RadialTimePickerDialogFragment.OnTimeSetListener {
+
+    public static final String FRAG_TAG_TIME_PICKER = "fragTimePicker";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +114,7 @@ public class editToDoItem extends frmwrkActivity
                 Toast.makeText(this,
                         "Reminder:  " + ToDoItem.displayTime(mToDoItem.getReminderEpoch()),
                         Toast.LENGTH_SHORT).show();
-            } else {
+//            } else {
 
 //                // This is a 'new' item.
 //                if (mToDoItem.getItemName().isEmpty()) {
@@ -249,6 +252,22 @@ public class editToDoItem extends frmwrkActivity
 
         mTP.setOnTimeChangedListener(this);
 
+ // Can't use it. May be incompatible.
+        ImageButton clockDial = (ImageButton) mDialog.findViewById(R.id.btnClockDial);
+
+        clockDial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RadialTimePickerDialogFragment rtpd = new RadialTimePickerDialogFragment()
+                        .setOnTimeSetListener(editToDoItem.this)
+                        .setStartTime(mTP.getCurrentHour(), mTP.getCurrentMinute())
+                        .setThemeDark();
+//                    .setThemeCustom(2130772013);
+
+                rtpd.show(getSupportFragmentManager(), FRAG_TAG_TIME_PICKER);
+            }
+        });
+
         Button saveDate = (Button) mDialog.findViewById(R.id.btnSave);
 
         // When you click to save your date and time in the DateTimePicker
@@ -294,7 +313,7 @@ public class editToDoItem extends frmwrkActivity
 
 
     // Set the title of the dialogue window.
-    void setDialogTitle() {
+    private void setDialogTitle() {
 
         mDialog.setTitle(ToDoItem.formatW_M_D_12H(
                 ToDoItem.toEpoch(mDP.getYear(), mDP.getMonth(), mDP.getDayOfMonth(), mOldHour,
@@ -308,7 +327,9 @@ public class editToDoItem extends frmwrkActivity
         Calendar reminder = null;
 
         // The item has been changed.
-        if (mEditItem.isChanged()) {
+        boolean textChanged = mEditItem.isChanged();
+
+        if (textChanged) {
 
             String todoItem = mEditItem.getText().toString().trim();
 
@@ -326,12 +347,17 @@ public class editToDoItem extends frmwrkActivity
 
         boolean pastDue = testPastDue(mDateTime, true);
 
-        if (mPastDue && pastDue) {
+        int radioChkBtn = editReminder.getCheckedRadioButtonId();
+
+        boolean dateChanged = isDateChanged();
+
+        boolean radioChanged = radioChkBtn > 0 && (dateChanged || radioChkBtn != mToDoItem
+                .getReminderChk());
+
+        if (mPastDue && pastDue && !radioChanged && !textChanged) {
 
             return;
         }
-
-        boolean dateChanged = isDateChanged();
 
         // The date has been changed.
         if (dateChanged) {
@@ -351,22 +377,8 @@ public class editToDoItem extends frmwrkActivity
             changeMade = true;
         }
 
-        if (!mCanSnooze) {
-
-            int radioChkBtn = editReminder.getCheckedRadioButtonId();
-
-            boolean radioChanged = radioChkBtn > 0 && (dateChanged || radioChkBtn != mToDoItem
-                    .getReminderChk());
-
-            // If we're editing an existing item.
-            // A radio button was selected.
-            if (radioChanged) {
-
-                // If only the radio button is changed, a clone must be done.
-                if (!dateChanged) {
-
-                    reminder = (Calendar) mDateTime.clone();
-                }
+        // If past due or a radio button changed.
+        if ( radioChkBtn > 0 && (!mCanSnooze || radioChanged)) {
 
                 RadioButton checkedBtn = (RadioButton) findViewById(radioChkBtn);
 
@@ -374,19 +386,26 @@ public class editToDoItem extends frmwrkActivity
 
                 int step = -1 * Integer.parseInt(radio.replaceAll("[^\\d.]", ""));
 
-                if (step == 0 && mToDoItem.newItem()) {
+                if (step == 0){ // && mToDoItem.newItem()) {
+
+                    // We're not worried about past due.
+                    reminder = null;
 
                     // We're making a reminder item that doesn't want an alarm.
                     mToDoItem.setAlarm(false);
-                }else {
+                } else {
 
-                    reminder.add(Calendar.MINUTE, step);
+                    // If only the radio button is changed, a clone must be done.
+                    if (!dateChanged) {
+
+                        reminder = (Calendar) mDateTime.clone();
+                        reminder.add(Calendar.MINUTE, step);
+                    }
                 }
 
                 mToDoItem.setReminderChk(radioChkBtn);
 
                 changeMade = true;
-            }
         }
 
         if (!changeMade) {
@@ -565,6 +584,16 @@ public class editToDoItem extends frmwrkActivity
     }
 
 
+   public void  onTimeSet(RadialTimePickerDialogFragment dialog, int hourOfDay, int minute){
+
+       mTP.setCurrentHour(hourOfDay);
+
+       mTP.setCurrentMinute(minute);
+
+       onTimeChanged(mTP, hourOfDay, minute);
+    }
+
+
     private void advanceDate(int step) {
 
         if (step == 0) {
@@ -622,7 +651,7 @@ public class editToDoItem extends frmwrkActivity
     }
 
 
-    int getLEDColor() {
+    private int getLEDColor() {
 
         int color = mToDoItem.getLEDColor();
 
@@ -649,7 +678,7 @@ public class editToDoItem extends frmwrkActivity
     }
 
 
-    boolean runActivity(Class<?> cls) {
+    private boolean runActivity(Class<?> cls) {
 
         if (mIntent == null) {
 
@@ -823,21 +852,21 @@ public class editToDoItem extends frmwrkActivity
 
     private Intent mIntent;
 
-    EditedText mEditItem;
+    private EditedText mEditItem;
 
-    ToDoItem mToDoItem;
+    private ToDoItem mToDoItem;
 
     public TextView editDueDate;
 
-    RadioGroupTableLayout editReminder;
+    private RadioGroupTableLayout editReminder;
 
-    Calendar mToday;
+    private Calendar mToday;
 
     public Calendar mOldDate;
 
     public Calendar mDateTime;
 
-    DatePicker mDP;
+    private DatePicker mDP;
 
     public TimePicker mTP;
 
@@ -855,11 +884,11 @@ public class editToDoItem extends frmwrkActivity
 
     public boolean mCanSnooze = false;
 
-    boolean mPastDue = false;
+    private boolean mPastDue = false;
 
-    InputMethodManager mInputMnger;
+    private InputMethodManager mInputMnger;
 
-    ImageButton mImageButton;
+    private ImageButton mImageButton;
 
 //    LayoutInflater mInflator;
 //

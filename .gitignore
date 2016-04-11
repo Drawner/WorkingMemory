@@ -1,3 +1,11 @@
+#Root Files & Folders
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/build
+/*.txt
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db

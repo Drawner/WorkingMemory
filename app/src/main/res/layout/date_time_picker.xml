@@ -30,4 +30,11 @@
             android:layout_below="@+id/timePicker"
             android:layout_alignParentStart="true"
             android:layout_alignEnd="@+id/timePicker"/>
+     <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnClockDial"
+            android:layout_toEndOf="@+id/datePicker" android:layout_above="@+id/timePicker"
+            android:layout_alignParentEnd="false" android:background="@drawable/clockface"
+            android:contentDescription="@string/clockface"/>
 </RelativeLayout>

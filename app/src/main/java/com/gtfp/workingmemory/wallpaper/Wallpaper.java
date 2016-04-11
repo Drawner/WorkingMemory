@@ -30,11 +30,11 @@ public class Wallpaper {
 
     private final static String WALLPAPER_FILE = "wallpaper.png";
 
-    Activity mActivity;
+    private Activity mActivity;
 
-    File mImageFile;
+    private File mImageFile;
 
-    WallpaperManager mWallpaperManager;
+    private WallpaperManager mWallpaperManager;
 
     private static boolean JUST_SET = true;
 

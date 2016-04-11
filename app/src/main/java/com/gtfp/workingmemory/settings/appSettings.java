@@ -41,10 +41,10 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
 
     static private appView mApp;
 
-    static Resources mResources;
+    static private Resources mResources;
 
     // Important to KEEP up to date when access settings in STATIC environment.
-    static String PACKAGE_NAME = "com.gtfp.workingmemory";
+    static final private String PACKAGE_NAME = "com.gtfp.workingmemory";
 
     public appSettings(appView app) {
 
@@ -520,9 +520,7 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
 
             String key = preference.getKey();
 
-            if (key.equals("mLedArgb")) {
-
-            }else {
+            if (!key.equals("mLedArgb")) {
 
                 Intent intent = ((Activity) preference.getContext()).getIntent();
 
@@ -590,8 +588,6 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
             // REQUEST_CODE is defined above
             if (resultCode != Activity.RESULT_OK) {
 
-                return;
-
             } else if (requestCode == mREQUEST_CODE) {
 
                 LEDSettingsResult(data);
@@ -613,16 +609,8 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
             Intent intent = null;
 
             if (saveToItem) {
-//
-//                itemToDo = (ToDoItem) data.getSerializableExtra("item");
-//
-//                // There's obviously a problem.
-//                if (itemToDo == null) {
-//
-//                    return;
-//                }
 
-                // Get the
+                // Get the Settings screen's intent. It's the itemToDo
                 intent = ((Activity) mPreferenceScreen.getContext()).getIntent();
 
                 itemToDo = (ToDoItem) intent.getSerializableExtra("item");

@@ -155,7 +155,7 @@ public class ToDoItem implements Serializable {
         return m12TimeFormat.print(epoch);
     }
 
-    static String formatDisplay(long epoch) {
+    private static String formatDisplay(long epoch) {
 
 //        Date date = new Date(epoch);
 
@@ -188,7 +188,7 @@ public class ToDoItem implements Serializable {
     }
 
 
-    static String formatW_Y_M_D_12H(long epoch) {
+    private static String formatW_Y_M_D_12H(long epoch) {
 
 //        mTempDate.setTime(epoch);
 //        return mW_Y_M_D12HrFormat.format(mTempDate);
@@ -223,20 +223,20 @@ public class ToDoItem implements Serializable {
     }
 
 
-    Date DueDate() {
+    private Date DueDate() {
 
 //        return justDate(mDueDateCalendar);
         return justDate(mDueDateInEpoch);
     }
 
 
-    static Date TodayDate() {
+    private static Date TodayDate() {
 
         return justDate(null);
     }
 
 
-    static Date TomorrowDate() {
+    private static Date TomorrowDate() {
 
         mTempCal.setTime(new Date());
         mTempCal.add(Calendar.DAY_OF_MONTH, 1);
@@ -853,12 +853,21 @@ public class ToDoItem implements Serializable {
     public String toString() {
 
         StringBuffer itemStr = new StringBuffer();
-        itemStr.append(getItemName() + ",");
+/*        itemStr.append(getItemName()).append(",");
 //        itemStr.append(getPriority() + ",");
         itemStr.append(getDueDate() + ",");
         itemStr.append(getReminderEpoch() + ",");
         itemStr.append(getTimestamp() + ",");
         itemStr.append(getId() + ",");
+*/
+
+        itemStr.append(getItemName())
+        .append(",")
+                .append(getDueDate() + ",")
+        .append(getReminderEpoch() + ",")
+                .append(getTimestamp() + ",")
+        .append(getId() + ",");
+
         return itemStr.toString();
 
 
@@ -899,13 +908,13 @@ public class ToDoItem implements Serializable {
 
     private boolean mHasFired = false;
 
-    int mShowPopup = 0;
+    private int mShowPopup = 0;
 
-    int mUseVibrate = 0;
+    private int mUseVibrate = 0;
 
-    int mClearNotification = 0;
+    private int mClearNotification = 0;
 
-    int mUseLED = 0;
+    private int mUseLED = 0;
 
     private String mUriSound = null;
 
@@ -957,7 +966,7 @@ public class ToDoItem implements Serializable {
     // Used to convert strings to Epoch
     private static final DateFormat mEpochFormat = new SimpleDateFormat(Y_M_D + HOURS_24);
 
-    private ToDoDateTime mDateTime;
+    private final ToDoDateTime mDateTime;
 
 //    public static enum PriorityLevels {
 //        LOW, MEDIUM, HIGH

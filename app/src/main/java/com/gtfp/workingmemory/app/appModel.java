@@ -104,7 +104,7 @@ public class appModel {
         return mShowDeleted;
     }
 
-    boolean showDeleted(boolean showDeleted) {
+    private boolean showDeleted(boolean showDeleted) {
 
         mShowDeleted = showDeleted;
 

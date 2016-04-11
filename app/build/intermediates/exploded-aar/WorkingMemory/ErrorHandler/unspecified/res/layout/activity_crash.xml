@@ -13,4 +13,3 @@
         android:layout_height="wrap_content"
         android:text="@string/error_message" />
 </RelativeLayout>
-<!-- From: file:/C:/Programs/Tools/Projects/libs/ErrorHandler/app/src/main/res/layout/activity_crash.xml -->

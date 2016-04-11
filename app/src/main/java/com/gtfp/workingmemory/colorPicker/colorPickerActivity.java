@@ -43,7 +43,7 @@ public class colorPickerActivity extends Activity
         setLEDSettings();
     }
 
-    void setLEDSettings() {
+    private void setLEDSettings() {
 
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.LedOnMS_rates, android.R.layout.simple_spinner_item);

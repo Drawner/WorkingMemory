@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
 
 public class ToDoItemsList {
 
-    ArrayList<ToDoItem> mToDoItems;
+    private ArrayList<ToDoItem> mToDoItems;
 
     private boolean mDescending;
 
@@ -20,7 +20,7 @@ public class ToDoItemsList {
 
     private static ToDoIterator mIterateObj;
 
-    ToDoItemsList(){
+    private ToDoItemsList(){
 
         mComparator = new CompareDueDate();
     }

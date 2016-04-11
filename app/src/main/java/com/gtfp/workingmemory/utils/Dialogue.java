@@ -16,19 +16,19 @@ import android.content.Intent;
  */
 public class Dialogue {
 
-    Activity mActivity;
+    private Activity mActivity;
 
-    String mMessage;
+    private final String mMessage;
 
-    int mId;
+    private final int mId;
 
-    AlertDialog mDialog;
+    private AlertDialog mDialog;
 
-    Intent mIntent;
+    private Intent mIntent;
 
-    ToDoItem mItemToDo;
+    private final ToDoItem mItemToDo;
 
-    ToDoAlarm.Manager mAlarmManager;
+    private ToDoAlarm.Manager mAlarmManager;
 
 
     public Dialogue(Activity activity) {

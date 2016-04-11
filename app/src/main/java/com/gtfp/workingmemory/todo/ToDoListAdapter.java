@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class ToDoListAdapter extends BaseAdapter {
 
-    ToDoItemsList mToDoItemsList;
+    private ToDoItemsList mToDoItemsList;
 
     private int mModItemId = -1;
 
@@ -34,7 +34,7 @@ public class ToDoListAdapter extends BaseAdapter {
         mCount = mToDoItemsList.size();
     }
 
-    void setItems(List<ToDoItem> listToDos) {
+    private void setItems(List<ToDoItem> listToDos) {
 
         mToDoItemsList.setItems(listToDos);
 
@@ -95,7 +95,7 @@ public class ToDoListAdapter extends BaseAdapter {
     }
 
 
-    boolean remove(int index) {
+    private boolean remove(int index) {
 
         int prevCount = mCount;
 

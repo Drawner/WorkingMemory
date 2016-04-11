@@ -11,7 +11,7 @@
 -dontwarn org.joda.convert.**
 
 # It's included as a jar file so don't worry, right?
--dontwarn com.example.exceptionhandler.**
+#-dontwarn com.example.exceptionhandler.**
 
 # Necessary since adding compile files('../../../libs/opencsv/opencsv-3.3.jar')
 -dontwarn org.apache.commons.collections.BeanMap

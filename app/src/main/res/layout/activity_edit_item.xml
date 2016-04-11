@@ -5,8 +5,6 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              android:paddingLeft="16dp"
-              android:paddingRight="16dp"
               android:weightSum="1"
               android:background="@drawable/rounded_corners"
               tools:context="${relativePackage}.${activityClass}"
@@ -45,17 +43,16 @@
             android:layout_below="@+id/txtToDoTime"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
-
             android:gravity="top"
-            >
+            android:weightSum="1">
 <!--            android:orientation="horizontal" -->
         <com.gtfp.workingmemory.edit.RadioGroupTableLayout
                 android:id="@+id/MinsRadioGroup"
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:layout_marginStart="20dp">
+                android:layout_gravity="start"
+                >
             <!--                android:layout_gravity="center_horizontal" -->
             <TableRow>
                 <RadioButton android:id="@+id/Min0"
@@ -108,11 +105,11 @@
                 android:layout_height="wrap_content"
                 android:onClick="settings"
                 android:layout_gravity="center_vertical"
-                android:layout_marginStart="20dp"
+                android:layout_marginStart="5dp"
                 android:src="@drawable/settings"
                 android:contentDescription="@string/settings"
-                android:background="@android:color/transparent"
-                />
+                android:background="@drawable/states_my_image_button" />
+<!--                android:background="@android:color/transparent" -->
     </LinearLayout>
     <LinearLayout
             android:layout_below="@+id/ButtonsGroup"
@@ -123,7 +120,7 @@
             android:layout_marginTop="10dp">
         <!-- android:layout_marginBottom="10dp" -->
         <Button
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.30"
                 android:background="@drawable/rounded_button"

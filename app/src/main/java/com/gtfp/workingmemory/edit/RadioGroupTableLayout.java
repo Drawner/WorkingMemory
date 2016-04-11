@@ -1,6 +1,5 @@
 package com.gtfp.workingmemory.edit;
 
-import com.gtfp.workingmemory.BuildConfig;
 import com.gtfp.workingmemory.todo.ToDoItem;
 
 import android.content.Context;
@@ -22,21 +21,21 @@ public class RadioGroupTableLayout extends TableLayout implements OnClickListene
     private RadioButton mActiveButton;
 
     // holds the checked id; the selection is empty by default
-    private int mCheckedId = -1;
+    private final int mCheckedId = -1;
 
     // when true, mOnCheckedChangeListener discards events
     private boolean mProtectFromCheckedChange = false;
 
-    editToDoItem mEditItem;
+    private editToDoItem mEditItem;
 
-    private ArrayList<RadioButton> radioButtons = new ArrayList<RadioButton>();
+    private final ArrayList<RadioButton> radioButtons = new ArrayList<RadioButton>();
 
     private static Calendar mTmpCal;
 
-    private Calendar mToday = Calendar.getInstance();
+    private final Calendar mToday = Calendar.getInstance();
 
     /**
-     * @param context
+     * @param context  What is this?
      */
     public RadioGroupTableLayout(Context context) {
         super(context);
@@ -99,12 +98,14 @@ public class RadioGroupTableLayout extends TableLayout implements OnClickListene
 
         mTmpCal = (Calendar) original.clone();
 
-        if (BuildConfig.DEBUG){
+        String testValue =     ToDoItem.EpochToDateTime(original.getTimeInMillis());
 
-            String test = ToDoItem.EpochToDateTime(mTmpCal.getTimeInMillis());
+                testValue =        ToDoItem.EpochToDateTime(mTmpCal.getTimeInMillis());
 
-            test = null;
-        }
+//        if (BuildConfig.DEBUG){
+//
+//            testValue = ToDoItem.EpochToDateTime(mTmpCal.getTimeInMillis());
+//        }
 
         String label = mActiveButton.getText().toString();
 
@@ -244,7 +245,7 @@ public class RadioGroupTableLayout extends TableLayout implements OnClickListene
     }
 
 
-    ArrayList<RadioButton> getRadioButtons(){
+    private ArrayList<RadioButton> getRadioButtons(){
 
        return radioButtons;
     }

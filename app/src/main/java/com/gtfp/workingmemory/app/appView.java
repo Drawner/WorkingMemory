@@ -6,6 +6,8 @@ package com.gtfp.workingmemory.app;
 import com.gtfp.workingmemory.R;
 import com.gtfp.workingmemory.edit.appCRUD;
 import com.gtfp.workingmemory.edit.rowView;
+import com.gtfp.workingmemory.google.LegalNoticesActivity;
+import com.gtfp.workingmemory.google.googleService;
 import com.gtfp.workingmemory.settings.SettingsActivity;
 import com.gtfp.workingmemory.settings.appSettings;
 import com.gtfp.workingmemory.todo.ToDoAlarm;
@@ -55,12 +57,15 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
         mItemsOnWallpaper = new Wallpaper(activity);
 
+        // Created here when there is not activity/app running but a dialogue window to delete the task.
         mAppCRUD = new appCRUD(this);
 
         // TODO Need a better way to read the Preferences.xml.
         mAppSettings = new appSettings(this);
 
         mClearNotification = appSettings.getBoolean("clear_notification", false);
+
+        mSyncData = appSettings.getBoolean("sync_data", false);
     }
 
 
@@ -80,7 +85,13 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
         // Must initialize the Calendar here in this method.
         mToday = Calendar.getInstance();
+
+        // Provide this App's label to a 'global' Static reference.
+        App.setLabel(context);
+
+        App.setModel(mAppModel);
     }
+
 
 
     // Called by the controller
@@ -123,13 +134,15 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
         // Let's not and see if they're saved by ToDoAlarm.BroadcastReceiver
         // Ensure any existing items have their alarms set.
-//            setAlarms(mToDoListAdapter.ToDoList());
+       //  setAlarms(mToDoListAdapter.ToDoList());
 
         // Context menu
         mController.registerForContextMenu(lvToDos);
 
-//        // Possibly called by an alarm to edit an existing item
+        //  Possibly called by an alarm to edit an existing item
         editAlarm(mController.getIntent());
+
+        if (mSyncData)   syncData();
 
         return true;
     }
@@ -159,13 +172,26 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
                 return true;
 
+            case R.id.sync:
+
+                syncData();
+
+                return true;
+
             case R.id.help:
 
                 text = "Help Context coming soon...";
 
                 mDialogue = null;
 
-                mDialogue.showBox(text);
+                try {
+
+                    mDialogue.showBox(text);
+
+                }catch(NullPointerException ex){
+
+                    return false;
+                }
 
                 return true;
 
@@ -180,6 +206,10 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
                 mDialogue.showBox(text);
 
                 return true;
+
+            case R.id.legal:
+
+                runActivity(LegalNoticesActivity.class);
 
             default:
 
@@ -203,6 +233,10 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
             ToDoItem todoItem = (ToDoItem) data.getSerializableExtra("item");
 
             mAppCRUD.save(todoItem);
+        }
+        else if (requestCode == GOOGLE_REQUEST){
+
+              ArrayList<CharSequence> memories  = data.getCharSequenceArrayListExtra("data");
         }
     }
 
@@ -259,7 +293,7 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
     }
 
 
-    ArrayList<ToDoItem> listToDos() {
+    private ArrayList<ToDoItem> listToDos() {
 
         return mAppModel.ToDoList();
     }
@@ -366,7 +400,7 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
     }
 
 
-    boolean runActivity(Class<?> cls) {
+    private boolean runActivity(Class<?> cls) {
 
         if (mIntent == null) {
 
@@ -406,6 +440,10 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         } else if (key.equals("clear_notification")) {
 
             mClearNotification = appSettings.getBoolean("clear_notification", false);
+
+        } else if (key.equals("sync_data")){
+
+            mSyncData = appSettings.getBoolean("sync_data", false);
 
         } else if (key.equals("show_deleted")) {
 
@@ -510,6 +548,13 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         return mContext;
     }
 
+    public String getPackageName() {
+
+        if ( PACKAGE_NAME == null)  PACKAGE_NAME = App.setPackageName(mController);
+
+        return PACKAGE_NAME;
+    }
+
     // Used by external components.
     public static boolean showDialogue() {
 
@@ -524,7 +569,27 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
     }
 
 
-    String versionOfApp() {
+    // Sync with the data stored on your Google Drive
+    private void syncData(){
+
+        File syncFile =  new File(appDir(), "syncData.csv");
+
+        if (!createDataFile(syncFile)) return;
+
+        String file = syncFile.getAbsolutePath();
+
+//        Intent googleIntent  = new Intent(mController, googleActivity.class);
+        Intent googleIntent  = new Intent(mController, googleService.class);
+
+        googleIntent.putExtra("filename", file);
+
+//        mController.startActivityForResult(googleIntent, GOOGLE_REQUEST);
+
+        mController.startService(googleIntent);
+    }
+
+
+    private String versionOfApp() {
 
         Context context = mController.getApplicationContext();
 
@@ -547,13 +612,22 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
     }
 
 
-    boolean exportData() {
+    private boolean exportData() {
 
         File file = exportDataFile();
 
+        return createDataFile(file);
+    }
+
+
+    private  boolean createDataFile(File file){
+
         try {
 
-            file.createNewFile();
+            // Can't delete the old one?? Use it!
+            if(file.exists() && !file.delete()) return true;
+
+            if (!file.createNewFile()) return false;
 
             CSVWriter csvWrite = new CSVWriter(new FileWriter(file), ',', '"', '\n');
 
@@ -575,6 +649,7 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
                 csvWrite.writeNext(arrStr);
             }
 
+            // Catch IOException
             csvWrite.close();
 
             curCSV.close();
@@ -583,16 +658,17 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
         } catch (Exception ex) {
 
-            Log.e(mContext.getClass().getSimpleName(), ex.getMessage(), ex);
+            Log.e(getPackageName(), ex.getMessage(), ex);
 
             return false;
         }
     }
 
 
-    boolean importData() {
+    private boolean importData() {
 
         if (!open()) {
+
             return false;
         }
 
@@ -629,15 +705,29 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         return true;
     }
 
+    // The application's  private directory.
+    private File appDir(){
 
-    File exportDataFile() {
+        return App.getFilesDir(mContext);
+    }
 
-        File exportDir = new File(Environment.getExternalStorageDirectory(), "");
 
-        if (!exportDir.exists()) {
+    private File exportDir() {
 
-            exportDir.mkdirs();
+        File exportDir  = new File(Environment.getExternalStorageDirectory(), "");
+
+        if (!exportDir.exists() && !exportDir.mkdirs()) {
+
+            exportDir = mContext.getExternalCacheDir();
         }
+
+        return exportDir;
+    }
+
+
+    private File exportDataFile() {
+
+        File exportDir = exportDir();
 
         // TODO Maybe append today's date on the file name.
         return new File(exportDir, "workingmemory.csv");
@@ -679,6 +769,9 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
 
     public void onDestroy() {
+
+        // Destroy the static reference for this App.
+        App.onDestroy();
 
         mController = null;
 
@@ -747,7 +840,7 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
     public Wallpaper mItemsOnWallpaper;
 
-    appCRUD mAppCRUD;
+    private appCRUD mAppCRUD;
 
     private int mToDoListID = -1;
 
@@ -755,7 +848,13 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
     private final int REQUEST_CODE = 1;
 
+    private final int GOOGLE_REQUEST = 2;
+
+    private static String PACKAGE_NAME;
+
     private static boolean mClearNotification;
+
+    private static boolean mSyncData;
 
     private appSettings mAppSettings;
 

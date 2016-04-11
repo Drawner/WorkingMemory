@@ -14,9 +14,15 @@ import android.view.View;
 
 public class appController extends frmwrkActivity {
 
+
+    public static final class App {
+
+
+    }
+
     static final String TAG = appController.class.getSimpleName();
 
-    appView mAppView;
+    private appView mAppView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

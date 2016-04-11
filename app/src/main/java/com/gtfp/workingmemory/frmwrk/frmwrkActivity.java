@@ -43,11 +43,11 @@ public class frmwrkActivity extends Activity {
         mRecreated = savedInstanceState != null;
         // Use wasRecreated() here
 
-        if (PACKAGE_NAME == "") {
+        if (PACKAGE_NAME.equals("")) {
             PACKAGE_NAME = this.getPackageName();
         }
 
-        if (INTENT_PACKAGE_NAME == "") {
+        if (INTENT_PACKAGE_NAME.equals("")) {
 
             // Get the message from the intent
             Intent intent = getIntent();
@@ -112,9 +112,6 @@ public class frmwrkActivity extends Activity {
      * resume code has run.
      * /
      *
-     * @Override protected void onPostResume() {
-     * super.onPostResume();
-     * }
      *
      * /*
      * When paused, the Activity instance is still kept as a resident in memory.

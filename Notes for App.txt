@@ -1,0 +1,13 @@
+﻿he MVC pattern is essentially this:
+
+Model: What to display. 
+
+View: How it�s displayed. This uses xml. A view is attached to the model and gets the data.
+
+Controller: Reacts to events (ex. The Activity Lifecycle, user input) This be the activity
+
+
+
+public static Locale getDefault ()
+Returns the user's preferred locale. This may have been overridden for this process with setDefault(Locale).
+Since the user's locale changes dynamically, avoid caching this value. Instead, use this method to look it up for each use.

@@ -43,9 +43,9 @@ public class NumberPickerPreference extends DialogPreference {
 
     public static final int NumberPickerPreference_minExternal = 0;
 
-    private int mMin, mMax, mDefault;
+    private final int mMin, mMax, mDefault;
 
-    private String mMaxExternalKey, mMinExternalKey;
+    private final String mMaxExternalKey, mMinExternalKey;
 
     private NumberPicker mNumberPicker;
 

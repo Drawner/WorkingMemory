@@ -9,27 +9,40 @@ android {
             storePassword 'gtfpwork'
         }
     }
-    compileSdkVersion 19
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 23
+    buildToolsVersion '23.0.2'
     defaultConfig {
+        versionCode 5
+        versionName '1.1'
         applicationId "com.gtfp.workingmemory"
         minSdkVersion 19
-        targetSdkVersion 19
+        targetSdkVersion 23
+        resConfig "en"
     }
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
-            'proguard-rules.pro'
+                    'proguard-rules.pro'
             signingConfig signingConfigs.Release
+        }
+        debug {
+            minifyEnabled false
+            debuggable true
         }
     }
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.0'
 
-//    compile files('../../../libs/exceptionhandler/exceptionhandler.jar')
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    //https://github.com/code-troopers/android-betterpickers
+    compile 'com.code-troopers.betterpickers:library:2.5.1'
+
+    compile 'com.android.support:support-v4:23.2.0'
+
+    compile 'com.google.android.gms:play-services-drive:8.4.0'
 
     compile 'joda-time:joda-time:2.3'
 
@@ -37,10 +50,10 @@ dependencies {
 
     compile 'org.apache.commons:commons-lang3:3.0'
 
-    compile "commons-io:commons-io:+"
+    compile 'commons-io:commons-io:2.0.1'
 
     // Depend on another module(project)
-    compile project (':ErrorHandler')
+    compile project(':ErrorHandler')
 }
 
 android {

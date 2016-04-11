@@ -32,13 +32,13 @@ public class dbHelper extends SQLiteOpenHelper {
 
     private boolean mUseView;
 
-    static final String DATABASE_NAME = "working";
+    private static final String DATABASE_NAME = "working";
 
-    static final String DATABASE_FILE = DATABASE_NAME + ".db";
+    private static final String DATABASE_FILE = DATABASE_NAME + ".db";
 
-    static final String DBKEY_FIELD = "rowid";
+    private static final String DBKEY_FIELD = "rowid";
 
-    static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 13;
 
     // Ported to the file, create.sql
     private static final String DATABASE_CREATE = "CREATE TABLE IF NOT EXISTS " + DATABASE_NAME
@@ -409,12 +409,12 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    int updateRec(ToDoItem itemToDo) {
+    private int updateRec(ToDoItem itemToDo) {
 
        return updateRec(bindRecValues(itemToDo), itemToDo.getId());
     }
 
-    int updateRec(ContentValues recValues, long id) {
+    private int updateRec(ContentValues recValues, long id) {
         int result;
 
         try {
@@ -433,13 +433,13 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    long insertRec(ToDoItem itemToDo) {
+    private long insertRec(ToDoItem itemToDo) {
 
         return insertRec(bindRecValues(itemToDo));
     }
 
 
-    long insertRec(ContentValues recValues) {
+    private long insertRec(ContentValues recValues) {
 
         long result;
 
@@ -638,7 +638,18 @@ public class dbHelper extends SQLiteOpenHelper {
 
 
     @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        setTheGrade(db, oldVersion, newVersion);
+    }
+
+    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        setTheGrade(db, oldVersion, newVersion);
+    }
+
+    private void setTheGrade(SQLiteDatabase db, int oldVersion, int newVersion){
 
         try {
 
