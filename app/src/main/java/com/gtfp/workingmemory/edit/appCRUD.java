@@ -4,7 +4,6 @@ package com.gtfp.workingmemory.edit;
  */
 
 import com.gtfp.workingmemory.app.appView;
-import com.gtfp.workingmemory.settings.appSettings;
 import com.gtfp.workingmemory.todo.ToDoItem;
 import com.gtfp.workingmemory.utils.dialog;
 
@@ -63,106 +62,108 @@ public class appCRUD implements dialog.DialogBoxListener {
         mEditIntent.putExtra("item", todoItem);
 
         mAppView.mController.startActivityForResult(mEditIntent, REQUEST_CODE);
+
+        mAppView.syncData();
     }
 
-
-    public boolean save(ToDoItem itemToDo) {
-
-        // In case it WAS marked as deleted.
-        itemToDo.isDeleted(false);
-
-        boolean saved = mAppView.mAppModel.save(itemToDo);
-
-        if (!saved) {
-
-            return saved;
-        }
-
-        // It's a new item
-        if (itemToDo.getId() < 1) {
-
-            itemToDo.setId(mAppView.mAppModel.getLastRowID());
-
-            mAppView.mToDoListAdapter.add(itemToDo);
-
-        } else {
-
-            mAppView.mToDoListAdapter.save(itemToDo);
-
-            // Remove any associated notification.
-            mAppView.mAlarmManager.cancelNotification(itemToDo);
-        }
-
-        // In some circumstances, an alarm is not set.
-        if (itemToDo.setAlarm()) {
-
-            // Establish the alarm for this item.
-            mAppView.mAlarmManager.setAlarm(itemToDo);
-        }
-
-        if (appSettings.getBoolean("set_as_wallpaper", false)) {
-
-            mAppView.mItemsOnWallpaper.set();
-        }
-
-        return saved;
-    }
-
-
-    public boolean delete(int todoListID) {
-
-        // Flag to permanently delete a record.
-        boolean trueDelete = false;
-
-        boolean deleted = false;
-
-        // Retrieve the currently 'selected' item.
-        ToDoItem todoItem = (ToDoItem) mAppView.mToDoListAdapter.getItem(todoListID);
-
-        todoItem.setListPosn(todoListID);
-
-        boolean alreadyDeleted = todoItem.isDeleted();
-
-        if (alreadyDeleted) {
-
-            mToDoListID = todoListID;
-
-            mDialogue.show("Permanently delete this already deleted record?");
-        } else {
-
-            if (mTrulyDelete) {
-
-                // Important to reset in case of failure.
-                mTrulyDelete = false;
-
-                trueDelete = true;
-
-                deleted = mAppView.mAppModel.trueDelete(todoItem);
-            } else {
-
-                deleted = mAppView.mAppModel.delete(todoItem);
-            }
-        }
-
-        if (deleted) {
-
-            // Remove from listing if NOT to show deleted records
-            if (!trueDelete && !alreadyDeleted && mAppView.showDeleted()) {
-
-                mAppView.mToDoListAdapter.save(todoItem);
-            } else {
-
-                mAppView.mToDoListAdapter.remove(todoItem);
-            }
-
-            mAppView.mAlarmManager.cancelAlarm(todoItem);
-        }
-
-        return deleted;
-    }
+// Moved to AppView where it becomes.
+//    public boolean save(ToDoItem itemToDo) {
+//
+//        // In case it WAS marked as deleted.
+//        itemToDo.isDeleted(false);
+//
+//        boolean saved = mAppView.mAppModel.save(itemToDo);
+//
+//        if (!saved) {
+//
+//            return saved;
+//        }
+//
+//        // It's a new item
+//        if (itemToDo.getId() < 1) {
+//
+//            itemToDo.setId(mAppView.mAppModel.getLastRowID());
+//
+//            mAppView.mToDoListAdapter.add(itemToDo);
+//
+//        } else {
+//
+//            mAppView.mToDoListAdapter.save(itemToDo);
+//
+//            // Remove any associated notification.
+//            mAppView.mAlarmManager.cancelNotification(itemToDo);
+//        }
+//
+//        // In some circumstances, an alarm is not set.
+//        if (itemToDo.setAlarm()) {
+//
+//            // Establish the alarm for this item.
+//            mAppView.mAlarmManager.setAlarm(itemToDo);
+//        }
+//
+//        if (appSettings.getBoolean("set_as_wallpaper", false)) {
+//
+//            mAppView.mItemsOnWallpaper.set();
+//        }
+//
+//        return saved;
+//    }
 
 
-    // Called if there is possibly no interface. (i.e. Notifictions will call this at times.)
+//    public boolean delete(int todoListID) {
+//
+//        // Flag to permanently delete a record.
+//        boolean trueDelete = false;
+//
+//        boolean deleted = false;
+//
+//        // Retrieve the currently 'selected' item.
+//        ToDoItem todoItem = (ToDoItem) mAppView.mToDoListAdapter.getItem(todoListID);
+//
+//        todoItem.setListPosn(todoListID);
+//
+//        boolean alreadyDeleted = todoItem.isDeleted();
+//
+//        if (alreadyDeleted) {
+//
+//            mToDoListID = todoListID;
+//
+//            mDialogue.show("Permanently delete this already deleted record?");
+//        } else {
+//
+//            if (mTrulyDelete) {
+//
+//                // Important to reset in case of failure.
+//                mTrulyDelete = false;
+//
+//                trueDelete = true;
+//
+//                deleted = mAppView.mAppModel.trueDelete(todoItem);
+//            } else {
+//
+//                deleted = mAppView.mAppModel.delete(todoItem);
+//            }
+//        }
+//
+//        if (deleted) {
+//
+//            // Remove from listing if NOT to show deleted records
+//            if (!trueDelete && !alreadyDeleted && mAppView.showDeleted()) {
+//
+//                mAppView.mToDoListAdapter.save(todoItem);
+//            } else {
+//
+//                mAppView.mToDoListAdapter.remove(todoItem);
+//            }
+//
+//            mAppView.mAlarmManager.cancelAlarm(todoItem);
+//        }
+//
+//        return deleted;
+//    }
+
+
+    // Called if there is possibly no interface. (i.e. Notifications will call this at times.)
     public boolean delete(long id) {
 
         boolean deleted = mAppView.mAppModel.delete(id);

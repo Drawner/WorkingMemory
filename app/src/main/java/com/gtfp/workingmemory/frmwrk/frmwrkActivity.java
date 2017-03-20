@@ -1,6 +1,7 @@
 package com.gtfp.workingmemory.frmwrk;
 
 import com.gtfp.errorhandler.ErrorHandler;
+import com.gtfp.workingmemory.app.App;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,42 +13,48 @@ import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 
-public class frmwrkActivity extends Activity {
+
+public class frmwrkActivity extends Activity{
 
     protected static String PACKAGE_NAME = "";
 
     protected static String INTENT_PACKAGE_NAME = "";
 
-    private Boolean mJustCreated = true;
+    private boolean mJustCreated = true;
 
-    private Boolean mRecreated = false;
+    private boolean mRecreated = false;
 
-    private Boolean mWasPaused = false;
+    private boolean mWasPaused = false;
 
-    private Boolean mWasStopped = false;
+    private boolean mWasStopped = false;
 
-    private Boolean mWasOutsideCall = false;
+    private boolean mWasOutsideCall = false;
 
     private LayoutInflater mInflator;
 
     private String mPath;
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        ErrorHandler.toCatch(this);
+        if (App.inDebugger()){
+
+            ErrorHandler.toCatch(this);
+        }
 
         // SPECIAL CASE: Most times savedInstanceState is null.
         // Check whether we're recreating a previously destroyed instance
         mRecreated = savedInstanceState != null;
         // Use wasRecreated() here
 
-        if (PACKAGE_NAME.equals("")) {
+        if (PACKAGE_NAME.equals("")){
+
             PACKAGE_NAME = this.getPackageName();
         }
 
-        if (INTENT_PACKAGE_NAME.equals("")) {
+        if (INTENT_PACKAGE_NAME.equals("")){
 
             // Get the message from the intent
             Intent intent = getIntent();
@@ -82,7 +89,7 @@ public class frmwrkActivity extends Activity {
 
 
     @Override
-    protected void onStart() {
+    protected void onStart(){
         super.onStart();
 
         // Use justCreated() here for that one special case
@@ -95,7 +102,7 @@ public class frmwrkActivity extends Activity {
      * 
      */
     @Override
-    protected void onResume() {
+    protected void onResume(){
         super.onResume();
 
         // The Activity property is set: this.mResumed = true;
@@ -121,7 +128,7 @@ public class frmwrkActivity extends Activity {
      * but do avoid performing CPU-intensive work here such as writing to a database.
      */
     @Override
-    protected void onPause() {
+    protected void onPause(){
         super.onPause();
 
         mJustCreated = false;
@@ -134,7 +141,7 @@ public class frmwrkActivity extends Activity {
      *
      */
     @Override
-    protected void onRestart() {
+    protected void onRestart(){
         super.onRestart();
 
     }
@@ -149,7 +156,7 @@ public class frmwrkActivity extends Activity {
      * 
      */
     @Override
-    protected void onStop() {
+    protected void onStop(){
         super.onStop();
 
         // Important to note it's no longer paused.
@@ -170,7 +177,7 @@ public class frmwrkActivity extends Activity {
      *
      */
     @Override
-    protected void onDestroy() {
+    protected void onDestroy(){
         super.onDestroy();
 
         // May be coming straight from onCreate()
@@ -182,12 +189,12 @@ public class frmwrkActivity extends Activity {
         mPath = null;
     }
 
-     /*
-     This allows for custom views to be used in XML files without specifying
-     the class' full package name (i.e. directory path).
-      */
+    /*
+    This allows for custom views to be used in XML files without specifying
+    the class' full package name (i.e. directory path).
+     */
     @Override
-    public View onCreateView(String name, Context context, AttributeSet attrs) {
+    public View onCreateView(String name, Context context, AttributeSet attrs){
 
         View view;
 
@@ -206,15 +213,15 @@ public class frmwrkActivity extends Activity {
             return null;
         }
 
-        try {
+        try{
 
             view = mInflator.createView(name, mPath, attrs);
 
-        } catch (ClassNotFoundException e) {
+        }catch (ClassNotFoundException e){
 
             view = null;
 
-        } catch (InflateException e) {
+        }catch (InflateException e){
 
             view = null;
         }
@@ -230,7 +237,7 @@ public class frmwrkActivity extends Activity {
      *
      */
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
 
     }
@@ -240,7 +247,7 @@ public class frmwrkActivity extends Activity {
      *
      */
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(Bundle savedInstanceState){
         super.onRestoreInstanceState(savedInstanceState);
 
         // Use wasRecreated() here
@@ -252,39 +259,39 @@ public class frmwrkActivity extends Activity {
      * final initialization after application code has run.
      */
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
+    protected void onPostCreate(Bundle savedInstanceState){
         super.onPostCreate(savedInstanceState);
 
     }
 
 
-    protected final Boolean justCreated() {
+    protected final Boolean justCreated(){
 
         return mJustCreated;
     }
 
-    protected final Boolean wasStopped() {
+    protected final Boolean wasStopped(){
 
         return mWasStopped;
     }
 
-    protected final Boolean wasPaused() {
+    protected final Boolean wasPaused(){
 
         return mWasPaused;
     }
 
-    protected final Boolean wasRecreated() {
+    protected final Boolean wasRecreated(){
 
         return mRecreated;
     }
 
-    protected final Boolean wasCalledOutside() {
+    protected final Boolean wasCalledOutside(){
 
         return mWasOutsideCall;
     }
 
     // If the manifest has the debug set.
-    public final boolean DebugFlagSet() {
+    public final boolean DebugFlagSet(){
 
         return 0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE);
     }

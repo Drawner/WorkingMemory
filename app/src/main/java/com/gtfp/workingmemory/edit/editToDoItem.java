@@ -136,9 +136,12 @@ public class editToDoItem extends android.support.v4.app.FragmentActivity
             }
         }
 
-        int id = editToDoItem.class.hashCode();
+//        int id = editToDoItem.class.hashCode();
 
-        mREQUEST_CODE = (id < 0) ? -id : id;
+//        mREQUEST_CODE = (id < 0) ? -id : id;
+
+        // Valid range:  0 to 65535
+        mREQUEST_CODE = 60000;
     }
 
 

@@ -45,7 +45,7 @@
     <string name="summary_wallpaper_list">Check so the items are listed on your phone\'s wallpaper</string>
 
     <string name="left_handed">Switch around dialog buttons</string>
-    <string name="summary_left_handed">Switch around buttons on dialog windows. Possibly preferred by left-handed people.</string>
+    <string name="summary_left_handed">Possibly preferred by left-handed people.</string>
 
 
     <string name="notification_preferences">Notification Preferences</string>
@@ -103,6 +103,9 @@
     <string name="show_deleted">Show Deleted Items</string>
     <string name="summary_show_deleted">Check to display any deleted items with an overstrike.</string>
 
+    <string name="data_online">Data Online</string>
+    <string name="summary_data_online">Data will be online</string>
+
     <string name="sync_data">Sync Data...</string>
     <string name="summary_sync_data">Sync your data with your other devices using your Google Drive.</string>
 
@@ -126,13 +129,29 @@
 
     <string name="time_hint">Date and Time</string>
 
-    <string name="settings">Settings</string>
-
     <string name="clockface">Clock Dial</string>
 
+    <string name="settings">Settings</string>
+    <string name="errors">Errors</string>
+    <string name="throwError">Throw Error</string>
     <string name="sync">Sync Data...</string>
+    <string name="syncDelete">Delete Sync</string>
     <string name="exportData">Export Data...</string>
     <string name="legal">Legal Notices</string>
     <string name="help">Help</string>
     <string name="about">About</string>
+
+    <string name="crash_dialog_text">Error!</string>
+
+    <string name="firebase_status_fmt">Firebase User: %s</string>
+    <string name="google_status_fmt">Google User: %s</string>
+    <string name="facebook_status_fmt">Facebook User: %s</string>
+
+    <string name="desc_firebase_lockup">Firebase logo and name</string>
+    <string name="google_title_text">Google Sign In</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="signed_out">Signed Out</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="loading">Loading…</string>
+
 </resources>

@@ -14,4 +14,9 @@
     <color name="btnbakgrnd">#00A5C5</color>
 
     <color name="RSSOrange">#FF7400</color>
+
+    <color name="colorAccent">#FFA000</color>
+
+    <color name="grey_100">#F5F5F5</color>
+    <color name="grey_300">#E0E0E0</color>
 </resources>

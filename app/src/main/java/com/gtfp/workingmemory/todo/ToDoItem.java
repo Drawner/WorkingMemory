@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 
 // TodoActivity
-public class ToDoItem implements Serializable {
+public class ToDoItem implements Serializable, Cloneable {
 
     public ToDoItem() {
 
@@ -55,7 +55,14 @@ public class ToDoItem implements Serializable {
 
     public void setId(String id) {
 
-        mId = Integer.parseInt(id);
+        try{
+
+            mId = Long.parseLong(id);
+
+        }catch(Exception ex){
+
+            mId = -1;
+        }
     }
 
 
@@ -63,6 +70,22 @@ public class ToDoItem implements Serializable {
 
         return mId;
     }
+
+
+
+    public void setKey(String key){
+
+        mKey = key;
+    }
+
+
+
+    public String getKey(){
+
+        return mKey;
+    }
+
+
 
     public boolean newItem(boolean newItem) {
 
@@ -873,6 +896,24 @@ public class ToDoItem implements Serializable {
 
     }
 
+    // Returns a clean copy of this object.
+    public ToDoItem clone(){
+
+        ToDoItem dataItem;
+
+        try{
+
+            dataItem = (ToDoItem) super.clone();
+
+        }catch(Exception ex){
+
+            dataItem = new ToDoItem();
+        }
+
+        return dataItem;
+    }
+
+
     protected void onDestroy() {
         // TODO Can't nullify a static variable.
         //mDateFormat = null;
@@ -975,6 +1016,8 @@ public class ToDoItem implements Serializable {
     private long mId = -1; // unique ID for the alarm, only one alarm can be set
     // for each item.
 
+    // Used by for firebase as unique ID
+    private String mKey = "";
 
     // Stores the duedate by integers Year, Month, Day, Hour, Minute
     class ToDoDateTime implements Serializable {
@@ -987,7 +1030,7 @@ public class ToDoItem implements Serializable {
 
         ToDoDateTime() {
 
-            mDateTime = new HashMap<String, Integer>();
+            mDateTime = new HashMap<>();
         }
 
         ToDoDateTime(long epoch) {

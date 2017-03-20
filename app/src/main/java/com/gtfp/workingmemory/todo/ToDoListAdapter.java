@@ -29,12 +29,19 @@ public class ToDoListAdapter extends BaseAdapter {
 
     public ToDoListAdapter(List<ToDoItem> listToDos) {
 
-        mToDoItemsList = new ToDoItemsList(listToDos);
+        if(mToDoItemsList  ==  null){
+
+            mToDoItemsList = new ToDoItemsList(listToDos);
+        }else{
+
+            mToDoItemsList.setItems(listToDos);
+        }
 
         mCount = mToDoItemsList.size();
     }
 
-    private void setItems(List<ToDoItem> listToDos) {
+
+    public void setItems(List<ToDoItem> listToDos) {
 
         mToDoItemsList.setItems(listToDos);
 
@@ -47,6 +54,7 @@ public class ToDoListAdapter extends BaseAdapter {
 
         return mToDoItemsList.ToDoList();
     }
+
 
     public boolean add(ToDoItem itemToDo) {
 
@@ -65,6 +73,7 @@ public class ToDoListAdapter extends BaseAdapter {
 
         return added;
     }
+
 
     public boolean save(ToDoItem itemToDo) {
 
@@ -125,10 +134,12 @@ public class ToDoListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+
     public int getListId(ToDoItem itemId){
 
         return mToDoItemsList.getListId(itemId);
     }
+
 
     public void Iterate(ToDoItemsList.ToDoIterator iterateObj){
 
@@ -138,6 +149,7 @@ public class ToDoListAdapter extends BaseAdapter {
 
         ToDoItemsList.setIterator(current);
     }
+
 
     @Override
     // This should be called recycleView()  hehe!

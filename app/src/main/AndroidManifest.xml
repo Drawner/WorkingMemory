@@ -5,7 +5,10 @@
     <!--  Google Drive access -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
+
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
     <uses-permission android:name="android.permission.GET_TASKS" />
 
@@ -17,15 +20,17 @@
     <uses-permission android:name="android.permission.SET_WALLPAPER"/>
 
     <application
+        android:name=".app.App"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-        <meta-data
+        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />
+ <!--       <meta-data
                 android:name="com.google.android.gms.version"
                 android:value="@integer/google_play_services_version" />
-        <meta-data android:name="com.google.android.apps.drive.APP_ID"
+ -->       <meta-data android:name="com.google.android.apps.drive.APP_ID"
                    android:value="id=AIzaSyCsv3O_JTXnNTT6hF0x9--AJbQyl9hLFCU"/>
         <meta-data
                 android:name="com.google.android.geo.API_KEY"
@@ -33,7 +38,7 @@
         <activity
             android:name=".app.appController"
             android:theme="@android:style/Theme.Holo"
-            >
+            android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -44,6 +49,7 @@
                 android:parentActivityName="app.appController"
                 android:windowSoftInputMode="stateVisible"
                 android:theme="@android:style/Theme.Holo.Dialog"
+                android:configChanges="orientation|screenSize|keyboardHidden"
                 >
         </activity>
         <receiver android:name=".todo.ToDoAlarm">
@@ -55,16 +61,22 @@
                 android:name=".edit.AlarmActivity"
                 android:theme="@android:style/Theme.Holo"
                 android:noHistory="true"
+                android:configChanges="orientation|screenSize|keyboardHidden"
                 >
         </activity>
         <activity
                 android:name=".settings.SettingsActivity"
                 android:parentActivityName="app.appController"
+                android:configChanges="orientation|screenSize|keyboardHidden"
                 >
         </activity>
         <activity
                 android:name=".google.googleActivity"
                  >
+        </activity>
+        <activity
+                android:name=".google.GoogleSignInActivity"
+        >
         </activity>
         <service android:name=".google.googleService"/>
 
@@ -74,8 +86,9 @@
         </activity>
         <activity
                 android:name=".colorPicker.colorPickerActivity"
-                android:parentActivityName="settings.SettingsActivity"
+                android:parentActivityName=".settings.SettingsActivity"
                 android:theme="@android:style/Theme.Holo.Dialog"
+                android:configChanges="orientation|screenSize|keyboardHidden"
                 >
         </activity>
 <!--        <activity

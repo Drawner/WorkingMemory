@@ -1,7 +1,7 @@
 package com.gtfp.workingmemory.db;
 
-import com.gtfp.workingmemory.todo.*;
 import com.gtfp.errorhandler.ErrorHandler;
+import com.gtfp.workingmemory.todo.ToDoItem;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,7 +20,9 @@ import java.util.Set;
 /**
  * Created by Drawn on 2015-02-10.
  */
-public class dbHelper extends SQLiteOpenHelper {
+public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
+
+    private static dbInterface mDBHelper;
 
     private SQLiteDatabase mDB;
 
@@ -32,44 +34,50 @@ public class dbHelper extends SQLiteOpenHelper {
 
     private boolean mUseView;
 
+    public Cursor mDataRecs;
+
     private static final String DATABASE_NAME = "working";
 
     private static final String DATABASE_FILE = DATABASE_NAME + ".db";
 
+    // ROWID is automatically added to all SQLite tables by default, and is a unique integer,
     private static final String DBKEY_FIELD = "rowid";
 
     private static final int DATABASE_VERSION = 13;
 
     // Ported to the file, create.sql
     private static final String DATABASE_CREATE = "CREATE TABLE IF NOT EXISTS " + DATABASE_NAME
-            + "(ToDoItem VARCHAR, ToDoDateTime VARCHAR, ToDoDateTimeEpoch Long, ToDoTimeZone VARCHAR, ToDoReminderEpoch Long, ToDoReminderChk integer default 0, ToDoLEDColor integer default 0, ToDoFired integer default 0, deleted integer default 0);";
+            + "(ToDoItem VARCHAR, ToDoKey VARCHAR, ToDoDateTime VARCHAR, ToDoDateTimeEpoch Long, ToDoTimeZone VARCHAR, ToDoReminderEpoch Long, ToDoReminderChk integer default 0, ToDoLEDColor integer default 0, ToDoFired integer default 0, deleted integer default 0);";
 
     // SQL statement used to upgrade the database.
     private final String ALTER_TABLE = "ALTER TABLE " + DATABASE_NAME
             + " ADD COLUMN ToDoFired integer default 0;";
 
     private final String SELECT_ALL = "SELECT " + DBKEY_FIELD + " AS _id, * FROM " + DATABASE_NAME;
-            //  + " ORDER BY ToDoDateTimeEpoch ASC"
+    //  + " ORDER BY ToDoDateTimeEpoch ASC"
 
     private static final String DROP_TABLE = "DROP TABLE IF EXISTS " + DATABASE_NAME;
 
     private static final String CREATE_NOT_DELETED =
-            "CREATE TEMP VIEW IF NOT EXISTS temp.notdeleted AS SELECT " + DBKEY_FIELD + " AS _id, * FROM " + DATABASE_NAME
+            "CREATE TEMP VIEW IF NOT EXISTS temp.notdeleted AS SELECT " + DBKEY_FIELD
+                    + " AS _id, * FROM " + DATABASE_NAME
                     + " WHERE deleted = 0";
 
     private static final String CREATE_DELETED =
-            "CREATE TEMP VIEW IF NOT EXISTS temp.deleted AS SELECT " + DBKEY_FIELD + " AS _id, * FROM " + DATABASE_NAME
+            "CREATE TEMP VIEW IF NOT EXISTS temp.deleted AS SELECT " + DBKEY_FIELD
+                    + " AS _id, * FROM " + DATABASE_NAME
                     + " WHERE deleted = 1";
 
     private static final String DROP_DELETED = "DROP VIEW IF EXISTS temp.deleted";
 
-    private static final String SELECT_NOT_DELETED = "SELECT " + DBKEY_FIELD + " AS _id, * FROM temp.notdeleted";
+    private static final String SELECT_NOT_DELETED = "SELECT " + DBKEY_FIELD
+            + " AS _id, * FROM temp.notdeleted";
 
-    private static final String SELECT_DELETED = "SELECT " + DBKEY_FIELD + " AS _id, * FROM temp.deleted";
+    private static final String SELECT_DELETED = "SELECT " + DBKEY_FIELD
+            + " AS _id, * FROM temp.deleted";
 
 
-
-    public dbHelper(Context controller) {
+    private dbSQLlite(Context controller){
         super(controller, DATABASE_FILE, null, DATABASE_VERSION);
 
         mContext = controller;
@@ -79,15 +87,26 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    public boolean createCurrentRecs() {
+    public static dbInterface getInstance(Context controller){
 
-        try {
+        if (mDBHelper == null){
+
+            mDBHelper = new dbSQLlite(controller);
+        }
+
+        return mDBHelper;
+    }
+
+
+    public boolean createCurrentRecs(){
+
+        try{
 
             mDB.execSQL(CREATE_NOT_DELETED);
 
             mUseView = true;
 
-        } catch (SQLException ex) {
+        }catch (SQLException ex){
 
             return false;
         }
@@ -96,23 +115,23 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    public dbHelper open() {
+    public dbSQLlite open(){
 
-        try {
+        try{
 
             if (!isOpen()){
 
                 mDB = getWritableDatabase();
             }
 
-        } catch (SQLException ex) {
+        }catch (SQLException ex){
 
-            if (mDB != null && mDB.isOpen()) {
+            if (mDB != null && mDB.isOpen()){
 
                 mDB.close();
             }
 
-            if (mDB != null) {
+            if (mDB != null){
 
                 mDB = null;
             }
@@ -122,43 +141,53 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    public boolean isOpen() {
+    public boolean isOpen(){
 
         return mDB != null && mDB.isOpen();
     }
 
 
-    public void close() {
+    public void close(){
         super.close();
+
+        if (mDB != null){
+
+            mDB.close();
+        }
 
         // It's good to lose the reference here with the connection closed.
         mDB = null;
 
+        if (mResultSet != null){
+
+            mResultSet.close();
+        }
         // This resource too. It could be huge!
         mResultSet = null;
     }
 
 
-    public SQLiteDatabase getDatabase() {
+    public SQLiteDatabase getDatabase(){
 
         return mDB;
     }
 
 
-    public void clearResultSet() {
+    public void clearResultSet(){
 
         mResultSet = null;
     }
 
 
-    public Cursor getResultSet() {
 
-        if (mResultSet == null) {
+    public Cursor getResultSet(){
+
+        if (mResultSet == null){
 
             if (mUseView){
 
                 mResultSet = getCurrentRecs();
-            }else {
+            }else{
 
                 mResultSet = getRecs();
             }
@@ -177,15 +206,15 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    public Cursor runQuery(String sqlStmt) {
+    public Cursor runQuery(String sqlStmt){
 
         Cursor records;
 
-        try {
+        try{
 
             records = mDB.rawQuery(sqlStmt, null);
 
-        } catch (RuntimeException ex) {
+        }catch (RuntimeException ex){
 
             // If something goes wrong, return an empty cursor.
             records = new MatrixCursor(new String[]{"empty"});
@@ -195,7 +224,7 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    public Cursor getRecs() {
+    public Cursor getRecs(){
 
         return runQuery(SELECT_ALL);
     }
@@ -211,7 +240,7 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    public long getLastRowID() {
+    public Long getLastRowID(){
 
         Cursor records;
 
@@ -223,13 +252,13 @@ public class dbHelper extends SQLiteOpenHelper {
         long lastRowID = 0;
 
         // You've got to move the cursor's position pointer after the query.
-        if (records.moveToFirst()) {
+        if (records.moveToFirst()){
 
-            try {
+            try{
 
                 lastRowID = records.getLong(0);
 
-            } catch (RuntimeException ex) {
+            }catch (RuntimeException ex){
 
                 lastRowID = 0;
             }
@@ -239,76 +268,78 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    public ArrayList<ToDoItem> ToDoList() {
+
+    public ArrayList<ToDoItem> ToDoList(ArrayList<HashMap<String, String>> todoItems){
 
         ToDoItem todoItem;
 
-        ArrayList<ToDoItem> todoList = new ArrayList<ToDoItem>();
-
-        clearResultSet();
-
-        ArrayList<HashMap<String, String>> todoItems = recArrayList();
+        ArrayList<ToDoItem> todoList = new ArrayList<>();
 
         if (todoItems.size() == 0){
 
-          return todoList;
+            return todoList;
         }
 
         HashMap<String, String> rec = todoItems.get(0);
 
         Set<String> keys = rec.keySet();
 
-        boolean id, item, dtEpoch, rmEpoch, rmChk, LEDColor, hasFired, setAlarm, deleted;
+        boolean id, item, dtEpoch, rmEpoch, rmChk, LEDColor, hasFired, setAlarm, getKey, deleted;
 
-        for (HashMap<String, String> todoRec : todoItems) {
+        for (HashMap<String, String> todoRec : todoItems){
 
             todoItem = new ToDoItem();
 
-            id = item = dtEpoch = rmEpoch = rmChk = LEDColor = hasFired = setAlarm = deleted = true;
+            id = item = dtEpoch = rmEpoch = rmChk = LEDColor = hasFired = setAlarm = getKey = deleted = true;
 
-            for (String key : keys) {
+            for (String key : keys){
 
-                if (id && key.equals("_id")) {
+                if (id && key.equals("_id")){
 
                     todoItem.setId(todoRec.get(key));
 
                     id = false;
-                } else if (item && key.equals("ToDoItem")) {
+                }else if (item && key.equals("ToDoItem")){
 
                     todoItem.setItemName(todoRec.get(key));
 
                     item = false;
-                } else if (dtEpoch && key.equals("ToDoDateTimeEpoch")) {
+                }else if (dtEpoch && key.equals("ToDoDateTimeEpoch")){
 
                     todoItem.setDueDate(Long.valueOf(todoRec.get(key)));
 
                     dtEpoch = false;
-                } else if (rmEpoch && key.equals("ToDoReminderEpoch")) {
+                }else if (rmEpoch && key.equals("ToDoReminderEpoch")){
 
                     todoItem.setReminderEpoch(Long.valueOf(todoRec.get(key)));
 
                     rmEpoch = false;
-                } else if (rmChk && key.equals("ToDoReminderChk")) {
+                }else if (rmChk && key.equals("ToDoReminderChk")){
 
                     todoItem.setReminderChk(Integer.valueOf(todoRec.get(key)));
 
                     rmChk = false;
-                } else if (LEDColor && key.equals("ToDoLEDColor")) {
+                }else if (LEDColor && key.equals("ToDoLEDColor")){
 
                     todoItem.setLEDColor(Integer.valueOf(todoRec.get(key)));
 
                     LEDColor = false;
-                } else if (hasFired && key.equals("ToDoFired")) {
+                }else if (hasFired && key.equals("ToDoFired")){
 
                     todoItem.hasFired(todoRec.get(key).equals("1"));
 
                     hasFired = false;
-                } else if (setAlarm && key.equals("ToDoSetAlarm")) {
+                }else if (setAlarm && key.equals("ToDoSetAlarm")){
 
                     todoItem.setAlarm(todoRec.get(key).equals("1"));
 
                     setAlarm = false;
-                } else if (deleted && key.equals("deleted")) {
+                }else if (getKey && key.equals("ToDoKey")){
+
+                    todoItem.setKey(todoRec.get(key));
+
+                    getKey = false;
+                }else if (deleted && key.equals("deleted")){
 
                     todoItem.isDeleted(todoRec.get(key).equals("1"));
 
@@ -323,40 +354,25 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    public ArrayList<HashMap<String, String>> recArrayList() {
+    // Dummy method
+    public ArrayList<HashMap<String, String>> getDataArrayList(){
 
-        Cursor recs = getResultSet();
-
-        ArrayList<HashMap<String, String>> list = new ArrayList<HashMap<String, String>>();
-
-        while (recs.moveToNext()) {
-
-            HashMap<String, String> row = new HashMap<String, String>();
-
-            //iterate over the columns
-            for (int col = 0; col < recs.getColumnNames().length; col++) {
-
-                row.put(recs.getColumnName(col), recs.getString(col));
-            }
-
-            list.add(row);
-        }
-
-        return list;
+        return  new  ArrayList<HashMap<String, String>>();
     }
 
 
-    public int deleteRec(Long rowID) {
+
+    public int deleteRec(Long rowID){
 
         String id = Long.toString(rowID);
 
         String where = DBKEY_FIELD + "=?";
 
-        try {
+        try{
 
             return mDB.delete(DATABASE_NAME, where, new String[]{id});
 
-        } catch (RuntimeException ex) {
+        }catch (RuntimeException ex){
 
             ErrorHandler.logError(ex);
 
@@ -365,17 +381,18 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    public boolean markRec(Long rowID) {
+    public boolean markRec(Long rowID){
 
         String id = Long.toString(rowID);
 
-        String sql = "UPDATE OR FAIL " + DATABASE_NAME + " SET deleted = 1 WHERE " + DBKEY_FIELD + "=" + id;
+        String sql = "UPDATE OR FAIL " + DATABASE_NAME + " SET deleted = 1 WHERE " + DBKEY_FIELD
+                + "=" + id;
 
-        try {
+        try{
 
             mDB.execSQL(sql);
 
-        } catch (SQLException ex) {
+        }catch (SQLException ex){
 
             ErrorHandler.logError(ex);
 
@@ -386,43 +403,48 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    public boolean save(ToDoItem itemToDo) {
+    public boolean save(ToDoItem itemToDo){
 
         long rowId = itemToDo.getId();
 
-        if (rowId > 0) {
+        itemToDo.newItem(rowId < 1);
+
+        if (!itemToDo.newItem()){
 
             return updateRec(itemToDo) > 0;
 
-        } else {
+        }else{
 
             rowId = insertRec(itemToDo);
 
-            if (rowId < 0) {
+            if (rowId < 0){
                 // Note, there was an error with a negative number.
                 // but will be set to zero in the variable.
                 rowId = 0;
             }
+
+            // This is my savior. It's the assigned ID I hope.
+            itemToDo.setId(rowId);
 
             return rowId > 0;
         }
     }
 
 
-    private int updateRec(ToDoItem itemToDo) {
+    public int updateRec(ToDoItem itemToDo){
 
-       return updateRec(bindRecValues(itemToDo), itemToDo.getId());
+        return updateRec(bindRecValues(itemToDo), itemToDo.getId());
     }
 
-    private int updateRec(ContentValues recValues, long id) {
+    public int updateRec(ContentValues recValues, long id){
         int result;
 
-        try {
+        try{
 
             result = mDB.update(DATABASE_NAME, recValues, DBKEY_FIELD + " = ?",
                     new String[]{String.valueOf(id)});
 
-        } catch (RuntimeException ex) {
+        }catch (RuntimeException ex){
 
             ErrorHandler.logError(ex);
 
@@ -433,21 +455,21 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    private long insertRec(ToDoItem itemToDo) {
+    private long insertRec(ToDoItem itemToDo){
 
         return insertRec(bindRecValues(itemToDo));
     }
 
 
-    private long insertRec(ContentValues recValues) {
+    public long insertRec(ContentValues recValues){
 
         long result;
 
-        try {
+        try{
 
             result = mDB.insert(DATABASE_NAME, null, recValues);
 
-        } catch (RuntimeException ex) {
+        }catch (Exception ex){
 
             result = 0;
         }
@@ -456,7 +478,7 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    public ContentValues bindRecValues(ToDoItem itemToDo) {
+    public ContentValues bindRecValues(ToDoItem itemToDo){
 
         // Assign values for each row.
         mRecValues.put("ToDoItem", itemToDo.getItemName());
@@ -477,6 +499,8 @@ public class dbHelper extends SQLiteOpenHelper {
 
         mRecValues.put("ToDoSetAlarm", itemToDo.setAlarm());
 
+        mRecValues.put("ToDoKey", itemToDo.getKey());
+
         mRecValues.put("deleted", itemToDo.isDeleted());
 
         return mRecValues;
@@ -489,92 +513,234 @@ public class dbHelper extends SQLiteOpenHelper {
 
             mRecValues.put(columnName, value);
 
-        } else if (columnName.equals("ToDoDateTime")){
+        }else if (columnName.equals("ToDoDateTime")){
 
             mRecValues.put(columnName, value);
 
-        } else if (columnName.equals("ToDoDateTimeEpoch")){
+        }else if (columnName.equals("ToDoDateTimeEpoch")){
 
             mRecValues.put(columnName, setBindRecLong(value));
 
-        } else if (columnName.equals("ToDoTimeZone")){
+        }else if (columnName.equals("ToDoTimeZone")){
 
             mRecValues.put(columnName, setBindRecInt(value));
 
-        } else if (columnName.equals("ToDoReminderEpoch")){
+        }else if (columnName.equals("ToDoReminderEpoch")){
 
             mRecValues.put(columnName, setBindRecLong(value));
 
-        } else if (columnName.equals("ToDoReminderChk")){
+        }else if (columnName.equals("ToDoReminderChk")){
 
             mRecValues.put(columnName, setBindRecInt(value));
 
-        } else if (columnName.equals("ToDoLEDColor")){
+        }else if (columnName.equals("ToDoLEDColor")){
 
             mRecValues.put(columnName, setBindRecInt(value));
 
-        } else if (columnName.equals("ToDoFired")){
+        }else if (columnName.equals("ToDoFired")){
 
             mRecValues.put(columnName, setBindRecInt(value) != 0);
 
-        } else if (columnName.equals("ToDoSetAlarm")){
+        }else if (columnName.equals("ToDoSetAlarm")){
 
             mRecValues.put(columnName, setBindRecInt(value) != 0);
 
-        } else if (columnName.equals("deleted")){
+        }else if (columnName.equals("ToDoKey")){
+
+            mRecValues.put(columnName, setBindRecInt(value) != 0);
+
+        }else if (columnName.equals("deleted")){
 
             mRecValues.put(columnName, setBindRecInt(value) != 0);
         }
     }
 
 
-    public int setBindRecInt(String value){
+    public ContentValues recValues(){
 
-       if (value == null || value.isEmpty()) return 0;
+        return mRecValues;
+    }
 
-        try {
+
+    public static  int setBindRecInt(String value){
+
+        if (value == null || value.isEmpty()){
+            return 0;
+        }
+
+        try{
 
             return Integer.parseInt(value);
 
-        }catch(NumberFormatException ex){
+        }catch (NumberFormatException ex){
 
             return 0;
         }
     }
 
 
-    public long setBindRecLong(String value){
+    public static long setBindRecLong(String value){
 
-        if (value == null || value.isEmpty()) return 0L;
+        if (value == null || value.isEmpty()){
+            return 0L;
+        }
 
         try{
 
             return Long.parseLong(value, 10);
 
-        }catch(NumberFormatException ex){
+        }catch (NumberFormatException ex){
 
             return 0L;
         }
     }
 
 
-    public boolean importRec() {
+    public boolean importRec(){
 
         return insertRec(mRecValues) > 0;
     }
 
 
-    public boolean dropTable() {
+    public boolean ifNewRec(){
+
+        String item = mRecValues.getAsString("ToDoItem");
+
+        Long time = mRecValues.getAsLong("ToDoDateTimeEpoch");
+
+        Long reminder = mRecValues.getAsLong("ToDoReminderEpoch");
+
+        Cursor records = getRecs(
+                "TRIM(ToDoItem) = '" + item.trim() + "' AND ToDoDateTimeEpoch = " + time);
+
+        boolean newRec = records.getCount() == 0;
+
+        records.close();
+
+        return newRec;
+    }
+
+
+    public Cursor getRecs(String whereClause){
+
+        String sqlStmt = "SELECT " + DBKEY_FIELD + " AS _id, * FROM " + DATABASE_NAME;
+
+        sqlStmt = sqlStmt + " WHERE " + whereClause;
+
+        Cursor resultSet;
+
+        try{
+
+            resultSet = mDB.rawQuery(sqlStmt, null);
+
+        }catch (SQLException ex){
+
+            // If something goes wrong, return an empty cursor.
+            resultSet = new MatrixCursor(new String[]{"empty"});
+        }
+
+        return resultSet;
+    }
+
+
+
+
+    public Cursor getRecord(int rowId){
+
+        String sqlStmt =   DBKEY_FIELD + " = " + rowId;
+
+        return getRecs(sqlStmt);
+    }
+
+
+
+
+    private boolean createTemp(String whereClause){
+
+        boolean created;
+
+        String sqlStmt = "CREATE TEMPORARY TABLE temp AS " + SELECT_ALL;
+
+        try{
+
+            mDB.execSQL(sqlStmt + " WHERE " + whereClause);
+
+            created = true;
+
+        }catch (SQLException ex){
+
+            created = false;
+        }
+
+        return created;
+    }
+
+
+    public boolean createEmptyTemp(){
+
+        return createTemp(DBKEY_FIELD + " = -1");
+    }
+
+
+    public long insertTempRec(){
+
+        return insertTemptRec(mRecValues);
+    }
+
+
+    public Cursor getNewTempRecs(){
+
+        String sqlStmt = "SELECT *"
+                + " FROM  temp"
+                + " WHERE lower(replace(ToDoItem,\" \",\"\")) || ToDoDateTimeEpoch NOT IN"
+                + " (SELECT lower(replace(ToDoItem,\" \",\"\")) || ToDoDateTimeEpoch FROM "
+                + DATABASE_NAME + ")";
+
+        Cursor records = runQuery(sqlStmt);
+
+        return records;
+    }
+
+
+    private long insertTemptRec(ContentValues recValues){
+
+        long rowid = 0;
+
+        try{
+
+            rowid = mDB.insert("temp", null, recValues);
+
+        }catch (RuntimeException ex){
+
+            rowid = 0;
+        }
+
+        return rowid;
+    }
+
+
+
+
+    public boolean dropTable(){
+
+        return dropTable(mDB);
+    }
+
+
+
+
+    public boolean dropTable(SQLiteDatabase db){
+
 
         boolean dropped;
 
-        try {
+        try{
 
-            mDB.execSQL("DROP TABLE IF EXISTS " + DATABASE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + DATABASE_NAME);
 
             dropped = true;
 
-        } catch (SQLException ex) {
+        }catch (SQLException ex){
 
             dropped = false;
         }
@@ -583,20 +749,30 @@ public class dbHelper extends SQLiteOpenHelper {
     }
 
 
-    @Override
-    public void onConfigure(SQLiteDatabase db) {
-    }
+
 
     @Override
-    public void onOpen(SQLiteDatabase db) {
+    public void onConfigure(SQLiteDatabase db){
+
+        int breakpoint = 0;
     }
 
-    protected void execSqlFile(String sqlFile, SQLiteDatabase db ) throws SQLException, IOException {
+
+
+
+    @Override
+    public void onOpen(SQLiteDatabase db){
+    }
+
+
+
+
+    protected void execSqlFile(String sqlFile, SQLiteDatabase db) throws SQLException, IOException{
 
         int line = 0;
 
-        for( String sqlInstruction : dbSQLParser
-                .parseSqlFile(SQL_DIR + "/" + sqlFile, this.mContext.getAssets())) {
+        for (String sqlInstruction : dbSQLParser
+                .parseSqlFile(SQL_DIR + "/" + sqlFile, this.mContext.getAssets())){
 
             line = line + 1;
 
@@ -609,7 +785,7 @@ public class dbHelper extends SQLiteOpenHelper {
         }
     }
 
-    private static final String SQL_DIR = "sql" ;
+    private static final String SQL_DIR = "sql";
 
     private static final String CREATEFILE = "create.sql";
 
@@ -619,18 +795,14 @@ public class dbHelper extends SQLiteOpenHelper {
 
     // Called when no database exists or if there is a new 'version' indicated.
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onCreate(SQLiteDatabase db){
 
-        try {
+        try{
 
 //            db.execSQL(DATABASE_CREATE);
             execSqlFile(CREATEFILE, db);
 
-        } catch (IOException ex) {
-
-            ErrorHandler.logError(ex);
-
-        } catch (SQLException ex) {
+        }catch (Exception ex){
 
             ErrorHandler.logError(ex);
         }
@@ -638,43 +810,47 @@ public class dbHelper extends SQLiteOpenHelper {
 
 
     @Override
-    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion){
 
         setTheGrade(db, oldVersion, newVersion);
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
 
         setTheGrade(db, oldVersion, newVersion);
     }
 
     private void setTheGrade(SQLiteDatabase db, int oldVersion, int newVersion){
 
-        try {
+        try{
 
-            for( String sqlFile : dbSQLParser.list(SQL_DIR, this.mContext.getAssets())) {
+            for (String sqlFile : dbSQLParser.list(SQL_DIR, this.mContext.getAssets())){
 
-                if ( sqlFile.startsWith(UPGRADEFILE_PREFIX)) {
+                if (sqlFile.startsWith(UPGRADEFILE_PREFIX)){
 
-                    int fileVersion = Integer.parseInt(sqlFile.substring( UPGRADEFILE_PREFIX.length(),  sqlFile.length() - UPGRADEFILE_SUFFIX.length()));
+                    int fileVersion = Integer.parseInt(
+                            sqlFile.substring(UPGRADEFILE_PREFIX.length(),
+                                    sqlFile.length() - UPGRADEFILE_SUFFIX.length()));
 
-                    if ( fileVersion > oldVersion && fileVersion <= newVersion ) {
+                    if (fileVersion > oldVersion && fileVersion <= newVersion){
 
-                        execSqlFile( sqlFile, db );
+                        execSqlFile(sqlFile, db);
                     }
                 }
             }
-        } catch (IOException ex) {
+        }catch (IOException ex){
 
             // TODO Modify ErrorHandler to log the error directly.
-            Log.e(mContext.getClass().getSimpleName(),"Database upgrade failed. Version " + oldVersion + " to " + newVersion);
+            Log.e(mContext.getClass().getSimpleName(),
+                    "Database upgrade failed. Version " + oldVersion + " to " + newVersion);
 
-        } catch (RuntimeException ex) {
+        }catch (RuntimeException ex){
 
             // TODO Modify ErrorHandler to log the error directly.
             // TODO Should notify the application the startup failed.
-            Log.e(mContext.getClass().getSimpleName(),"Database upgrade failed. Version " + oldVersion + " to " + newVersion);
+            Log.e(mContext.getClass().getSimpleName(),
+                    "Database upgrade failed. Version " + oldVersion + " to " + newVersion);
 
             // Be sure to throw the exception back up to be handled there as well.
             throw ex;
@@ -714,7 +890,9 @@ public class dbHelper extends SQLiteOpenHelper {
 //    }
 
 
-    public void onDestroy() {
+    public void onDestroy(){
+
+        mDBHelper = null;
 
         close();
 
@@ -722,9 +900,6 @@ public class dbHelper extends SQLiteOpenHelper {
         mDB = null;
 
         mContext = null;
-
-        // This could be huge!
-        mResultSet = null;
 
         mRecValues = null;
     }

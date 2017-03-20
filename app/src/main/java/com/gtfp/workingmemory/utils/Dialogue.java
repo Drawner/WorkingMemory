@@ -14,24 +14,25 @@ import android.content.Intent;
 /**
  * Created by Drawn on 2015-08-04.
  */
-public class Dialogue {
-
-    private Activity mActivity;
+public class Dialogue{
 
     private final String mMessage;
 
     private final int mId;
 
+    private final ToDoItem mItemToDo;
+
+    private Activity mActivity;
+
     private AlertDialog mDialog;
 
     private Intent mIntent;
 
-    private final ToDoItem mItemToDo;
-
     private ToDoAlarm.Manager mAlarmManager;
 
 
-    public Dialogue(Activity activity) {
+
+    public Dialogue(Activity activity){
 
         mActivity = activity;
 
@@ -39,7 +40,8 @@ public class Dialogue {
 
         mItemToDo = (ToDoItem) mIntent.getSerializableExtra("item");
 
-        mMessage = mItemToDo.itemToDisplay() + "... \r\n" + mItemToDo.getDueDateToDisplay().replaceAll("\\r\\n", " ");
+        mMessage = mItemToDo.itemToDisplay() + "... \r\n" +
+                mItemToDo.getDueDateToDisplay().replaceAll("\\r\\n", " ");
 // Don't need this Now we're putting in a new line.
 //            mMessage = mMessage.replaceAll("\\r\\n", " ");
 
@@ -53,21 +55,23 @@ public class Dialogue {
     }
 
 
-    public void show() {
+
+    public void show(){
 
         mDialog.show();
     }
 
 
-    private AlertDialog buildDialog() {
+
+    private AlertDialog buildDialog(){
 
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder alertBuilt = new AlertDialog.Builder(mActivity);
 
         alertBuilt.setMessage(mMessage)
-                .setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.delete, new DialogInterface.OnClickListener(){
 
-                    public void onClick(DialogInterface dialog, int id) {
+                    public void onClick(DialogInterface dialog, int id){
 
                         Delete();
 
@@ -76,9 +80,9 @@ public class Dialogue {
                         mActivity.finish();
                     }
                 })
-                .setNeutralButton(R.string.edit, new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.edit, new DialogInterface.OnClickListener(){
 
-                    public void onClick(DialogInterface dialog, int id) {
+                    public void onClick(DialogInterface dialog, int id){
 
 //                            dialog.cancel();
 
@@ -87,9 +91,9 @@ public class Dialogue {
                         Edit();
                     }
                 })
-                .setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.close, new DialogInterface.OnClickListener(){
 
-                    public void onClick(DialogInterface dialog, int id) {
+                    public void onClick(DialogInterface dialog, int id){
 
                         // Seems to be called by finish()
 //                            dialog.cancel();
@@ -105,18 +109,20 @@ public class Dialogue {
     }
 
 
-    private void Delete() {
+
+    private void Delete(){
 
         // Called by 'external' applications.
         appView app = new appView(mActivity);
 
-        if ( app.open() ){
+        if (app.open()){
 
             app.delete(mId);
         }
 
         app.close();
     }
+
 
 
     private void Edit(){
@@ -126,10 +132,12 @@ public class Dialogue {
 
         mIntent.setClass(mActivity, appController.class);
 
-        mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY );
+        mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP |
+                Intent.FLAG_ACTIVITY_NO_HISTORY);
 
         mActivity.startActivity(mIntent);
     }
+
 
 
     private void Cancel(){
@@ -141,6 +149,7 @@ public class Dialogue {
 
         //           ToDoAlarm.Manager.repeatAlarm(mActivity, mItemToDo);
     }
+
 
 
     public void onDestroy(){

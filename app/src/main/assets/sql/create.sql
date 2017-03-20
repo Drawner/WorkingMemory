@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS working;
 -- Note: if the database names change, change the code in appModel.ToDoList()
 CREATE TABLE IF NOT EXISTS working(
 ToDoItem VARCHAR
+, ToDoKey VARCHAR
 , ToDoDateTime VARCHAR
 , ToDoDateTimeEpoch Long
 , ToDoTimeZone VARCHAR

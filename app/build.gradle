@@ -1,33 +1,83 @@
 apply plugin: 'com.android.application'
 
 android {
+
     signingConfigs {
-        Release {
+
+        release {
+
             keyAlias 'WorkingMemory'
+
             keyPassword 'gtfpwork'
+
             storeFile file('C:/Users/Drawn/Keystore/workingmemory.jks')
+
             storePassword 'gtfpwork'
         }
     }
+
     compileSdkVersion 23
-    buildToolsVersion '23.0.2'
+
+    buildToolsVersion '25.0.2'
+
     defaultConfig {
+
         versionCode 5
+
         versionName '1.1'
+
         applicationId "com.gtfp.workingmemory"
+
         minSdkVersion 19
+
         targetSdkVersion 23
+
         resConfig "en"
     }
+
+    productFlavors {
+
+        production {
+
+            versionName '1.1'
+        }
+
+        alpha {
+
+            versionCode 5
+            versionName '1.1 - alpha'
+        }
+
+        development{
+
+            versionCode 5
+            versionName '1.1 - development'
+        }
+    }
+
+
     buildTypes {
+
         release {
+
+            signingConfig signingConfigs.release
+
             minifyEnabled true
+
+            shrinkResources true
+
+            debuggable false
+
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
                     'proguard-rules.pro'
-            signingConfig signingConfigs.Release
         }
+
         debug {
+
             minifyEnabled false
+
+            shrinkResources false
+
             debuggable true
         }
     }
@@ -35,25 +85,33 @@ android {
 
 dependencies {
 
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(dir: 'libs', include: '*.jar')
+
+ //   compile 'ch.acra:acra:4.9.0'
 
     //https://github.com/code-troopers/android-betterpickers
     compile 'com.code-troopers.betterpickers:library:2.5.1'
-
     compile 'com.android.support:support-v4:23.2.0'
 
-    compile 'com.google.android.gms:play-services-drive:8.4.0'
+    //Realtime database
+    compile 'com.google.firebase:firebase-database:9.8.0'
+    compile 'com.google.firebase:firebase-crash:9.8.0'
+    compile 'com.google.firebase:firebase-auth:9.8.0'
+    compile 'com.google.firebase:firebase-core:9.8.0'
+
+    compile 'com.google.android.gms:play-services-auth:9.8.0'
+    compile 'com.google.android.gms:play-services-drive:9.8.0'
 
     compile 'joda-time:joda-time:2.3'
-
     compile files('../../../libs/opencsv/opencsv-3.3.jar')
-
     compile 'org.apache.commons:commons-lang3:3.0'
-
     compile 'commons-io:commons-io:2.0.1'
-
     // Depend on another module(project)
-    compile project(':ErrorHandler')
+
+//// **    Then the library will be built in the same mode as the app
+ //   compile project(':ErrorHandler')
+    debugCompile project(path: ':ErrorHandler', configuration: "debug")
+    releaseCompile project(path: ':ErrorHandler', configuration: "release")
 }
 
 android {
@@ -74,3 +132,6 @@ android {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
 }
+
+// Add to the bottom of the file
+apply plugin: 'com.google.gms.google-services'

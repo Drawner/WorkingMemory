@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/settings"
-          android:title="@string/settings" />
-    <item android:id="@+id/sync"
-          android:title="@string/sync" />
+          android:title="@string/settings"/>
+    <group android:id="@+id/error_group">
+        <item android:id="@+id/errors"
+              android:title="@string/errors"/>
+        <item android:id="@+id/throwError"
+              android:title="@string/throwError"/>
+        <item android:id="@+id/sync"
+              android:title="@string/sync"/>
+        <item android:id="@+id/deleteSync"
+              android:title="@string/syncDelete"/>
+    </group>
     <item
-            android:id="@+id/legal"  android:orderInCategory="100" android:title="@string/legal"/>
+            android:id="@+id/legal"
+            android:title="@string/legal"/>
     <item android:id="@+id/help"
-          android:title="@string/help" />
+          android:title="@string/help"/>
     <item android:id="@+id/about"
-          android:title="@string/about" />
+          android:title="@string/about"/>
 </menu>

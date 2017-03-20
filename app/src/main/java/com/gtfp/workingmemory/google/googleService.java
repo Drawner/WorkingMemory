@@ -11,7 +11,10 @@ import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
 
+import com.gtfp.errorhandler.ErrorHandler;
 import com.gtfp.workingmemory.app.App;
+import com.gtfp.workingmemory.app.appView;
+import com.gtfp.workingmemory.todo.ToDoItem;
 
 import android.app.Service;
 import android.content.Intent;
@@ -25,19 +28,22 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 /**
  * Created by Drawn on 2016-03-15.
  */
-public class googleService extends Service  implements GoogleApiClient.ConnectionCallbacks,
+public class googleService extends Service implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, googleAPI.crud, googleAPI.ApiClientTask {
 
-    public static final String TAG = App.getPackageName();
+    public static final String TAG = App.PackageName();
 
     // Request code to use when launching the resolution activity
     public static final int REQUEST_RESOLVE_ERROR = 1111;
 
-    public static final String SYNC_FILENAME  = "filename";
+    public static final String SYNC_FILENAME = "filename";
+
+    public static final String SYNC_ACTION = "action";
 
     private static final String MIME_TYPE_PLAINTEXT = "text/plain";
 
@@ -46,7 +52,7 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
 
     private boolean mLoading = false;
 
-    private boolean isPlaying=false;
+    private boolean isPlaying = false;
 
     // Access the GoogleAPI object
     private googleAPI mGoogleAPI;
@@ -57,6 +63,7 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
 
     private String mGoogleFile;
 
+    private String mAction;
 
 
     @Override
@@ -74,9 +81,22 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
 
         mGoogleFile = App.getLabel() + File.separator + mSyncFile.getName();
 
+        mAction = intent.getStringExtra(SYNC_ACTION);
+
+        if (mAction == null) {
+
+            mAction = "get";
+        } else {
+
+            mAction = mAction.trim().toLowerCase();
+        }
+
+        // Prevent repeated loading.
+        mLoading = false;
+
         startGoogleService();
 
-        return(START_NOT_STICKY);
+        return (START_NOT_STICKY);
     }
 
 
@@ -101,7 +121,7 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
 
             mLoading = true;
 
-            loadFile();
+            driveFile();
         }
     }
 
@@ -123,7 +143,10 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
 
         } else if (result.hasResolution()) {
 
-
+            Intent i = new Intent(this, googleActivity.class);
+            i.putExtra(googleActivity.CONNECTION_RESULT, result);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
         } else {
 
             mResolvingError = true;
@@ -131,10 +154,17 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
     }
 
 
-    void loadFile() {
+    void driveFile() {
 
-        mGoogleAPI.getFile(mGoogleFile, MIME_TYPE_PLAINTEXT, mOnQueryResult);
+        if (mAction.equalsIgnoreCase("delete")) {
+
+            mGoogleAPI.trashFile(mGoogleFile, MIME_TYPE_PLAINTEXT);
+        } else {
+
+            mGoogleAPI.getFile(mGoogleFile, MIME_TYPE_PLAINTEXT, mOnQueryResult);
+        }
     }
+
 
     ResultCallback<DriveApi.MetadataBufferResult> mOnQueryResult
             = new ResultCallback<DriveApi.MetadataBufferResult>() {
@@ -151,47 +181,48 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
 
                 result.release();
 
-                // Subfolder may not exist.
+                // Subfolder may not exist.  stopGoogleService() is called in there.
                 googleService.this.createFile();
+
                 return;
             }
 
             MetadataBuffer mdb = result.getMetadataBuffer();
 
-            if (mdb == null) {
+            if (mdb != null) {
 
-                stopGoogleService();
-                return;
-            }
+                if (mdb.getCount() == 0) {
 
-            if (mdb.getCount() == 0) {
+                    mdb.release();
+                    // File may not exist
+                    googleService.this.createFile();
 
-                mdb.release();
-
-                // File may not be found
-                googleService.this.createFile();
-                return;
-            }
-
-            for (Metadata md : mdb) {
-
-                if (md == null || !md.isDataValid()) {
-
-                    continue;
+                    return;
                 }
 
-                DriveId id = md.getDriveId();
+                for (Metadata md : mdb) {
 
-                mGoogleAPI.fetchDriveFile(id, googleService.this);
+                    if (md == null || !md.isDataValid()) {
 
-                String title = md.getTitle();
+                        continue;
+                    }
 
-                String alternateLink = md.getAlternateLink();
+                    DriveId id = md.getDriveId();
 
-                //md.get.....();
+                    // stopGoogleService() is called in here.
+                    mGoogleAPI.fetchDriveFile(id, googleService.this);
+
+                    String title = md.getTitle();
+
+                    String alternateLink = md.getAlternateLink();
+
+                    //md.get.....();
+                }
             }
 
-            mdb.release();
+            // Can't stop the service at this point. That's ok.
+//             result.release();
+//            stopGoogleService();
         }
     };
 
@@ -251,11 +282,10 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
         } finally {
 
             if (mdb != null) {
-
                 mdb.release();
-
-                stopGoogleService();
             }
+            result.release();
+            stopGoogleService();
         }
     }
 
@@ -280,10 +310,11 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
 
         if (result.getStatus().isSuccess()) {
             //"Created a file with content: " + result.getDriveFile().getDriveId()
-        }else {
+        } else {
 
             //"Error while trying to create the file"
         }
+
         stopGoogleService();
     }
 
@@ -298,6 +329,7 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
 
             //"Error while trying to create the folder"
         }
+
         stopGoogleService();
     }
 
@@ -330,7 +362,7 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
     @Override
     public String onExecute(DriveId... params) {
 
-        if(params[0] == null){
+        if (params[0] == null) {
 
             // Will go to onPostExecute()
             return null;
@@ -368,7 +400,9 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
 
         } catch (IOException ex) {
 
-            Log.e(TAG, "IOException while reading from the stream", ex);
+//            Log.e(TAG, "IOException while reading from the stream", ex);
+
+            ErrorHandler.logError(ex);
         }
 
         driveContents.discard(mGoogleAPI.getGoogleApiClient());
@@ -380,40 +414,122 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
     @Override
     public void onPostExecute(String result) {
 
-        if (result != null) {
+        appView view = App.getView();
 
-            //"File contents: " + result
-        }else{
+        if (result == null){
+
             // "Error while reading from the file"
-            // return;
+            view.syncFile();
+        }else{
+
+            String[] lines;
+
+            ArrayList<String> fieldNames = new ArrayList<String>();
+
+            boolean gotFields = false;
+
+            int fieldCnt = 0;
+
+            int i = 0;
+
+//            lines = result.split(",", -1);
+            lines = result.split(",");
+
+            for (int cnt = 0; cnt <= lines.length - 1; cnt++) {
+
+                if (!gotFields) {
+
+                    fieldNames.add(lines[cnt]);
+
+                    gotFields = lines[cnt].equals("deleted");
+
+                    fieldCnt++;
+
+                    if (gotFields) {
+
+                        try {
+
+                            if (!view.createEmptyTemp()) throw new NullPointerException();
+
+                        } catch (NullPointerException ex) {
+
+                            break;
+                        }
+                    }
+
+                    continue;
+                }
+
+                if (i == fieldCnt) {
+
+                    i = 0;
+
+                    view.insertTempRec();
+                }
+
+                view.importRec(fieldNames.get(i), lines[cnt]);
+
+                i++;
+
+                //"File contents: " + result
+            }
+
+            if (i == fieldCnt) {
+
+                view.insertTempRec();
+            }
+
+            ArrayList<ToDoItem>  todoList = view.ToDoList(view.getNewTempRecs());
+
+            for (ToDoItem todoItem : todoList) {
+
+                view.save(todoItem);
+            }
         }
 
         stopGoogleService();
     }
 
 
+    @Override
+    public void onCancelled(String result) {
 
-    private void startGoogleService(){
-
-        mGoogleAPI = new googleAPI(this);
-
-        mGoogleApiClient = mGoogleAPI.addGoogleDriveAPI()
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .setResultCallback(this)
-                .build();
-
-        if (mGoogleApiClient != null && !mGoogleApiClient.isConnecting() && !mGoogleApiClient.isConnected())
-            mGoogleApiClient.connect();
+        stopGoogleService();
     }
 
 
-    private void stopGoogleService(){
+    private void startGoogleService() {
 
-        if (mGoogleApiClient != null ) {
+        if (mGoogleAPI == null) {
 
-            if(mGoogleApiClient.isConnected())
-                    mGoogleApiClient.disconnect();
+            mGoogleAPI = new googleAPI(this);
+        }
+
+        if (mGoogleApiClient == null) {
+
+            mGoogleApiClient = mGoogleAPI.addGoogleDriveAPI()
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .setResultCallback(this)
+                    .build();
+        }
+
+        if (mGoogleApiClient != null && !mGoogleApiClient.isConnecting() && !mGoogleApiClient
+                .isConnected()) {
+
+            mGoogleApiClient.connect();
+        }
+    }
+
+
+    private void stopGoogleService() {
+
+        if (mGoogleApiClient != null) {
+
+            if (mGoogleApiClient.isConnected()) {
+
+                mGoogleApiClient.disconnect();
+            }
 
             mGoogleApiClient = null;
 
@@ -421,12 +537,10 @@ public class googleService extends Service  implements GoogleApiClient.Connectio
         }
     }
 
-    private void destroyGoogleService(){
+    private void destroyGoogleService() {
 
         mGoogleAPI.onDestroy();
 
         mGoogleAPI = null;
-
-        stopGoogleService();
     }
 }

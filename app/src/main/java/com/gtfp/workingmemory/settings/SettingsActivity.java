@@ -71,6 +71,7 @@ public class SettingsActivity extends frmwrkActivity implements DialogInterface.
         // If the event item preference settings was clicked.
         if (mItemPreference) {
 
+            // TODO Uncomment this if you're going to use this Activity ever again.
             // Open a particular preference
             Preference pref = appSettings.appPreferences.openPreference(key);
 

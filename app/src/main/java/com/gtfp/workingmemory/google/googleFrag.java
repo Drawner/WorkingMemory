@@ -13,11 +13,11 @@ import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
 
 import com.gtfp.workingmemory.app.App;
-import com.gtfp.workingmemory.frmwrk.frmwrkActivity;
 
 import android.Manifest;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -38,7 +38,7 @@ import java.util.ArrayList;
 /**
  * Created by Drawn on 2016-01-22.
  */
-public class googleActivity extends frmwrkActivity implements GoogleApiClient.ConnectionCallbacks,
+public class googleFrag extends Fragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, googleAPI.crud, googleAPI.ApiClientTask{
 
     public static final String TAG = App.PackageName();
@@ -93,7 +93,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null){
@@ -105,7 +105,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
 
 //        if ( hasAllPermissions(getDesiredPermissions())) {
 //
-        mGoogleAPI = new googleAPI(this);
+        mGoogleAPI = new googleAPI(this.getActivity());
 
         mGoogleApiClient = mGoogleAPI.addGoogleDriveAPI()
                 .addConnectionCallbacks(this)
@@ -124,7 +124,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
 //        }
 
         //TODO Should this be retrieved in savedInstanceState??
-        mIntent = getIntent();
+        mIntent = this.getActivity().getIntent();
 
         String syncFile = mIntent.getStringExtra("filename");
 
@@ -148,13 +148,14 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
 
                 try{
 
-                    result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
+                    result.startResolutionForResult(this.getActivity(), REQUEST_RESOLVE_ERROR);
 
                 }catch (IntentSender.SendIntentException e){
 
                     // There was an error with the resolution intent.
                     sendStatusToService(CONN_FAILED);
-                    finish();
+                   //**  finish();
+                   this.getActivity().getFragmentManager().popBackStack();
                 }
             }else{
 
@@ -167,7 +168,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
 
 
     @Override
-    protected void onStart(){
+    public void onStart(){
 
         super.onStart();
 
@@ -179,7 +180,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
 
 
     @Override
-    protected void onStop(){
+    public void onStop(){
 
         mGoogleApiClient.disconnect();
 
@@ -194,7 +195,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
      * activities itself.
      */
     @Override
-    protected void onResume(){
+    public void onResume(){
 
         super.onResume();
 
@@ -212,7 +213,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
      * be disconnected as soon as an activity is invisible.
      */
     @Override
-    protected void onPause(){
+    public void onPause(){
 
         if (mGoogleApiClient != null){
 
@@ -223,7 +224,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
 
 
     @Override
-    protected void onSaveInstanceState(Bundle outState){
+    public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
 
         outState.putBoolean(STATE_RESOLVING_ERROR, mResolvingError);
@@ -257,7 +258,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
                 mResolvingError = true;
 
                 // account picker dialog will appear
-                result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
+                result.startResolutionForResult(this.getActivity(), REQUEST_RESOLVE_ERROR);
 
             }catch (IntentSender.SendIntentException ex){
 
@@ -283,7 +284,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
 
             mResolvingError = false;
 
-            if (resultCode == RESULT_OK){
+            if (resultCode == this.getActivity().RESULT_OK){
 
                 // Make sure the app is not already connected or attempting to connect
                 if (!mGoogleApiClient.isConnecting() && !mGoogleApiClient.isConnected()){
@@ -292,7 +293,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
                 }
             }else{
 
-                finish();
+                //** finish();
             }
         }
     }
@@ -333,7 +334,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
                 result.release();
 
                 // Subfolder may not exist.
-                googleActivity.this.createFile();
+                googleFrag.this.createFile();
 
                 return;
             }
@@ -350,7 +351,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
                 mdb.release();
 
                 // File may not be found
-                googleActivity.this.createFile();
+                googleFrag.this.createFile();
 
                 return;
             }
@@ -364,7 +365,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
 
                 DriveId id = md.getDriveId();
 
-                mGoogleAPI.fetchDriveFile(id, googleActivity.this);
+                mGoogleAPI.fetchDriveFile(id, googleFrag.this);
 
                 String title = md.getTitle();
 
@@ -585,7 +586,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
 
     private boolean hasPermission(String perm){
 
-        return (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED);
+        return (ContextCompat.checkSelfPermission(this.getActivity(), perm) == PackageManager.PERMISSION_GRANTED);
     }
 
 
@@ -663,7 +664,7 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
         @Override
         public void onDismiss(DialogInterface dialog){
 
-            ((googleActivity) getActivity()).onDialogDismissed();
+            ((googleFrag) getParentFragment()).onDialogDismissed();
         }
     }
 
@@ -673,19 +674,19 @@ public class googleActivity extends frmwrkActivity implements GoogleApiClient.Co
      */
     public void showMessage(String message){
 
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(this.getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
 
     private void sendStatusToService(int status){
-        Intent i = new Intent(this, googleService.class);
+        Intent i = new Intent(this.getActivity(), googleService.class);
         i.putExtra(CONN_STATUS_KEY, status);
-        startService(i);
+        this.getActivity().startService(i);
     }
 
 
     @Override
-    protected void onDestroy(){
+    public void onDestroy(){
         super.onDestroy();
 
         mIntent = null;

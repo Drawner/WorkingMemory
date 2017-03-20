@@ -1,14 +1,20 @@
 package com.gtfp.workingmemory.google;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.DriveResource;
+import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filter;
@@ -16,6 +22,8 @@ import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 
+import com.gtfp.errorhandler.ErrorHandler;
+import com.gtfp.workingmemory.R;
 import com.gtfp.workingmemory.app.App;
 
 import android.content.Context;
@@ -32,6 +40,8 @@ import java.util.concurrent.CountDownLatch;
  */
 public class googleAPI {
 
+    private Context mContext;
+
     private static final String MIME_TYPE_FOLDER = "application/vnd.google-apps.folder";
 
     private static final String MIME_TYPE_PLAINTEXT = "text/plain";
@@ -47,8 +57,15 @@ public class googleAPI {
 
     private DriveFolder mAppFolder;
 
+    private boolean buildDrive = false;
+
+    private boolean buildSignIn = false;
+
+
 
     public googleAPI(Context context) {
+
+        mContext = context;
 
         mBuilder = new GoogleApiClient.Builder(context);
     }
@@ -56,10 +73,35 @@ public class googleAPI {
 
     public googleAPI addGoogleDriveAPI() {
 
+        // Already called once
+        if(buildDrive) return this;
+
+        buildDrive = true;
+
         // Access to files and the 'App Folder'
         mBuilder.addApi(Drive.API)
                 .addScope(Drive.SCOPE_FILE)
                 .addScope(Drive.SCOPE_APPFOLDER);
+
+        return this;
+    }
+
+    public googleAPI addGoogleSignInAPI() {
+
+        // Already called once
+        if(buildSignIn) return this;
+
+        buildSignIn = true;
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestProfile()
+                .requestScopes(new Scope(Scopes.PROFILE))
+                .requestIdToken(mContext.getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        // Sign into a Google Account
+        mBuilder.addApi(Auth.GOOGLE_SIGN_IN_API, gso);
 
         return this;
     }
@@ -84,8 +126,10 @@ public class googleAPI {
 
     public GoogleApiClient build() {
 
-        if (mGoogleApiClient == null)
-             mGoogleApiClient = mBuilder.build();
+        if (mGoogleApiClient == null) {
+
+            mGoogleApiClient = mBuilder.build();
+        }
 
         return mGoogleApiClient;
     }
@@ -107,11 +151,11 @@ public class googleAPI {
 
     public GoogleApiClient buildGoogleApiClient() {
 
-        return  mBuilder.build();
+        return mBuilder.build();
     }
 
 
-    public GoogleApiClient.Builder getBuilder(){
+    public GoogleApiClient.Builder getBuilder() {
 
         return mBuilder;
     }
@@ -145,11 +189,12 @@ public class googleAPI {
     }
 
 
-    public void queryDrive(Query query, ResultCallback<DriveApi.MetadataBufferResult> onQueryResult) {
+    public void queryDrive(Query query,
+            ResultCallback<DriveApi.MetadataBufferResult> onQueryResult) {
 
         // Invoke the query asynchronously with a callback method
         Drive.DriveApi.query(mGoogleApiClient, query).setResultCallback(onQueryResult);
-     }
+    }
 
 
     //TODO Must test for valid parameters
@@ -324,6 +369,86 @@ public class googleAPI {
     }
 
 
+    public void trashFile(String title, String type) {
+
+        getFile(title, type, mTrashCallback);
+    }
+
+    ResultCallback<DriveApi.MetadataBufferResult> mTrashCallback
+            = new ResultCallback<DriveApi.MetadataBufferResult>() {
+
+        @Override
+        public void onResult(DriveApi.MetadataBufferResult result) {
+
+            if (result == null) {
+
+                return;
+            }
+
+            if (!result.getStatus().isSuccess()) {
+
+                result.release();
+
+                return;
+            }
+
+            MetadataBuffer mdb = result.getMetadataBuffer();
+
+            if (mdb == null) {
+
+                return;
+            }
+
+            // File may not be there.
+            if (mdb.getCount() > 0) {
+
+                for (Metadata md : mdb) {
+
+                    if (md == null || !md.isDataValid()){
+
+                        continue;
+                    }
+
+                    DriveResource res = md.getDriveId().asDriveResource();
+
+                    if (md.isInAppFolder()) {
+
+                        res.delete(mGoogleApiClient).setResultCallback(mTrashResultCallback);
+
+                    } else if (md.isTrashable() && !md.isTrashed()) {
+
+                        res.trash(mGoogleApiClient).setResultCallback(mTrashResultCallback);
+                    }
+                }
+            }
+
+            mdb.release();
+        }
+    };
+
+    ResultCallback<Status> mTrashResultCallback
+            = new ResultCallback<Status>() {
+        @Override
+        public void onResult(Status result) {
+
+            if (result == null) {
+
+                return;
+            }
+
+//            if (!result.getStatus().isSuccess()) {
+//
+//                return;
+//            }
+
+            if (result.isSuccess()) {
+
+                App.getView().restoreSync();
+            }
+        }
+    };
+
+
     // Recursive
     // Creates the folder if it doesn't exist.
     // Return null if not found.
@@ -343,7 +468,6 @@ public class googleAPI {
             if (id != null) {
                 id = getFolderID(id, path.getName(), googleAPI);
             }
-
         }
 
         return id;
@@ -351,7 +475,8 @@ public class googleAPI {
 
 
     // Returns null if not found.
-    public DriveId getID(DriveId parentId, String title, String type, GoogleApiClient googleAPI) {
+    public DriveId getID(DriveId parentId, String title, String type,
+            GoogleApiClient googleAPI) {
 
         DriveId id = null;
 
@@ -382,20 +507,21 @@ public class googleAPI {
 
         } catch (Exception ex) {
 
-            Log.e(App.getPackageName(), ex.getMessage());
+            Log.e(App.PackageName(), ex.getMessage());
         }
         return id;
     }
 
 
-   public void fetchDriveFile(DriveId id, final ApiClientTask obj) {
+    public void fetchDriveFile(DriveId id, final ApiClientTask obj) {
 
-       // Build a separate google client.
-       GoogleApiClient client = buildGoogleApiClient();
+        // Build a separate google client.
+        GoogleApiClient client = buildGoogleApiClient();
 
-       RetrieveDriveFileContentsAsyncTask callBackAsyncTask = new RetrieveDriveFileContentsAsyncTask(client, obj);
+        RetrieveDriveFileContentsAsyncTask callBackAsyncTask
+                = new RetrieveDriveFileContentsAsyncTask(client, obj);
 
-       callBackAsyncTask.execute(id);
+        callBackAsyncTask.execute(id);
 
 //       Drive.DriveApi.fetchDriveId(mGoogleApiClient, id.toString())
 //               .setResultCallback(new ResultCallback<DriveApi.DriveIdResult>() {
@@ -410,7 +536,7 @@ public class googleAPI {
 //                       callBackAsyncTask.execute(result.getDriveId());
 //                   }
 //               });
-   }
+    }
 
 
     public DriveId createFolderID(DriveId parentId, String title) {
@@ -465,7 +591,7 @@ public class googleAPI {
 
         } catch (Exception ex) {
 
-            Log.e(App.getPackageName(), ex.getMessage());
+            Log.e(App.PackageName(), ex.getMessage());
         }
         return qry;
     }
@@ -548,6 +674,7 @@ public class googleAPI {
 
             // Return the root directory if no access to the 'app folder'.
             if (mAppFolder == null) {
+
                 mAppFolder = Drive.DriveApi.getRootFolder(googleApiClient);
             }
         }
@@ -557,7 +684,14 @@ public class googleAPI {
 
     public void onDestroy() {
 
+        mContext = null;
+
         mBuilder = null;
+
+        if (mGoogleApiClient.isConnected()) {
+
+            mGoogleApiClient.disconnect();
+        }
 
         mGoogleApiClient = null;
 
@@ -569,7 +703,7 @@ public class googleAPI {
     }
 
 
-    public  RetrieveDriveFileContentsAsyncTask getApiClientTask(ApiClientTask obj) {
+    public RetrieveDriveFileContentsAsyncTask getApiClientTask(ApiClientTask obj) {
 
         // Build a separate google client.
         GoogleApiClient client = buildGoogleApiClient();
@@ -578,19 +712,22 @@ public class googleAPI {
     }
 
 
-    interface ApiClientTask{
+    interface ApiClientTask {
 
         String onExecute(DriveId... params);
 
         void onPostExecute(String result);
+
+        void onCancelled(String result);
     }
 
 
-    final private class RetrieveDriveFileContentsAsyncTask  extends ApiClientAsyncTask<DriveId, Boolean, String> {
+    final private class RetrieveDriveFileContentsAsyncTask
+            extends ApiClientAsyncTask<DriveId, Boolean, String> {
 
         ApiClientTask mDoInBackground;
 
-         RetrieveDriveFileContentsAsyncTask(GoogleApiClient  apiClient, ApiClientTask obj) {
+        RetrieveDriveFileContentsAsyncTask(GoogleApiClient apiClient, ApiClientTask obj) {
             super(apiClient);
 
             mDoInBackground = obj;
@@ -599,14 +736,50 @@ public class googleAPI {
         @Override
         protected String doInBackgroundConnected(DriveId... params) {
 
-           return mDoInBackground.onExecute(params);
+            try{
+
+                return mDoInBackground.onExecute(params);
+
+                // Catch any errors
+            }catch (Exception ex){
+
+                // Log the error but continue running.
+                ErrorHandler.logError(ex);
+
+                // Go to onCancelled() instead of onPostExecute()
+                this.cancel(true);
+
+                return null;
+            }
         }
 
         @Override
         protected void onPostExecute(String result) {
-            super.onPostExecute(result);
 
-            mDoInBackground.onPostExecute(result);
+            try{
+
+                mDoInBackground.onPostExecute(result);
+
+            }catch(Exception ex){
+
+                // Log the error but continue running.
+                ErrorHandler.logError(ex);
+            }
+        }
+
+
+        // If cancelled in the onExecute();
+        @Override
+        protected void onCancelled(String result) {
+
+            try{
+
+                mDoInBackground.onCancelled(result);
+
+            }catch(Exception ex){
+
+                ErrorHandler.logError(ex);
+            }
         }
     }
 
@@ -620,7 +793,7 @@ public class googleAPI {
         private GoogleApiClient mClient;
 
 
-        ApiClientAsyncTask(GoogleApiClient  apiClient) {
+        ApiClientAsyncTask(GoogleApiClient apiClient) {
 
             mClient = apiClient;
         }
@@ -631,7 +804,7 @@ public class googleAPI {
 
             final CountDownLatch latch = new CountDownLatch(1);
 
-            boolean notConnected =  !mClient.isConnected();
+            boolean notConnected = !mClient.isConnected();
 
             if (notConnected) {
 
@@ -678,16 +851,18 @@ public class googleAPI {
 
             } finally {
 
-                if (notConnected)
+                if (notConnected) {
                     mClient.disconnect();
+                }
             }
         }
 
         /**
-         * Override this method to perform a computation on a background thread, while the client is
+         * Override this method to perform a computation on a background thread, while the client
+         * is
          * connected.
          */
-        protected abstract  Result doInBackgroundConnected(Params... params);
+        protected abstract Result doInBackgroundConnected(Params... params);
 
         /**
          * Gets the GoogleApliClient owned by this async task.

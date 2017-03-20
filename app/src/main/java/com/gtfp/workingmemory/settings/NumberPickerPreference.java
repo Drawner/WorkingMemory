@@ -59,6 +59,7 @@ public class NumberPickerPreference extends DialogPreference {
                 NumberPickerPreference.PreferenceNumbers, 0, 0);
 
         mMaxExternalKey = numberPickerType.getString(NumberPickerPreference.NumberPickerPreference_maxExternal);
+
         mMinExternalKey = numberPickerType.getString(NumberPickerPreference.NumberPickerPreference_minExternal);
 
         mMax = numberPickerType.getInt(1, 1);
