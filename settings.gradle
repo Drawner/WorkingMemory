@@ -1,8 +1,10 @@
-include ':app'
+include ':app',  ':app:libs'
 
 // tell gradle we want to include a module called 'ErrorHandler'
 include 'ErrorHandler'
 // tell gradle there is a module called 'ErrorHandler', found in a specific directory
-// Note the /app on the end, the project structure wraps a project around a module, you want to refer that module!
+// Note the /app on the end, the project structure wraps a project around a module, you want to refer to that module!
 project (':ErrorHandler').projectDir = new File('C:\\Programs\\Tools\\Projects\\libs\\ErrorHandler\\app')
+
+
 

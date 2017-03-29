@@ -16,8 +16,8 @@ import com.gtfp.workingmemory.BuildConfig;
 import com.gtfp.workingmemory.R;
 import com.gtfp.workingmemory.edit.appCRUD;
 import com.gtfp.workingmemory.edit.rowView;
-import com.gtfp.workingmemory.google.GoogleSignInActivity;
 import com.gtfp.workingmemory.google.LegalNoticesActivity;
+import com.gtfp.workingmemory.google.SignInActivity;
 import com.gtfp.workingmemory.google.googleService;
 import com.gtfp.workingmemory.google.googleSignIn;
 import com.gtfp.workingmemory.settings.appSettings;
@@ -269,6 +269,12 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
             case R.id.settings:
 
                 runFragment(new appSettings.appPreferences(), android.R.id.content);
+
+                return true;
+
+            case R.id.login:
+
+                Auth.addAuthStateListener(this);
 
                 return true;
 
@@ -760,12 +766,12 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
 
-        if (mFirstCall){
-
-            mFirstCall = false;
-
-            return;
-        }
+//        if (mFirstCall){
+//
+//            mFirstCall = false;
+//
+//            return;
+//        }
 
         // No Internet connection
         if (!mController.NoConnectivity().isEmpty()){
@@ -781,13 +787,18 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         if (user == null){
 
             // Sign in.
-            runActivity(GoogleSignInActivity.class);
+//            runActivity(GoogleSignInActivity.class);
+            runActivity(SignInActivity.class);
         }else{
 
-            if (!Auth.userProfile(user, "provider").equals("google.com")){
+            String provider = Auth.userProfile(user, "provider");
+
+            // Google or Facebook
+            if (!provider.equals("google.com") && !provider.equals("facebook.com")){
 
                 // Sign in.
-                runActivity(GoogleSignInActivity.class);
+//                runActivity(GoogleSignInActivity.class);
+                runActivity(SignInActivity.class);
             }
         }
     }

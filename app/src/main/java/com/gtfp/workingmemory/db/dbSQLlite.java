@@ -15,6 +15,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -75,6 +76,14 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
     private static final String SELECT_DELETED = "SELECT " + DBKEY_FIELD
             + " AS _id, * FROM temp.deleted";
+
+    private Set<OnCreateListener> mOnCreateListeners = new HashSet<>();
+
+    private Set<OnOpenListener> mOnOpenListeners = new HashSet<>();
+
+    private Set<OnConfigureListener> mOnConfigureListeners = new HashSet<>();
+
+
 
 
     private dbSQLlite(Context controller){
@@ -444,7 +453,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
             result = mDB.update(DATABASE_NAME, recValues, DBKEY_FIELD + " = ?",
                     new String[]{String.valueOf(id)});
 
-        }catch (RuntimeException ex){
+        }catch (Exception ex){
 
             ErrorHandler.logError(ex);
 
@@ -754,7 +763,13 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     @Override
     public void onConfigure(SQLiteDatabase db){
 
-        int breakpoint = 0;
+        if (mOnConfigureListeners != null){
+
+            for (OnConfigureListener listener : mOnConfigureListeners){
+
+                listener.onConfigure(db);
+            }
+        }
     }
 
 
@@ -762,6 +777,14 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
     @Override
     public void onOpen(SQLiteDatabase db){
+
+        if (mOnOpenListeners != null){
+
+            for (OnOpenListener listener : mOnOpenListeners){
+
+                listener.onOpen(db);
+            }
+        }
     }
 
 
@@ -805,6 +828,14 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
         }catch (Exception ex){
 
             ErrorHandler.logError(ex);
+        }
+
+        if (mOnCreateListeners != null){
+
+            for (OnCreateListener listener : mOnCreateListeners){
+
+                listener.onCreate(db);
+            }
         }
     }
 
@@ -890,6 +921,32 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 //    }
 
 
+
+
+    public void setOnCreateListener(OnCreateListener listener){
+
+        mOnCreateListeners.add(listener);
+    }
+
+
+
+
+    public void setOnOpenListener(OnOpenListener listener){
+
+        mOnOpenListeners.add(listener);
+    }
+
+
+
+
+    public void setOnConfigureListener(OnConfigureListener listener){
+
+        mOnConfigureListeners.add(listener);
+    }
+
+
+
+
     public void onDestroy(){
 
         mDBHelper = null;
@@ -904,4 +961,27 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
         mRecValues = null;
     }
 
+
+
+
+    public interface OnCreateListener{
+
+        void onCreate(SQLiteDatabase db);
+    }
+
+
+
+
+    public interface OnOpenListener{
+
+        void onOpen(SQLiteDatabase db);
+    }
+
+
+
+
+    public interface OnConfigureListener{
+
+        void onConfigure(SQLiteDatabase db);
+    }
 }

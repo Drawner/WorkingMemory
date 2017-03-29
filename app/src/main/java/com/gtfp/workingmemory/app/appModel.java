@@ -12,6 +12,7 @@ import com.gtfp.workingmemory.todo.ToDoItem;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +53,12 @@ public class appModel{
 
         mDBHelper = dbSQLlite.getInstance(mAppView.getContext());
 
+        onDBSetup dbSetup = new onDBSetup();
+
+        // Set a listener when the database is first created.
+        ((dbSQLlite)mDBHelper).setOnCreateListener(dbSetup);
+        ((dbSQLlite)mDBHelper).setOnConfigureListener(dbSetup);
+
         m2ndDB = dbFireBase.getInstance(mAppView);
     }
 
@@ -87,8 +94,6 @@ public class appModel{
         boolean opened = mDBHelper != null && mDBHelper.open().isOpen();
 
         if (opened){
-
-//            m2ndDB.open();
 
             opened = mDBHelper.createCurrentRecs();
 
@@ -143,12 +148,6 @@ public class appModel{
 
     public boolean save(ToDoItem itemToDo){
 
-//        ToDoItem copy = itemToDo.clone();
-
-        long rowId = itemToDo.getId();
-
-        boolean newItem = rowId < 1;
-
         boolean save = mDBHelper.save(itemToDo);
 
         if (save){
@@ -161,18 +160,20 @@ public class appModel{
 
                 sync = m2ndDB.save(itemToDo);
 
-                if (sync && key.isEmpty()){
+                if (sync){
 
-                    mDBHelper.save(itemToDo);
+                    if(key.isEmpty()){
+
+                        mDBHelper.save(itemToDo);
+                    }
+
+                    dbCloud.DataSync.insert(itemToDo.getKey(), "UPDATE");
                 }
             }
 
-            // Test the cloud.
-            dbCloud.DataSync.insert(itemToDo.getId(), itemToDo.getKey());
-
             if (!sync){
 
-                dbCloud.save(rowId, itemToDo.getKey());
+                dbCloud.save(itemToDo.getId(), itemToDo.getKey());
             }
         }
         return save;
@@ -196,7 +197,10 @@ public class appModel{
                 dbCloud.delete(id, itemToDo.getKey());
             }else{
 
-                itemToDo.setKey("");
+               if (dbCloud.DataSync.insert(itemToDo.getKey(), "DELETE")){
+
+                   itemToDo.setKey("");
+               }
             }
         }
 
@@ -280,6 +284,7 @@ public class appModel{
             //iterate over the columns
             for (int col = 0; col < query.getColumnNames().length; col++){
 
+                //TODO You've got to use getType() and return  ArrayList<HashMap<String, Object>>   No?
                 value = query.getString(col);
 
                 if (value == null){
@@ -385,11 +390,18 @@ public class appModel{
 
         if(Auth.isSignedIn()){
 
+            Auth.onStart();
+
             ((dbFireBase)m2ndDB).open(new dbFireBase.OnDataListener(){
 
                 public void onDownload(ArrayList<HashMap<String, String>> dataArrayList){
 
                     dbCloud.sync(mDBHelper, m2ndDB);
+
+                    if(Auth.justLoggedIn() || ((dbSQLlite)mDBHelper).getDatabase().getVersion() == 1){
+
+                        dbCloud.resync();
+                    }
                 }
             });
         }else{
@@ -441,6 +453,31 @@ public class appModel{
 
         mDBHelper = null;
 
+        m2ndDB.onDestroy();
+
+        m2ndDB = null;
+
         Auth.onDestroy();
+    }
+
+
+
+
+    class onDBSetup implements dbSQLlite.OnCreateListener, dbSQLlite.OnConfigureListener{
+
+        public void onCreate(SQLiteDatabase db){
+
+            if(db.getVersion() == 0){
+
+                // Insert all the data from the cloud if any.
+            }
+        }
+
+
+
+        public void onConfigure(SQLiteDatabase db){
+
+//            db.setVersion(0);
+        }
     }
 }

@@ -508,8 +508,6 @@ public class SQLiteHelper{
 
             if (mAssetManager != null){
 
-                mAssetManager.close();
-
                 mAssetManager = null;
             }
         }

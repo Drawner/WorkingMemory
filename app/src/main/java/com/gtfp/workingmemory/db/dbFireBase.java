@@ -24,7 +24,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -260,80 +259,46 @@ public class dbFireBase implements dbInterface{
 
 
 
-    private static ArrayList<HashMap<String, Object>> getRecList(DataSnapshot snapshot){
+    public static FirebaseDatabase getDatabase(){
 
-        ArrayList<HashMap<String, Object>> list = new ArrayList<>();
-
-        if (snapshot == null){
-
-            return list;
-        }
-
-        Tasks task;
-
-        DesiredField annotation;
-
-        Field[] fields = Tasks.class.getDeclaredFields();
-
-        Method[] methods = Tasks.class.getDeclaredMethods();
-
-        for (DataSnapshot shot : snapshot.getChildren()){
-
-            try{
-
-                task = shot.getValue(Tasks.class);
-
-            }catch (Exception ex){
-
-                ErrorHandler.logError(ex);
-
-                continue;
-            }
-
-            HashMap<String, Object> row = new HashMap<>();
-
-            row.put("key", shot.getKey());
-
-            for (int i = 0; i < fields.length; i++){
-
-                annotation = fields[i].getAnnotation(DesiredField.class);
-
-                if (annotation == null){
-
-                    continue;
-                }
-
-                try{
-
-                    switch (methods[i].getReturnType().getName()){
-                        case "long":
-
-                            row.put(fields[i].getName(),
-                                    Long.valueOf(methods[i].invoke(task).toString()));
-
-                            break;
-
-                        case "int":
-
-                            row.put(fields[i].getName(),
-                                    Integer.valueOf(methods[i].invoke(task).toString()));
-
-                            break;
-                        default:
-
-                            row.put(fields[i].getName(), methods[i].invoke(task));
-                    }
-                }catch (Exception ex){
-
-                    ErrorHandler.logError(ex);
-                }
-            }
-
-            list.add(row);
-        }
-
-        return list;
+        return mDatabase;
     }
+
+
+
+    static boolean isOnline(){
+
+        // Is connected to the Internet.
+        return mAppView.getController().NoConnectivity().isEmpty();
+    }
+//    public boolean save(ToDoItem itemToDo){
+//
+//        String key = itemToDo.getKey();
+//
+//        itemToDo.newItem(key.isEmpty());
+//
+//        if (!itemToDo.newItem()){
+//
+//            // There has to be an identifier.
+//            if (itemToDo.getId() < 1){
+//
+//                // Assign a unique id for for the Alarm
+//                itemToDo.setId(Double.doubleToLongBits(Math.random()));
+//            }
+//
+//            return updateRec(itemToDo) > 0;
+//        }else{
+//
+//            // Assign a unique id for for the Alarm
+//            itemToDo.setId(doubleToLongBits(Math.random()));
+//
+//            key = insertRec(itemToDo);
+//
+//            itemToDo.setKey(key);
+//
+//            return !key.isEmpty();
+//        }
+//    }
 
 
 
@@ -372,41 +337,13 @@ public class dbFireBase implements dbInterface{
 
         return open();
     }
-//    public boolean save(ToDoItem itemToDo){
-//
-//        String key = itemToDo.getKey();
-//
-//        itemToDo.newItem(key.isEmpty());
-//
-//        if (!itemToDo.newItem()){
-//
-//            // There has to be an identifier.
-//            if (itemToDo.getId() < 1){
-//
-//                // Assign a unique id for for the Alarm
-//                itemToDo.setId(Double.doubleToLongBits(Math.random()));
-//            }
-//
-//            return updateRec(itemToDo) > 0;
-//        }else{
-//
-//            // Assign a unique id for for the Alarm
-//            itemToDo.setId(doubleToLongBits(Math.random()));
-//
-//            key = insertRec(itemToDo);
-//
-//            itemToDo.setKey(key);
-//
-//            return !key.isEmpty();
-//        }
-//    }
 
 
 
     @Override
     public boolean isOpen(){
 
-        return mUserTasks != null;
+        return isOnline() && mUserTasks != null;
     }
 
 
@@ -674,9 +611,9 @@ public class dbFireBase implements dbInterface{
     }
 
 
+
     @Override
     public boolean markRec(Long id){ return false;}
-
 
 
 
@@ -701,60 +638,68 @@ public class dbFireBase implements dbInterface{
                     return;
                 }
 
-//                HashMap<String, Object> rec = new HashMap<>();
-
-                // This is awesome! No middle man!
-                Object fieldsObj = new Object();
-
-                HashMap fldObj = null;
-
-                for (DataSnapshot item : snapshot.getChildren()){
-
-                    if (item.getKey().equals(key)){
-
-                        try{
-
-                            fldObj = (HashMap) item.getValue(fieldsObj.getClass());
-
-//                            Iterator it = fldObj.entrySet().iterator();
-//
-//                            while (it.hasNext()) {
-//
-//                                Map.Entry pair = (Map.Entry)it.next();
-//
-//                                System.out.println(pair.getKey() + " = " + pair.getValue());
-//
-//                                it.remove(); // avoids a ConcurrentModificationException
-//                            }
-
-                            break;
-
-                        }catch (Exception ex){
-
-                            break;
-                        }
-                    }
-                }
-
-                if (fldObj == null || fldObj.size() == 0){ return; }
-
-                fldObj.put("Deleted", 1);
-
-                Map<String, Object> childUpdates = new HashMap<>();
-
-                childUpdates.put(key, fldObj);
-
                 try{
 
-                    mUserTasks.updateChildren(childUpdates);
+                    DatabaseReference rec = mUserTasks.child(key);
+
+                    // Delete that record
+                    rec.removeValue();
 
                 }catch (Exception ex){
 
                     ErrorHandler.logError(ex);
                 }
+
+//                // This is awesome! No middle man!
+//                Object fieldsObj = new Object();
+//
+//                HashMap fldObj = null;
+//
+//                for (DataSnapshot item : snapshot.getChildren()){
+//
+//                    if (item.getKey().equals(key)){
+//
+//                        try{
+//
+//                            fldObj = (HashMap) item.getValue(fieldsObj.getClass());
+//
+////                            Iterator it = fldObj.entrySet().iterator();
+////
+////                            while (it.hasNext()) {
+////
+////                                Map.Entry pair = (Map.Entry)it.next();
+////
+////                                System.out.println(pair.getKey() + " = " + pair.getValue());
+////
+////                                it.remove(); // avoids a ConcurrentModificationException
+////                            }
+//
+//                            break;
+//
+//                        }catch (Exception ex){
+//
+//                            break;
+//                        }
+//                    }
+//                }
+//
+//                if (fldObj == null || fldObj.size() == 0){ return; }
+//
+//                fldObj.put("Deleted", 1);
+//
+//                Map<String, Object> childUpdates = new HashMap<>();
+//
+//                childUpdates.put(key, fldObj);
+//
+//                try{
+//
+//                    mUserTasks.updateChildren(childUpdates);
+//
+//                }catch (Exception ex){
+//
+//                    ErrorHandler.logError(ex);
+//                }
             }
-
-
 
             @Override
             public void onCancelled(DatabaseError databaseError){}
@@ -764,31 +709,6 @@ public class dbFireBase implements dbInterface{
         return true;
     }
 
-
-
-    private HashMap<String, Object> getValue(DataSnapshot snapshot, String keyFld, long keyValue){
-
-        HashMap<String, Object> value = new HashMap<>();
-
-        ArrayList<HashMap<String, Object>> arrayList = getRecList(snapshot);
-
-        if (arrayList == null || arrayList.size() == 0){
-
-            return value;
-        }
-
-        for (HashMap<String, Object> rec : arrayList){
-
-            if ((Long) rec.get(keyFld) == keyValue){
-
-                value = rec;
-
-                break;
-            }
-        }
-
-        return value;
-    }
 
 
 
@@ -810,7 +730,7 @@ public class dbFireBase implements dbInterface{
                 result = insertRec(itemToDo).isEmpty() ? 0 : 1;
             }else{
 
-                childUpdates.put(key, setTask(itemToDo).toMap());
+                childUpdates.put(key, toMap(itemToDo));
 
                 mIgnoreTrigger = true;
 
@@ -855,13 +775,11 @@ public class dbFireBase implements dbInterface{
 //
 ////            childUpdates.put(Auth.getUid() + "/" + key, task);
 
-            childUpdates.put(key, setTask(itemToDo).toMap());
+            childUpdates.put(key, toMap(itemToDo));
 
             mIgnoreTrigger = true;
 
-            mUserTasks.updateChildren(childUpdates);
-
-/*            mUserTasks.push().setValue(task, new DatabaseReference.CompletionListener(){
+            mUserTasks.updateChildren(childUpdates, new DatabaseReference.CompletionListener(){
 
                 @Override
                 public void onComplete(DatabaseError databaseError,
@@ -869,14 +787,10 @@ public class dbFireBase implements dbInterface{
 
                     if (databaseError != null){
 
-                        System.out.println("Data could not be saved " + databaseError.getMessage());
-
-                    }else{
-
-                        System.out.println("Data saved successfully.");
+                        ErrorHandler.logError("Not saved to Firebase!");
                     }
                 }
-            });*/
+            });
 
         }catch (Exception ex){
 
@@ -992,6 +906,37 @@ public class dbFireBase implements dbInterface{
                 , item.getLEDColor()
                 , item.hasFired() ? 1 : 0
                 , item.isDeleted() ? 1 : 0);
+    }
+
+
+
+    private Map<String, Object> toMap(ToDoItem item){
+
+        HashMap<String, Object> map = new HashMap<>();
+
+        map.put("ToDoID", item.getId());
+
+        map.put("ToDoItem", item.getItemName());
+
+        long epochTime = item.getDueDateInEpoch();
+
+        map.put("ToDoDateTime", ToDoItem.EpochToDateTime(epochTime));
+
+        map.put("ToDoDateTimeEpoch", Long.toString(epochTime));
+
+        map.put("ToDoTimeZone", "0");
+
+        map.put("ToDoReminderEpoch", Long.toString(item.getReminderEpoch()));
+
+        map.put("ToDoReminderChk", Integer.toString(item.getReminderChk()));
+
+        map.put("ToDoLEDColor", Integer.toString(item.getLEDColor()));
+
+        map.put("ToDoFired", item.hasFired() ? "1" : "0");
+
+        map.put("Deleted", item.isDeleted() ? "1" : "0");
+
+        return map;
     }
 
 

@@ -74,7 +74,11 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
 //            connectionPref.setSummary(sharedPreferences.getString(key, ""));
 //        }
 
-        mApp.onSharedPreferenceChanged(sharedPreferences, key);
+        // Some external activities may call this.
+        if(mApp != null){
+
+            mApp.onSharedPreferenceChanged(sharedPreferences, key);
+        }
     }
 
 

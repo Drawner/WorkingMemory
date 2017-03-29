@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import static com.gtfp.workingmemory.db.dbFireBase.recArrayList;
 /**
  * Created by Drawn on 3/4/2017.
  */
@@ -32,8 +30,6 @@ public class dbCloud{
     private static String mDBName;
 
     private static SQLiteHelper mDBHelper;
-
-    private static ContentValues mRecValues;
 
 
 
@@ -48,13 +44,10 @@ public class dbCloud{
         mDBName = "sync";
 
         mDBHelper = new SQLiteHelper(app, mDBName, 1,
-                "(id Long, key VARCHAR, action VARCHAR, timestamp INTEGER);");
+                "(rowid INTEGER PRIMARY KEY AUTOINCREMENT, id Long, key VARCHAR, action VARCHAR, timestamp INTEGER);");
 
         // Recreate the table while developing.
         // recreate();
-
-        // Stores the record's contents.
-        mRecValues = new ContentValues();
 
         DataSync.onCreate(app);
     }
@@ -67,22 +60,24 @@ public class dbCloud{
 
         if (save){
 
-            mRecValues.put("id", recId);
+            ContentValues recValues = new ContentValues();
 
-            mRecValues.put("key", key);
+            recValues.put("id", recId);
 
-            mRecValues.put("action", "UPDATE");
+            recValues.put("key", key);
+
+            recValues.put("action", "UPDATE");
 
             // time is seconds
-            mRecValues.put("timestamp", System.currentTimeMillis() / 1000);
+            recValues.put("timestamp", System.currentTimeMillis() / 1000);
 
             // Record is no longer to be deleted but updated.
             if (getAction(recId).equals("DELETE")){
 
-                save = update(mRecValues, recId);
+                save = update(recValues, recId);
             }else{
 
-                save = insertNew(mRecValues, recId);
+                save = insertNew(recValues, recId);
             }
         }
 
@@ -118,16 +113,18 @@ public class dbCloud{
 
         if (delete){
 
-            mRecValues.put("id", recId);
+            ContentValues recValues = new ContentValues();
 
-            mRecValues.put("key", key);
+            recValues.put("id", recId);
 
-            mRecValues.put("action", "DELETE");
+            recValues.put("key", key);
+
+            recValues.put("action", "DELETE");
 
             // time is seconds
-            mRecValues.put("timestamp", System.currentTimeMillis() / 1000);
+            recValues.put("timestamp", System.currentTimeMillis() / 1000);
 
-            delete = update(mRecValues, recId);
+            delete = update(recValues, recId);
         }
 
         return delete;
@@ -188,6 +185,18 @@ public class dbCloud{
 
         if (open){
 
+//            // While developing, I'm going to have to recreate the table from time to time.
+//            mDBHelper.setOnConfigureListener(new SQLiteHelper.OnConfigureListener(){
+//
+//                public void onConfigure(SQLiteDatabase db){
+//
+//                    if(mDBHelper.drop(db)){
+//
+//                        db.setVersion(0);
+//                    }
+//                }
+//            });
+
             open = mDBHelper.open().isOpen();
         }
 
@@ -202,25 +211,34 @@ public class dbCloud{
 
         Cursor rec = getRecs();
 
-        int idIdx = rec.getColumnIndex("id");
-
-        int keyIdx = rec.getColumnIndex("key");
-
-        int actionIdx = rec.getColumnIndex("action");
-
-        int timeIdx = rec.getColumnIndex("timestamp");
+//        int rowid = rec.getColumnIndex("rowid");
+//
+//        int idIdx = rec.getColumnIndex("id");
+//
+//        int keyIdx = rec.getColumnIndex("key");
+//
+//        int actionIdx = rec.getColumnIndex("action");
+//
+//        int timeIdx = rec.getColumnIndex("timestamp");
 
         while (rec.moveToNext()){
 
             HashMap<String, String> item = new HashMap<>();
 
-            item.put("id", rec.getString(idIdx));
+            for (String colName : rec.getColumnNames()){
 
-            item.put("key", rec.getString(keyIdx));
+                item.put(colName, rec.getString(rec.getColumnIndex(colName)));
 
-            item.put("action", rec.getString(actionIdx));
-
-            item.put("timestamp", rec.getString(timeIdx));
+//                item.put("rowid", rec.getString(rowid));
+//
+//                item.put("id", rec.getString(idIdx));
+//
+//                item.put("key", rec.getString(keyIdx));
+//
+//                item.put("action", rec.getString(actionIdx));
+//
+//                item.put("timestamp", rec.getString(timeIdx));
+            }
 
             list.add(item);
         }
@@ -280,6 +298,20 @@ public class dbCloud{
 
 
 
+    public static boolean resync(){
+
+        ArrayList<HashMap<String, String>> recList = getDataArrayList();
+
+        for (HashMap<String, String> record : recList){
+
+            DataSync.insert(record.get("key"), "UPDATE");
+        }
+
+        return true;
+    }
+
+
+
     public static void onDestroy(){
 
         if (mDBHelper != null){
@@ -292,19 +324,24 @@ public class dbCloud{
         DataSync.onDestroy();
     }
 
+//**********************************************************
 
+    interface afterValueEventListener{
+
+        void afterDataChange(DataSnapshot snapshot);
+    }
 
     public static class DataSync{
 
         static DatabaseReference mDBRef;
+
+        static DatabaseReference mDevRef;
 
         private static String mInstallNum;
 
         private static FirebaseDatabase mDatabase;
 
         private static appModel mAppModel;
-
-        private static boolean mIgnoreTrigger;
 
 
 
@@ -315,7 +352,7 @@ public class dbCloud{
             mAppModel = app.getModel();
 
             mInstallNum = app.getInstallNum();
-       }
+        }
 
 
 
@@ -326,7 +363,7 @@ public class dbCloud{
                 mDatabase.goOnline();
 
                 mDBRef = mDatabase.getReference().child("sync").child(Auth.getUid())
-                        .child("device-" + mInstallNum);
+                        .child(mInstallNum);
             }
 
             return mDBRef;
@@ -334,17 +371,32 @@ public class dbCloud{
 
 
 
+
+        static DatabaseReference getDevRef(){
+
+            if(mDevRef == null){
+
+                mDevRef = mDatabase.getReference().child("devices").child(Auth.getUid());
+            }
+
+            return mDevRef;
+        }
+
+
+
+
         static boolean sync(final dbInterface dbLocal, final dbInterface dbCloud){
 
-            boolean sync = false;
+            if (!isOnline()){return false;}
 
-            ArrayList<HashMap<String, String>> cloudList = dbCloud.getDataArrayList();
+            //  Retrieves the dbFirebase 'cloud' side
+            final ArrayList<HashMap<String, String>> cloudList = dbCloud.getDataArrayList();
 
-            Cursor rec = dbLocal.getRecs();
+            // Retrieves the local database.
+            final Cursor rec = dbLocal.getRecs();
 
-            final ArrayList<HashMap<String, String>> syncDataList = getDataArrayList();
-
-            syncCloud(new ValueEventListener(){
+            // Process the online sync table records if any.
+            getDBRef().child("IN").addValueEventListener(new ValueEventListener(){
 
                 @Override
                 public void onDataChange(DataSnapshot snapshot){
@@ -354,22 +406,142 @@ public class dbCloud{
                         return;
                     }
 
-                    ArrayList<HashMap<String, String>> list = recArrayList(snapshot, true);
+                    DatabaseReference dbINRef;
 
-                    for (HashMap<String, String> item : list){
+                    dbINRef = getDBRef().child("IN");
 
+                    // Only want this to fire once.
+                    dbINRef.removeEventListener(this);
+
+                    boolean synced;
+
+                    String key, action;
+
+                    // Retrieve online sync table records
+                    ArrayList<HashMap<String, String>> syncList = recArrayList(snapshot);
+
+                    // Retrieve the local database
+                    ArrayList<HashMap<String, String>> recList;
+
+                    if (syncList.size() > 0){
+
+                        // Retrieve the local database
+                        recList = mAppModel.recArrayList(rec);
+                    }else{
+
+                        recList = new ArrayList<>();
                     }
 
+                    for (HashMap<String, String> syncRec : syncList){
+
+                        synced = false;
+
+                        key = syncRec.get("key");
+
+                        action =  syncRec.get("action");
+
+                        //  dbFirebase 'cloud' side copy
+                        HashMap<String, String> cloudRec = getCloudItem(key, cloudList);
+
+                        // A local copy
+                        HashMap<String, String> localRec = getRecItem(key, recList);
+
+                        // Add to the local device.
+                        if (localRec.size() == 0){
+
+                            // It's been deleted and not to be added anyway.
+                            if(action.equals("DELETE")){
+
+                                continue;
+                            }
+
+                            synced = addToLocal(cloudRec);
+
+                            // Update the appropriate database with the most recent copy.
+                        }else{
+
+                            if(action.equals("DELETE")){
+
+                                // Delete the local copy
+                                synced = deleteLocal(cloudRec);
+                            }else{
+
+                                // Update the local copy
+                                synced = updateToLocal(cloudRec);
+                            }
+                        }
+
+                        if (synced){
+
+                            DatabaseReference dbRef = dbINRef.child(syncRec.get("keyID"));
+
+                            // Delete that record
+                            dbRef.removeValue();
+                        }
+                    }
+
+                    // Update the dbFirebase database now that there is online access.
                     updateCloud();
                 }
 
 
 
+                private HashMap<String, String> getCloudItem(String key,
+                        ArrayList<HashMap<String, String>> list){
+
+                    HashMap<String, String> cloudItem = new HashMap<>();
+
+                    for (HashMap<String, String> item : list){
+
+                        if (item.get("key").equals(key)){
+
+                            cloudItem = item;
+
+                            list.remove(item);
+
+                            break;
+                        }
+                    }
+
+                    return cloudItem;
+                }
+
+
+
+                private HashMap<String, String> getRecItem(String key,
+                        ArrayList<HashMap<String, String>> list){
+
+                    HashMap<String, String> recItem = new HashMap<>();
+
+                    for (HashMap<String, String> item : list){
+
+                        if (item.get("ToDoKey").equals(key)){
+
+                            recItem = item;
+
+                            break;
+                        }
+                    }
+
+                    return recItem;
+                }
+
+
+
+                /**
+                 *
+                 *  Update the FireBase database now that there is online access.
+                 */
                 void updateCloud(){
+
+                    // Retrieves the local sync table
+                    ArrayList<HashMap<String, String>> syncDataList = getDataArrayList();
 
                     for (HashMap<String, String> item : syncDataList){
 
-                        String rowId = item.get("id");
+                        String rowId = item.get("rowid");
+
+                        String id = item.get("id");
 
                         String key = item.get("key");
 
@@ -379,7 +551,7 @@ public class dbCloud{
 
                         ArrayList<ToDoItem> items = dbLocal.ToDoList(
                                 mAppModel
-                                        .recArrayList(mAppModel.getRecord(Integer.valueOf(rowId))));
+                                        .recArrayList(mAppModel.getRecord(Integer.valueOf(id))));
 
                         for (ToDoItem itemToDo : items){
 
@@ -397,10 +569,93 @@ public class dbCloud{
                             if (dbCloud.save(itemToDo) && dbLocal.save(itemToDo)){
 
                                 mDBHelper.delete(rowId);
+
+                                insert(itemToDo.getKey(), action);
                             }
                         }
                     }
                 }
+
+
+                boolean addToLocal(HashMap<String, String> cloudItem){
+
+                    // It is a new data item.
+                    cloudItem.put("ToDoID", "");
+
+                    return saveToLocal(cloudItem);
+                }
+
+
+
+
+                boolean updateToLocal(HashMap<String, String> cloudItem){
+
+                    return saveToLocal(cloudItem);
+                }
+
+
+
+
+
+
+                boolean saveToLocal(HashMap<String, String> cloudItem){
+
+                    ToDoItem item = toToDoItem(cloudItem);
+
+                    boolean save = item != null;
+
+                    if(save){
+
+                        save = dbLocal.save(item);
+                    }
+
+                    return save;
+                }
+
+
+
+
+                boolean deleteLocal(HashMap<String, String> cloudItem){
+
+                    ToDoItem item = toToDoItem(cloudItem);
+
+                    boolean delete = item != null;
+
+                    if(delete){
+
+                        delete = dbLocal.deleteRec(toToDoItem(cloudItem).getId()) > 0;
+                    }
+
+                    return delete;
+                }
+
+
+
+
+               ToDoItem toToDoItem(HashMap<String, String> cloudItem){
+
+                    ArrayList<HashMap<String, String>> rec = new ArrayList<>();
+
+                    rec.add(cloudItem);
+
+                   ToDoItem item;
+
+                    try{
+
+                        item =  dbLocal.ToDoList(rec).get(0);
+
+                        item.setKey(cloudItem.get("key"));
+
+                    }catch(Exception ex){
+
+                        ErrorHandler.logError(ex);
+
+                        item = null;
+                    }
+
+                    return item;
+                }
+
 
 
 
@@ -416,37 +671,107 @@ public class dbCloud{
 
 
 
-        static void syncCloud(ValueEventListener listener){
 
-            if(!isOnline()){return;}
+        private static void deviceDirectory(){
 
-            getDBRef().addValueEventListener(listener);
+            final DatabaseReference deviceRef = getDevRef().child(mInstallNum);
 
-//            // Query the database
-//            Query queryRef = mDBRef.orderByKey();
+            deviceRef.addValueEventListener(new ValueEventListener(){
+
+                @Override
+                public void onDataChange(DataSnapshot snapshot){
+
+                    if (snapshot == null){ return; }
+
+                    if (snapshot.exists()){ return; }
+
+                    deviceRef.setValue("", new DatabaseReference.CompletionListener(){
+
+                                public void onComplete(DatabaseError error,
+                                        DatabaseReference ref){
+
+                                    if (error == null){
+
+                                    }else{
+
+                                    }
+                                }
+                            });
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError){
+
+                    String error = databaseError.getMessage();
+                }
+            });
+
+
+        }
+
+
+
+        public static boolean insert(final String key, final String action){
+
+            // Record this device up on the cloud if not already.
+            deviceDirectory();
+
+            if (key == null || key.isEmpty()){ return false; }
+
+            if (action == null || action.isEmpty()){ return false; }
+
+            replace(key, new afterValueEventListener(){
+
+                public void afterDataChange(DataSnapshot snapshot){
+
+                    ContentValues recValues = new ContentValues();
+
+                    recValues.put("key", key);
+
+                    recValues.put("action", action.toUpperCase().trim());
+
+                    // time is seconds
+                    recValues.put("timestamp", System.currentTimeMillis() / 1000);
+
+                    insert(recValues);
+                }
+            });
+
+            return true;
         }
 
 
 
         static String insert(ContentValues recValues){
 
+            return insert(getDBRef().child("OUT"), recValues);
+        }
+
+
+
+        static String insert(DatabaseReference DBRef, ContentValues recValues){
+
             String key = "";
 
             try{
 
-                key = getDBRef().push().getKey();
+                key = DBRef.push().getKey();
 
                 Map<String, Object> childUpdates = new HashMap<>();
 
                 childUpdates.put(key, toMap(recValues));
 
-                mIgnoreTrigger = true;
+                DBRef.updateChildren(childUpdates, new DatabaseReference.CompletionListener(){
 
-                getDBRef().updateChildren(childUpdates);
+                    public void onComplete(DatabaseError error, DatabaseReference ref){
 
+                        if (error != null){
+
+                            ErrorHandler.logError("Could not save sync record!");
+                        }
+                    }
+                });
             }catch (Exception ex){
-
-                mIgnoreTrigger = false;
 
                 key = "";
             }
@@ -456,21 +781,41 @@ public class dbCloud{
 
 
 
+        static void replace(String key, final afterValueEventListener listener){
 
-        public static String insert(long recId, String key){
+            getDBRef().child("OUT").orderByChild("key").equalTo(key)
+                    .addListenerForSingleValueEvent(new ValueEventListener(){
 
-            mRecValues.put("id", recId);
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot){
 
-            mRecValues.put("key", key);
+                            DatabaseReference dbOUTRef;
 
-            mRecValues.put("action", "UPDATE");
+                            dbOUTRef = getDBRef().child("OUT");
 
-            // time is seconds
-            mRecValues.put("timestamp", System.currentTimeMillis() / 1000);
+                            // Have this only fire once.
+                            dbOUTRef.removeEventListener(this);
 
-            return  insert(mRecValues);
+                            for (DataSnapshot shot : snapshot.getChildren()){
+
+                                // Delete that record
+                                dbOUTRef.child(shot.getKey()).removeValue();
+                            }
+
+                            if (listener != null){
+
+                                listener.afterDataChange(snapshot);
+                            }
+                        }
+
+
+
+                        @Override
+                        public void onCancelled(DatabaseError error){
+
+                        }
+                    });
         }
-
 
 
 
@@ -478,17 +823,17 @@ public class dbCloud{
 
             HashMap<String, Object> recMap = new HashMap<>();
 
-            Set<String> keys =  recValues.keySet();
+            Set<String> keys = recValues.keySet();
 
             for (String key : keys){
 
-               Object obj = recValues.get(key);
+                Object obj = recValues.get(key);
 
-                if(obj instanceof String){
+                if (obj instanceof String){
 
                     recMap.put(key, recValues.getAsString(key));
 
-                }else if(obj instanceof Long){
+                }else if (obj instanceof Long){
 
                     recMap.put(key, recValues.getAsLong(key));
 
@@ -496,17 +841,54 @@ public class dbCloud{
 
                     recMap.put(key, recValues.getAsInteger(key));
 
-                }else if(obj instanceof Boolean){
+                }else if (obj instanceof Boolean){
 
                     recMap.put(key, recValues.getAsBoolean(key));
 
-                }else if(obj instanceof Float){
+                }else if (obj instanceof Float){
 
                     recMap.put(key, recValues.getAsFloat(key));
                 }
             }
 
             return recMap;
+        }
+
+
+
+        private static ArrayList<HashMap<String, String>> recArrayList(DataSnapshot snapshot){
+
+            ArrayList<HashMap<String, String>> list = new ArrayList<>();
+
+            if (snapshot == null){
+
+                return list;
+            }
+
+            // This is awesome! No middle man!
+            Object fieldsObj = new Object();
+
+            HashMap fldObj;
+
+            for (DataSnapshot shot : snapshot.getChildren()){
+
+                try{
+
+                    fldObj = (HashMap) shot.getValue(fieldsObj.getClass());
+
+                }catch (Exception ex){
+
+                    ErrorHandler.logError(ex);
+
+                    continue;
+                }
+
+                fldObj.put("keyID", shot.getKey());
+
+                list.add(fldObj);
+            }
+
+            return list;
         }
 
 
@@ -518,7 +900,12 @@ public class dbCloud{
         }
 
 
+
         static void onDestroy(){
+
+            mDBRef = null;
+
+            mDevRef = null;
 
             mDatabase = null;
 

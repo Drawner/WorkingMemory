@@ -58,7 +58,7 @@ public class appController extends frmwrkActivity{
 
         mAppView.onCreate(savedInstanceState);
 
-        Auth.onCreate(mAppView);
+        Auth.onCreate();
 
         dbCloud.onCreate(this);
     }
