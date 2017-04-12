@@ -15,7 +15,7 @@
             android:layout_height="40dp"
             android:layout_above="@+id/google_button"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="20dp" />
+            android:layout_marginBottom="20dp"/>
 
     <com.google.android.gms.common.SignInButton
             android:id="@+id/google_button"
@@ -23,6 +23,5 @@
             android:layout_height="40dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="60dp"
-    />
+            android:layout_marginBottom="60dp"/>
 </RelativeLayout>

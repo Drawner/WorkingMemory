@@ -1,5 +1,7 @@
 package com.gtfp.workingmemory.db;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -11,16 +13,22 @@ import com.gtfp.workingmemory.Auth.Auth;
 import com.gtfp.workingmemory.app.appController;
 import com.gtfp.workingmemory.app.appModel;
 import com.gtfp.workingmemory.frmwrk.db.SQLiteHelper;
+import com.gtfp.workingmemory.settings.appSettings;
 import com.gtfp.workingmemory.todo.ToDoItem;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static com.gtfp.workingmemory.db.dbCloud.DataSync.getDevRef;
 /**
  * Created by Drawn on 3/4/2017.
  */
@@ -30,6 +38,11 @@ public class dbCloud{
     private static String mDBName;
 
     private static SQLiteHelper mDBHelper;
+
+    private static appModel mAppModel;
+
+    private static  asyncData mAsyncData;
+
 
 
 
@@ -41,6 +54,8 @@ public class dbCloud{
 
     public static void onCreate(appController app){
 
+        mAppModel = app.getModel();
+
         mDBName = "sync";
 
         mDBHelper = new SQLiteHelper(app, mDBName, 1,
@@ -49,7 +64,23 @@ public class dbCloud{
         // Recreate the table while developing.
         // recreate();
 
+        mAsyncData = new asyncData();
+
         DataSync.onCreate(app);
+    }
+
+
+
+    public static void onStart(){
+
+        onLogin.addAuthStateListener();
+    }
+
+
+
+    public static void onStop(){
+
+        onLogin.removeAuthStateListener();
     }
 
 
@@ -107,6 +138,13 @@ public class dbCloud{
 
 
 
+    public static boolean insert(String key, String action){
+
+        return DataSync.insert(key, action);
+    }
+
+
+
     public static boolean delete(long recId, String key){
 
         boolean delete = open();
@@ -151,7 +189,7 @@ public class dbCloud{
 
 
 
-    public static String getAction(long recId){
+    private static String getAction(long recId){
 
         String stmt = "SELECT action from " + mDBName + " WHERE id = " + recId;
 
@@ -173,6 +211,68 @@ public class dbCloud{
         }
 
         return action;
+    }
+
+
+
+    private static ContentValues getRec(String key){
+
+        ContentValues recValues = new ContentValues();
+
+        if (key == null || key.isEmpty()){
+
+            return recValues;
+        }
+
+        String stmt = "SELECT * from " + mDBName + " WHERE key = \"" + key.trim() + "\"";
+
+        Cursor rec = mDBHelper.runQuery(stmt);
+
+        if (rec.moveToFirst()){
+
+            for (String name : rec.getColumnNames()){
+
+                int index = rec.getColumnIndex(name);
+
+                switch (rec.getType(index)){
+                    // null
+                    case 0:
+
+                        recValues.put(name, "");
+
+                        break;
+                    // int
+                    case 1:
+
+                        recValues.put(name, rec.getInt(index));
+
+                        break;
+                    // float
+                    case 2:
+
+                        recValues.put(name, rec.getFloat(index));
+
+                        break;
+                    // string
+                    case 3:
+
+                        recValues.put(name, rec.getString(index));
+
+                        break;
+                    // blob
+                    case 4:
+
+                        recValues.put(name, rec.getBlob(index));
+
+                        break;
+                    default:
+
+                        recValues.put(name, rec.getString(index));
+                }
+            }
+        }
+
+        return recValues;
     }
 
 
@@ -205,11 +305,9 @@ public class dbCloud{
 
 
 
-    public static ArrayList<HashMap<String, String>> getDataArrayList(){
+    public static ArrayList<HashMap<String, String>> getDataArrayList(Cursor rec){
 
         ArrayList<HashMap<String, String>> list = new ArrayList<>();
-
-        Cursor rec = getRecs();
 
 //        int rowid = rec.getColumnIndex("rowid");
 //
@@ -250,8 +348,6 @@ public class dbCloud{
 
     public static Cursor getRecs(){
 
-        open();
-
         return mDBHelper.runQuery("SELECT * FROM " + mDBName);
     }
 
@@ -274,33 +370,138 @@ public class dbCloud{
 
 
 
-    public static boolean sync(final dbInterface dbLocal, final dbInterface dbCloud){
+    public static boolean sync(dbInterface dbLocal, dbInterface dbCloud){
 
-        // Perform off the main UI thread.
-        new Thread(){
-
-            @Override
-            public void run(){
-
-                try{
-
-                    DataSync.sync(dbLocal, dbCloud);
-
-                }catch (Exception ex){
-
-                    ErrorHandler.logError(ex);
-                }
-            }
-        }.start();
+        DataSync.sync(dbLocal, dbCloud);
 
         return true;
     }
 
 
 
+    private static HashMap<String, String> getCloudItem(String key,
+            ArrayList<HashMap<String, String>> list){
+
+        HashMap<String, String> cloudItem = new HashMap<>();
+
+        for (HashMap<String, String> item : list){
+
+            if (item.get("key").equals(key)){
+
+                cloudItem = item;
+
+                list.remove(item);
+
+                break;
+            }
+        }
+
+        return cloudItem;
+    }
+
+
+
+    private static HashMap<String, String> getRecItem(String key,
+            ArrayList<HashMap<String, String>> list){
+
+        HashMap<String, String> recItem = new HashMap<>();
+
+        for (HashMap<String, String> item : list){
+
+            if (item.get("ToDoKey").equals(key)){
+
+                recItem = item;
+
+                break;
+            }
+        }
+
+        return recItem;
+    }
+
+
+
+    public static void addOnLoginListener(onLoginListener listener){
+
+        onLogin.addOnLoginListener(listener);
+    }
+
+
+
+    public static void removeOnLoginListener(onLoginListener listener){
+
+        onLogin.removeOnLoginListener(listener);
+    }
+
+
+
+    public static void reSave(dbInterface dbLocal){
+
+        dbLocal localDB = new dbLocal(dbLocal);
+
+        ArrayList<HashMap<String, String>> dataList = getDataArrayList(dbLocal.getCurrentRecs());
+
+        // Save all the records again.
+        for (HashMap<String, String> rec : dataList){
+
+            ToDoItem item = localDB.toToDoItem(rec);
+
+            // Clear the key to have it inserted in the new 'cloud' table.
+//            item.setKey("");
+
+            mAppModel.save(item);
+        }
+
+        final String prevUid = Auth.getPrevUid();
+
+        if (prevUid.isEmpty()){return;}
+
+        getDevRef(prevUid).removeValue(new DatabaseReference.CompletionListener(){
+
+            public void onComplete(DatabaseError error, DatabaseReference ref){
+
+                if (error != null){
+
+                    ErrorHandler.logError(error.toException());
+                    return;
+                }
+
+                // The parent is the prevUid listing all the user's devices.
+                DataSync.syncRef(prevUid).getParent()
+                        .removeValue(new DatabaseReference.CompletionListener(){
+
+                            public void onComplete(DatabaseError error, DatabaseReference ref){
+
+                                if (error != null){
+
+                                    ErrorHandler.logError(error.toException());
+                                    return;
+                                }
+
+                                dbFireBase.prevUserIdDBRef()
+                                        .removeValue(new DatabaseReference.CompletionListener(){
+
+                                            public void onComplete(DatabaseError error,
+                                                    DatabaseReference ref){
+
+                                                if (error != null){
+
+                                                    ErrorHandler.logError(error.toException());
+                                                }
+                                            }
+                                        });
+                            }
+                        });
+            }
+        });
+    }
+
+
+
     public static boolean resync(){
 
-        ArrayList<HashMap<String, String>> recList = getDataArrayList();
+        // Local sync table
+        ArrayList<HashMap<String, String>> recList = getDataArrayList(getRecs());
 
         for (HashMap<String, String> record : recList){
 
@@ -314,6 +515,8 @@ public class dbCloud{
 
     public static void onDestroy(){
 
+        mAppModel = null;
+
         if (mDBHelper != null){
 
             mDBHelper.close();
@@ -322,18 +525,147 @@ public class dbCloud{
         }
 
         DataSync.onDestroy();
+
+        onLogin.onDestroy();
     }
 
 //**********************************************************
+
 
     interface afterValueEventListener{
 
         void afterDataChange(DataSnapshot snapshot);
     }
 
-    public static class DataSync{
 
-        static DatabaseReference mDBRef;
+    public interface onLoginListener{
+
+        void onLogin();
+    }
+//**********************************************************
+
+    static class dbLocal{
+
+        dbInterface mLocalDB;
+
+
+
+        dbLocal(dbInterface dbLocal){
+
+            mLocalDB = dbLocal;
+        }
+
+
+
+        boolean add(HashMap<String, String> cloudItem){
+
+            // It is a new data item.
+            cloudItem.put("ToDoID", "");
+
+            return save(cloudItem);
+        }
+
+
+
+        boolean update(HashMap<String, String> cloudItem){
+
+            return save(cloudItem);
+        }
+
+
+
+        boolean save(HashMap<String, String> cloudItem){
+
+            ToDoItem item = toToDoItem(cloudItem);
+
+            boolean save = item != null;
+
+            if (save){
+
+                save = save(item);
+            }
+
+            return save;
+        }
+
+
+
+        public boolean save(ToDoItem itemToDo){
+
+            dbSQLlite sqlDB = ((dbSQLlite) mLocalDB);
+
+            Long recId = sqlDB.getRecID(itemToDo.getKey());
+
+            if (!itemToDo.newItem(recId < 1)){
+
+                itemToDo.setId(recId);
+
+                return mLocalDB.updateRec(itemToDo) > 0;
+            }else{
+
+                Long rowId = sqlDB.insertRec(itemToDo);
+
+                if (rowId < 0){
+                    // Note, there was an error with a negative number.
+                    // but will be set to zero in the variable.
+                    rowId = 0L;
+                }
+
+                // This is my savior. It's the assigned ID I hope.
+                itemToDo.setId(rowId);
+
+                return rowId > 0;
+            }
+        }
+
+
+
+        boolean delete(HashMap<String, String> cloudItem){
+
+            ToDoItem item = toToDoItem(cloudItem);
+
+            boolean delete = item != null;
+
+            if (delete){
+
+                delete = mLocalDB.deleteRec(toToDoItem(cloudItem).getId()) > 0;
+            }
+
+            return delete;
+        }
+
+
+
+        ToDoItem toToDoItem(HashMap<String, String> cloudItem){
+
+            ArrayList<HashMap<String, String>> rec = new ArrayList<>();
+
+            rec.add(cloudItem);
+
+            ToDoItem item;
+
+            try{
+
+                item = mLocalDB.ToDoList(rec).get(0);
+
+                if (cloudItem.containsKey("key")){
+
+                    item.setKey(cloudItem.get("key"));
+                }
+
+            }catch (Exception ex){
+
+                ErrorHandler.logError(ex);
+
+                item = null;
+            }
+
+            return item;
+        }
+    }
+
+
+    public static class DataSync{
 
         static DatabaseReference mDevRef;
 
@@ -356,32 +688,66 @@ public class dbCloud{
 
 
 
-        static DatabaseReference getDBRef(){
+        static DatabaseReference syncRef(String userId){
 
-            if (mDBRef == null && isOnline()){
+            if (!isOnline()){
 
                 mDatabase.goOnline();
+            }
 
-                mDBRef = mDatabase.getReference().child("sync").child(Auth.getUid())
+            String id;
+
+            if (userId == null || userId.isEmpty()){
+
+                id = null;
+            }else{
+
+                id = userId.trim();
+            }
+
+            DatabaseReference ref;
+
+            if (id == null){
+
+                // Important to give a reference that's not  there in case called by deletion routine.
+                ref = mDatabase.getReference().child("sync").child("dummy").child(mInstallNum);
+            }else{
+
+                ref = mDatabase.getReference().child("sync").child(id)
                         .child(mInstallNum);
             }
 
-            return mDBRef;
+            return ref;
         }
 
 
 
+        static DatabaseReference getDevRef(String userId){
 
-        static DatabaseReference getDevRef(){
+            String id;
 
-            if(mDevRef == null){
+            if (userId == null || userId.isEmpty()){
 
-                mDevRef = mDatabase.getReference().child("devices").child(Auth.getUid());
+                id = null;
+            }else{
+
+                id = userId.trim();
             }
 
-            return mDevRef;
-        }
+            DatabaseReference ref;
 
+            if (id == null){
+
+                // Important to provide a reference that is not likely there in case called by deletion routine.
+                ref = mDatabase.getReference().child("devices").child(mInstallNum);
+            }else{
+
+                ref = mDatabase.getReference().child("devices").child(id)
+                        .child(mInstallNum);
+            }
+
+            return ref;
+        }
 
 
 
@@ -389,273 +755,45 @@ public class dbCloud{
 
             if (!isOnline()){return false;}
 
-            //  Retrieves the dbFirebase 'cloud' side
-            final ArrayList<HashMap<String, String>> cloudList = dbCloud.getDataArrayList();
-
-            // Retrieves the local database.
-            final Cursor rec = dbLocal.getRecs();
+            final DatabaseReference syncINRef = syncRef(Auth.getUid()).child("IN");
 
             // Process the online sync table records if any.
-            getDBRef().child("IN").addValueEventListener(new ValueEventListener(){
+            syncINRef.addValueEventListener(new ValueEventListener(){
 
+                @SuppressWarnings("unchecked")
                 @Override
-                public void onDataChange(DataSnapshot snapshot){
+                public void onDataChange(final DataSnapshot snapshot){
 
                     if (snapshot == null){
 
                         return;
                     }
 
-                    DatabaseReference dbINRef;
-
-                    dbINRef = getDBRef().child("IN");
-
                     // Only want this to fire once.
-                    dbINRef.removeEventListener(this);
+                    syncINRef.removeEventListener(this);
 
-                    boolean synced;
+                    HashMap<String, Object> params = new HashMap<>();
 
-                    String key, action;
+                    params.put("snapshot", snapshot);
 
-                    // Retrieve online sync table records
-                    ArrayList<HashMap<String, String>> syncList = recArrayList(snapshot);
+                    params.put("dbLocal", dbLocal);
 
-                    // Retrieve the local database
-                    ArrayList<HashMap<String, String>> recList;
+                    params.put("dbCloud", dbCloud);
 
-                    if (syncList.size() > 0){
+                   mAsyncData.execute(params);
 
-                        // Retrieve the local database
-                        recList = mAppModel.recArrayList(rec);
-                    }else{
-
-                        recList = new ArrayList<>();
-                    }
-
-                    for (HashMap<String, String> syncRec : syncList){
-
-                        synced = false;
-
-                        key = syncRec.get("key");
-
-                        action =  syncRec.get("action");
-
-                        //  dbFirebase 'cloud' side copy
-                        HashMap<String, String> cloudRec = getCloudItem(key, cloudList);
-
-                        // A local copy
-                        HashMap<String, String> localRec = getRecItem(key, recList);
-
-                        // Add to the local device.
-                        if (localRec.size() == 0){
-
-                            // It's been deleted and not to be added anyway.
-                            if(action.equals("DELETE")){
-
-                                continue;
-                            }
-
-                            synced = addToLocal(cloudRec);
-
-                            // Update the appropriate database with the most recent copy.
-                        }else{
-
-                            if(action.equals("DELETE")){
-
-                                // Delete the local copy
-                                synced = deleteLocal(cloudRec);
-                            }else{
-
-                                // Update the local copy
-                                synced = updateToLocal(cloudRec);
-                            }
-                        }
-
-                        if (synced){
-
-                            DatabaseReference dbRef = dbINRef.child(syncRec.get("keyID"));
-
-                            // Delete that record
-                            dbRef.removeValue();
-                        }
-                    }
-
-                    // Update the dbFirebase database now that there is online access.
-                    updateCloud();
+//                    try{
+//
+//                        syncData(snapshot, dbLocal, dbCloud);
+//
+//                        // Update the dbFirebase database now that there is online access.
+//                        updateCloud(dbLocal, dbCloud);
+//
+//                    }catch (Exception ex){
+//
+//                        ErrorHandler.logError(ex);
+//                    }
                 }
-
-
-
-                private HashMap<String, String> getCloudItem(String key,
-                        ArrayList<HashMap<String, String>> list){
-
-                    HashMap<String, String> cloudItem = new HashMap<>();
-
-                    for (HashMap<String, String> item : list){
-
-                        if (item.get("key").equals(key)){
-
-                            cloudItem = item;
-
-                            list.remove(item);
-
-                            break;
-                        }
-                    }
-
-                    return cloudItem;
-                }
-
-
-
-                private HashMap<String, String> getRecItem(String key,
-                        ArrayList<HashMap<String, String>> list){
-
-                    HashMap<String, String> recItem = new HashMap<>();
-
-                    for (HashMap<String, String> item : list){
-
-                        if (item.get("ToDoKey").equals(key)){
-
-                            recItem = item;
-
-                            break;
-                        }
-                    }
-
-                    return recItem;
-                }
-
-
-
-                /**
-                 *
-                 *  Update the FireBase database now that there is online access.
-                 */
-                void updateCloud(){
-
-                    // Retrieves the local sync table
-                    ArrayList<HashMap<String, String>> syncDataList = getDataArrayList();
-
-                    for (HashMap<String, String> item : syncDataList){
-
-                        String rowId = item.get("rowid");
-
-                        String id = item.get("id");
-
-                        String key = item.get("key");
-
-                        String action = item.get("action");
-
-                        long timestamp = Long.parseLong(item.get("timestamp"));
-
-                        ArrayList<ToDoItem> items = dbLocal.ToDoList(
-                                mAppModel
-                                        .recArrayList(mAppModel.getRecord(Integer.valueOf(id))));
-
-                        for (ToDoItem itemToDo : items){
-
-                            // Add it to the cloud
-                            if (key.isEmpty()){
-
-                                // Indicate it's a new item
-                                itemToDo.newItem(true);
-
-                                // Update the cloud or vic versa
-                            }else{
-
-                            }
-
-                            if (dbCloud.save(itemToDo) && dbLocal.save(itemToDo)){
-
-                                mDBHelper.delete(rowId);
-
-                                insert(itemToDo.getKey(), action);
-                            }
-                        }
-                    }
-                }
-
-
-                boolean addToLocal(HashMap<String, String> cloudItem){
-
-                    // It is a new data item.
-                    cloudItem.put("ToDoID", "");
-
-                    return saveToLocal(cloudItem);
-                }
-
-
-
-
-                boolean updateToLocal(HashMap<String, String> cloudItem){
-
-                    return saveToLocal(cloudItem);
-                }
-
-
-
-
-
-
-                boolean saveToLocal(HashMap<String, String> cloudItem){
-
-                    ToDoItem item = toToDoItem(cloudItem);
-
-                    boolean save = item != null;
-
-                    if(save){
-
-                        save = dbLocal.save(item);
-                    }
-
-                    return save;
-                }
-
-
-
-
-                boolean deleteLocal(HashMap<String, String> cloudItem){
-
-                    ToDoItem item = toToDoItem(cloudItem);
-
-                    boolean delete = item != null;
-
-                    if(delete){
-
-                        delete = dbLocal.deleteRec(toToDoItem(cloudItem).getId()) > 0;
-                    }
-
-                    return delete;
-                }
-
-
-
-
-               ToDoItem toToDoItem(HashMap<String, String> cloudItem){
-
-                    ArrayList<HashMap<String, String>> rec = new ArrayList<>();
-
-                    rec.add(cloudItem);
-
-                   ToDoItem item;
-
-                    try{
-
-                        item =  dbLocal.ToDoList(rec).get(0);
-
-                        item.setKey(cloudItem.get("key"));
-
-                    }catch(Exception ex){
-
-                        ErrorHandler.logError(ex);
-
-                        item = null;
-                    }
-
-                    return item;
-                }
-
 
 
 
@@ -671,10 +809,175 @@ public class dbCloud{
 
 
 
+        private static void syncData(DataSnapshot snapshot, dbInterface dbLocal,
+                dbInterface dbCloud){
+
+            DatabaseReference dbINRef = syncRef(Auth.getUid()).child("IN");
+
+            boolean synced;
+
+            String key, action;
+
+            int timestamp;
+
+            // Retrieve online sync table records
+            ArrayList<HashMap<String, String>> syncList = recArrayList(snapshot);
+
+            // Retrieve the local database
+            ArrayList<HashMap<String, String>> recList;
+
+            //  Retrieves the dbFirebase 'cloud' side
+            final ArrayList<HashMap<String, String>> cloudList;
+
+            if (syncList.size() > 0){
+
+                // Retrieves the local database.
+                final Cursor rec = dbLocal.getRecs();
+
+                recList = mAppModel.recArrayList(rec);
+
+                cloudList = dbCloud.getDataArrayList();
+            }else{
+
+                recList = new ArrayList<>();
+
+                cloudList = new ArrayList<>();
+            }
+
+            // Online sync records
+            for (HashMap<String, String> syncRec : syncList){
+
+                synced = false;
+
+                key = syncRec.get("key");
+
+                action = syncRec.get("action");
+
+                timestamp = Integer.parseInt(syncRec.get("timestamp"));
+
+                // Retrieve the local sync record if any.
+                ContentValues localSync = getRec(key);
+
+                if (localSync.size() > 0){
+
+                    // If the local is more up to date
+                    if (timestamp < (Integer) localSync.get("timestamp")){
+
+                        synced = true;
+
+                    // The remote change is more recent.
+                    }else{
+
+                        // Delete the local sync entry. It's old.
+                        mDBHelper.delete((Integer)localSync.get("rowid"));
+                    }
+                }
+
+                if (!synced){
+
+                    //  dbFirebase 'cloud' side copy
+                    HashMap<String, String> cloudRec = getCloudItem(key, cloudList);
+
+                    // A local copy
+                    HashMap<String, String> localRec = getRecItem(key, recList);
+
+                    dbLocal local = new dbLocal(dbLocal);
+
+                    // Add to the local device.
+                    if (localRec.size() == 0){
+
+                        if (action.equals("DELETE")){
+
+                            // It's been deleted and not to be added anyway.
+                            synced = true;
+                        }else{
+
+                            synced = local.add(cloudRec);
+                        }
+
+                        // Update the appropriate database with the most recent copy.
+                    }else{
+
+                        if (action.equals("DELETE")){
+
+                            if (cloudRec.size() == 0){
+
+                                // It has been deleted already
+                                synced = true;
+                            }else{
+
+                                // Delete the local copy
+                                synced = local.delete(cloudRec);
+                            }
+                        }else{
+
+                            // Update the local copy
+                            synced = local.update(cloudRec);
+                        }
+                    }
+                }
+
+                if (synced){
+
+                    DatabaseReference dbRef = dbINRef.child(syncRec.get("keyID"));
+
+                    // Delete that record
+                    dbRef.removeValue();
+                }
+            }
+        }
+
+
+
+        /**
+         * Update the FireBase database now that there is online access.
+         */
+        private static void updateCloud(dbInterface dbLocal, dbInterface dbCloud){
+
+            // Retrieves the local sync table
+            ArrayList<HashMap<String, String>> syncDataList = getDataArrayList(getRecs());
+
+            for (HashMap<String, String> item : syncDataList){
+
+                String rowId = item.get("rowid");
+
+                String id = item.get("id");
+
+                String key = item.get("key");
+
+                String action = item.get("action");
+
+                ArrayList<ToDoItem> items = dbLocal.ToDoList(
+                        mAppModel
+                                .recArrayList(mAppModel.getRecord(Integer.valueOf(id))));
+
+                for (ToDoItem itemToDo : items){
+
+                    // Determine if it's a new item
+                    itemToDo.newItem(key.isEmpty());
+
+                    if (dbCloud.save(itemToDo)){
+
+                        // Save the key just assigned.
+                        if(key.isEmpty()){
+
+                            dbLocal.save(itemToDo);
+                        }
+
+                        mDBHelper.delete(rowId);
+
+                        // Note the change now to any other devices.
+                        insert(itemToDo.getKey(), action);
+                    }
+                }
+            }
+        }
+
+
 
         private static void deviceDirectory(){
 
-            final DatabaseReference deviceRef = getDevRef().child(mInstallNum);
+            final DatabaseReference deviceRef = getDevRef(Auth.getUid());
 
             deviceRef.addValueEventListener(new ValueEventListener(){
 
@@ -687,17 +990,19 @@ public class dbCloud{
 
                     deviceRef.setValue("", new DatabaseReference.CompletionListener(){
 
-                                public void onComplete(DatabaseError error,
-                                        DatabaseReference ref){
+                        public void onComplete(DatabaseError error,
+                                DatabaseReference ref){
 
-                                    if (error == null){
+                            if (error == null){
 
-                                    }else{
+                            }else{
 
-                                    }
-                                }
-                            });
+                            }
+                        }
+                    });
                 }
+
+
 
                 @Override
                 public void onCancelled(DatabaseError databaseError){
@@ -705,8 +1010,6 @@ public class dbCloud{
                     String error = databaseError.getMessage();
                 }
             });
-
-
         }
 
 
@@ -744,7 +1047,7 @@ public class dbCloud{
 
         static String insert(ContentValues recValues){
 
-            return insert(getDBRef().child("OUT"), recValues);
+            return insert(syncRef(Auth.getUid()).child("OUT"), recValues);
         }
 
 
@@ -783,7 +1086,9 @@ public class dbCloud{
 
         static void replace(String key, final afterValueEventListener listener){
 
-            getDBRef().child("OUT").orderByChild("key").equalTo(key)
+            final DatabaseReference syncRef = syncRef(Auth.getUid());
+
+            syncRef.child("OUT").orderByChild("key").equalTo(key)
                     .addListenerForSingleValueEvent(new ValueEventListener(){
 
                         @Override
@@ -791,7 +1096,7 @@ public class dbCloud{
 
                             DatabaseReference dbOUTRef;
 
-                            dbOUTRef = getDBRef().child("OUT");
+                            dbOUTRef = syncRef.child("OUT");
 
                             // Have this only fire once.
                             dbOUTRef.removeEventListener(this);
@@ -807,7 +1112,6 @@ public class dbCloud{
                                 listener.afterDataChange(snapshot);
                             }
                         }
-
 
 
                         @Override
@@ -856,7 +1160,7 @@ public class dbCloud{
 
 
 
-        private static ArrayList<HashMap<String, String>> recArrayList(DataSnapshot snapshot){
+        static ArrayList<HashMap<String, String>> recArrayList(DataSnapshot snapshot){
 
             ArrayList<HashMap<String, String>> list = new ArrayList<>();
 
@@ -875,6 +1179,31 @@ public class dbCloud{
                 try{
 
                     fldObj = (HashMap) shot.getValue(fieldsObj.getClass());
+
+                    for (Object key : fldObj.keySet()){
+
+                        switch (fldObj.get(key).getClass().getName()){
+
+                            case "java.lang.Boolean":
+
+                                fldObj.put(key, (Boolean) fldObj.get(key) ? "true" : "false");
+
+                                break;
+                            case "java.lang.Long":
+
+                                fldObj.put(key, Long.toString((Long) fldObj.get(key)));
+
+                                break;
+                            case "java.lang.Double":
+
+                                fldObj.put(key, Double.toString((Double) fldObj.get(key)));
+
+                                break;
+                            case "java.lang.Integer":
+
+                                fldObj.put(key, Integer.toString((Integer) fldObj.get(key)));
+                        }
+                    }
 
                 }catch (Exception ex){
 
@@ -903,15 +1232,165 @@ public class dbCloud{
 
         static void onDestroy(){
 
-            mDBRef = null;
-
             mDevRef = null;
 
             mDatabase = null;
 
             mAppModel = null;
+        }
+    }
 
-            mDBRef = null;
+
+    private static class onLogin implements FirebaseAuth.AuthStateListener{
+
+        private static onLogin mInstance;
+
+        private static Set<onLoginListener> mLoginListeners = new HashSet<>();
+
+        String mPrevProvider;
+
+
+
+        private static void addAuthStateListener(){
+
+            if (appSettings.get("LoggedIn", false)){return;}
+
+            if (mInstance == null){
+
+                mInstance = new onLogin();
+            }
+
+            Auth.addAuthStateListener(mInstance);
+        }
+
+
+
+        private static void removeAuthStateListener(){
+
+            if (mInstance != null){
+
+                Auth.removeAuthStateListener(mInstance);
+            }
+        }
+
+
+
+        private static boolean addOnLoginListener(onLoginListener listener){
+
+            return mLoginListeners.add(listener);
+        }
+
+
+
+        private static boolean removeOnLoginListener(onLoginListener listener){
+
+            return mLoginListeners.remove(listener);
+        }
+
+
+
+        public static void onDestroy(){
+
+            if (mLoginListeners != null){
+
+                mLoginListeners.clear();
+
+//                mLoginListeners = null;
+            }
+        }
+
+
+
+        @Override
+        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
+
+            if (appSettings.get("LoggedIn", false)){return;}
+
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+
+            if (user == null){ return;}
+
+            String provider = Auth.userProfile(user, "provider");
+
+            boolean onLogin;
+
+            if (mPrevProvider == null){
+
+                mPrevProvider = provider;
+
+                onLogin = false;
+            }else{
+
+                onLogin = !mPrevProvider.equals(provider);
+            }
+
+            if (onLogin && Auth.isLoggedIn()){
+
+                if (mLoginListeners != null){
+
+                    for (onLoginListener listener : mLoginListeners){
+
+                        listener.onLogin();
+                    }
+                }
+
+                appSettings.set("LoggedIn", true);
+            }
+        }
+    }
+
+
+
+
+    private static class asyncData extends AsyncTask<HashMap<String, Object>, Void, Boolean>{
+
+        @Override
+        protected Boolean doInBackground(HashMap<String, Object>... params){
+
+            Boolean sync;
+
+            try{
+
+                DataSnapshot snapshot = (DataSnapshot)params[0].get("snapshot");
+
+                dbInterface dbLocal = (dbInterface)params[0].get("dbLocal");
+
+                dbInterface dbCloud = (dbInterface)params[0].get("dbCloud");
+
+                sync = snapshot != null && snapshot.hasChildren();
+
+                if(sync){
+
+                    DataSync.syncData(snapshot, dbLocal, dbCloud);
+                }
+
+                sync = getRecs().getCount() > 0;
+
+                if(sync){
+
+                    // Update the dbFirebase database now that there is online access.
+                    DataSync.updateCloud(dbLocal, dbCloud);
+                }
+
+            }catch (Exception ex){
+
+                sync = false;
+
+                ErrorHandler.logError(ex);
+            }
+
+            return sync;
+        }
+
+
+
+        @Override
+        protected void onPostExecute(Boolean synced){
+
+            if(synced){
+
+                mAppModel.getView().refreshList();
+            }
         }
     }
 }

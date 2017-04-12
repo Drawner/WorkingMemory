@@ -152,10 +152,21 @@ public class SQLiteHelper{
 
 
 
+
     public int delete(Long rowID){
 
         return mSQLHelper.delete(rowID);
     }
+
+
+
+
+    public int delete(Integer rowID){
+
+        return mSQLHelper.delete(rowID);
+    }
+
+
 
 
     public int delete(String rowID){
@@ -175,6 +186,8 @@ public class SQLiteHelper{
 
 
     public Cursor runQuery(String sqlStmt){
+
+        open();
 
         return mSQLHelper.runQuery(sqlStmt);
     }
@@ -339,6 +352,14 @@ public class SQLiteHelper{
         public int delete(Long rowID){
 
             return  delete(Long.toString(rowID));
+        }
+
+
+
+
+        public int delete(Integer rowID){
+
+            return  delete(Integer.toString(rowID));
         }
 
 
@@ -531,7 +552,7 @@ public class SQLiteHelper{
 
                 records = mDB.rawQuery(sqlStmt, null);
 
-            }catch (RuntimeException ex){
+            }catch (Exception ex){
 
                 // If something goes wrong, return an empty cursor.
                 records = new MatrixCursor(new String[]{"empty"});

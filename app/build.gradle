@@ -13,6 +13,8 @@ android {
             storeFile file('C:/Users/Drawn/Keystore/workingmemory.jks')
 
             storePassword 'gtfpwork'
+
+            v2SigningEnabled false
         }
     }
 
@@ -22,9 +24,9 @@ android {
 
     defaultConfig {
 
-        versionCode 5
+        versionCode 7
 
-        versionName '1.1'
+        versionName '2.2'
 
         applicationId "com.gtfp.workingmemory"
 
@@ -39,19 +41,19 @@ android {
 
         production {
 
-            versionName '1.1'
+            versionName '2.2'
         }
 
         alpha {
 
-            versionCode 5
-            versionName '1.1 - alpha'
+            versionCode 6
+            versionName '2.2 - alpha'
         }
 
         development{
 
-            versionCode 5
-            versionName '1.1 - development'
+            versionCode 6
+            versionName '2.2 - development'
         }
     }
 
@@ -81,7 +83,37 @@ android {
             debuggable true
         }
     }
+
+    packagingOptions {
+
+        exclude '.readme'
+        exclude 'LICENSE.txt'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LGPL2.1'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/README.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
 }
+
+
+
+//sourceSets {
+//    main {
+//        java {
+//            exclude 'com/gtfp/workingmemory/functions/**'
+//        }
+//    }
+//}
+
+
 
 dependencies {
 
@@ -118,24 +150,27 @@ dependencies {
     compile 'com.android.support:cardview-v7:26.0.0-alpha1'
 }
 
-android {
-    packagingOptions {
-        exclude '.readme'
-        exclude 'LICENSE.txt'
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/DEPENDENCIES.txt'
-        exclude 'META-INF/LGPL2.1'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/README.txt'
-        exclude 'META-INF/dependencies.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/services/javax.annotation.processing.Processor'
-    }
-}
+
+
+
+//android {
+//    packagingOptions {
+//        exclude '.readme'
+//        exclude 'LICENSE.txt'
+//        exclude 'META-INF/DEPENDENCIES'
+//        exclude 'META-INF/DEPENDENCIES.txt'
+//        exclude 'META-INF/LGPL2.1'
+//        exclude 'META-INF/LICENSE'
+//        exclude 'META-INF/LICENSE.txt'
+//        exclude 'META-INF/NOTICE'
+//        exclude 'META-INF/NOTICE.txt'
+//        exclude 'META-INF/README.txt'
+//        exclude 'META-INF/dependencies.txt'
+//        exclude 'META-INF/license.txt'
+//        exclude 'META-INF/notice.txt'
+//        exclude 'META-INF/services/javax.annotation.processing.Processor'
+//    }
+//}
 
 // Add to the bottom of the file
 apply plugin: 'com.google.gms.google-services'

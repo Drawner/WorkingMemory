@@ -18,13 +18,12 @@ public class InstallFile{
 
     private static String sID = null;
 
+    private static boolean mJustInstalled = false;
+
+
 
 
     public synchronized static String id(Activity activity){
-
-        if (sID != null){ return sID; }
-
-        sID = Settings.Secure.getString(activity.getContentResolver(), Settings.Secure.ANDROID_ID);
 
         if (sID != null){ return sID; }
 
@@ -34,10 +33,13 @@ public class InstallFile{
 
             if (!installFile.exists()){
 
-                writeInstallationFile(installFile);
-            }
+                mJustInstalled = true;
 
-            sID = readInstallationFile(installFile);
+                sID =  writeInstallationFile(installFile, activity);
+            }else{
+
+                sID = readInstallationFile(installFile);
+            }
 
         }catch (Exception e){
 
@@ -46,6 +48,7 @@ public class InstallFile{
 
         return sID;
     }
+
 
 
 
@@ -64,14 +67,30 @@ public class InstallFile{
 
 
 
-    private static void writeInstallationFile(File installFile) throws IOException{
+
+    private static String writeInstallationFile(File installFile, Activity activity) throws IOException{
 
         FileOutputStream out = new FileOutputStream(installFile);
 
-        String id = UUID.randomUUID().toString();
+        String id = Settings.Secure.getString(activity.getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        if (id == null){
+
+            id = UUID.randomUUID().toString();
+        }
 
         out.write(id.getBytes());
 
         out.close();
+
+        return id;
+    }
+
+
+
+
+    public static boolean justInstalled(){
+
+        return mJustInstalled;
     }
 }

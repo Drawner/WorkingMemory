@@ -49,18 +49,20 @@ public class NumberPickerPreference extends DialogPreference {
 
     private NumberPicker mNumberPicker;
 
+    @SuppressWarnings("ResourceType")
     public NumberPickerPreference(Context context, AttributeSet attrs) {
 
         super(context, attrs);
+
         // com.android.internal.R.styleable.DialogPreference
         TypedArray dialogType = context.obtainStyledAttributes(attrs,
                 NumberPickerPreference.PreferenceNumbers, 0, 0);
         TypedArray numberPickerType = context.obtainStyledAttributes(attrs,
                 NumberPickerPreference.PreferenceNumbers, 0, 0);
 
-        mMaxExternalKey = numberPickerType.getString(NumberPickerPreference.NumberPickerPreference_maxExternal);
+        mMaxExternalKey = numberPickerType.getString(NumberPickerPreference_maxExternal);
 
-        mMinExternalKey = numberPickerType.getString(NumberPickerPreference.NumberPickerPreference_minExternal);
+        mMinExternalKey = numberPickerType.getString(NumberPickerPreference_minExternal);
 
         mMax = numberPickerType.getInt(1, 1);
         mMin = numberPickerType.getInt(0, 0);

@@ -12,7 +12,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.gtfp.errorhandler.CrashFragment;
 import com.gtfp.errorhandler.ErrorHandler;
 import com.gtfp.workingmemory.Auth.Auth;
-import com.gtfp.workingmemory.BuildConfig;
 import com.gtfp.workingmemory.R;
 import com.gtfp.workingmemory.edit.appCRUD;
 import com.gtfp.workingmemory.edit.rowView;
@@ -253,10 +252,11 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
         mController.getMenuInflater().inflate(R.menu.options_menu, menu);
 
-        if (!BuildConfig.DEBUG){
-
-            menu.removeGroup(R.id.error_group);
-        }
+        // Hides a segment of the menu popup.
+//        if (!BuildConfig.DEBUG){
+//
+//            menu.removeGroup(R.id.error_group);
+//        }
         return true;
     }
 
@@ -274,27 +274,33 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
             case R.id.login:
 
-                Auth.addAuthStateListener(this);
+                Auth.addAuthStateListener(new signInApp());
 
                 return true;
 
-            case R.id.errors:
+            case R.id.logout:
 
-                listErrors();
-
-                return true;
-
-            case R.id.sync:
-
-                syncData("get");
+                Auth.signOut();
 
                 return true;
 
-            case R.id.deleteSync:
-
-                deleteSync();
-
-                return true;
+//            case R.id.errors:
+//
+//                listErrors();
+//
+//                return true;
+//
+//            case R.id.sync:
+//
+//                syncData("get");
+//
+//                return true;
+//
+//            case R.id.deleteSync:
+//
+//                deleteSync();
+//
+//                return true;
 
             case R.id.help:
 
@@ -314,7 +320,7 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
             case R.id.about:
 
                 text = "Working Memory\n"
-                        + "\nCopyright (c) 2016, G Perry, Toronto, ON., Canada"
+                        + "\nCopyright (c) 2017, G Perry, Toronto, ON., Canada"
                         + "\n\nDistributed \"AS IS\","
                         + "\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND."
                         + "\n\nVersion " + versionOfApp();
@@ -339,13 +345,14 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         if (App.inDebugger()){
 
             onErrorMenu(menu);
+        }else{
+
+            menu.removeItem(R.id.logout);
         }
 
         onThrowError(menu);
 
         mSigMatch = 174992623 == mController.getSignature();
-
-        String provider = Auth.userProvider();
 
         return true;
     }
@@ -497,6 +504,9 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         return saved;
     }
 
+
+
+
     public boolean delete(int todoListID){
 
         // Flag to permanently delete a record.
@@ -557,6 +567,20 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         return deleted;
     }
 
+
+
+
+    public void refreshList(){
+
+        //        mToDoListAdapter = new ToDoListAdapter(mAppModel.ToDoList());
+        mToDoListAdapter.setItems(mAppModel.ToDoList());
+
+        mTaskList.setAdapter(mToDoListAdapter);
+    }
+
+
+
+
     // Called by the controller
     void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenu.ContextMenuInfo menuInfo){
@@ -574,6 +598,9 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
             mController.getMenuInflater().inflate(R.menu.context_menu, menu);
         }
     }
+
+
+
 
     // Called by the controller
     boolean onContextItemSelected(MenuItem item){
@@ -598,20 +625,32 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         }
     }
 
+
+
+
     public boolean open(){
 
         return mAppModel.open();
     }
+
+
+
 
     public void close(){
 
         mAppModel.close();
     }
 
+
+
+
     private ArrayList<ToDoItem> listToDos(){
 
         return mAppModel.ToDoList();
     }
+
+
+
 
     private String getRowTitle(AdapterView.AdapterContextMenuInfo info){
 
@@ -624,12 +663,18 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         return title + "...";
     }
 
+
+
+
     // Traditionally called by a BroadcastReceiver to reset alarms when a phone is rebooted
     public void resetAlarms(){
 
         // Goes directly to the database to set the alarms.
         setAlarms(mAppModel.ToDoList());
     }
+
+
+
 
     private void setAlarms(List<ToDoItem> todoList){
 
@@ -643,6 +688,9 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
             }
         }
     }
+
+
+
 
     // Returns the date less a certain # of hours.
     private Calendar getThreshold(){
@@ -766,40 +814,10 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
 
-//        if (mFirstCall){
-//
-//            mFirstCall = false;
-//
-//            return;
-//        }
-
         // No Internet connection
         if (!mController.NoConnectivity().isEmpty()){
 
             return;
-        }
-
-        // Makes this a one time trigger
-        firebaseAuth.removeAuthStateListener(this);
-
-        FirebaseUser user = firebaseAuth.getCurrentUser();
-
-        if (user == null){
-
-            // Sign in.
-//            runActivity(GoogleSignInActivity.class);
-            runActivity(SignInActivity.class);
-        }else{
-
-            String provider = Auth.userProfile(user, "provider");
-
-            // Google or Facebook
-            if (!provider.equals("google.com") && !provider.equals("facebook.com")){
-
-                // Sign in.
-//                runActivity(GoogleSignInActivity.class);
-                runActivity(SignInActivity.class);
-            }
         }
     }
 
@@ -814,11 +832,6 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
             return;
         }
-
-////        mToDoListAdapter = new ToDoListAdapter(mAppModel.ToDoList());
-//        mToDoListAdapter.setItems(mAppModel.ToDoList());
-//
-//        mTaskList.setAdapter(mToDoListAdapter);
     }
 
     @Override
@@ -827,6 +840,9 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
         String error = databaseError.getMessage();
     }
+
+
+
 
     // Called the moment when an applications preference setting is changed.
     @Override
@@ -859,7 +875,7 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
             }
         }else if (key.equals("data_online")){
 
-            // Swtich the helper here.
+            // Switch the helper here.
             mAppModel.resetDBHelper();
 
             if (mAppModel.open()){
@@ -1500,6 +1516,39 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         mFrameLayout = null;
 
         mTaskList = null;
+    }
+
+
+
+
+    class signInApp implements FirebaseAuth.AuthStateListener{
+
+        @Override
+        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
+
+            // No Internet connection
+            if (!mController.NoConnectivity().isEmpty()){
+
+                return;
+            }
+
+            // Makes this a one time trigger
+            firebaseAuth.removeAuthStateListener(this);
+
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+
+            if (user == null){
+
+                // Sign in.
+                runActivity(SignInActivity.class);
+            }else{
+
+                String provider = Auth.userProfile(user, "provider");
+
+                // Sign in.
+                runActivity(SignInActivity.class);
+            }
+        }
     }
 
 }

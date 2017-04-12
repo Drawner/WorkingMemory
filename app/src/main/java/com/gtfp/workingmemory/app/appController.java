@@ -54,11 +54,11 @@ public class appController extends frmwrkActivity{
         // Settings should be defined right away.
         appSettings.get(this);
 
+        Auth.onCreate(this);
+
         mAppView = new appView(this);
 
         mAppView.onCreate(savedInstanceState);
-
-        Auth.onCreate();
 
         dbCloud.onCreate(this);
     }
@@ -241,6 +241,13 @@ public class appController extends frmwrkActivity{
 
 
 
+    public boolean justInstalled(){
+
+        return InstallFile.justInstalled();
+    }
+
+
+
 
     public String NoConnectivity(){
 
@@ -324,6 +331,10 @@ public class appController extends frmwrkActivity{
         super.onStart();
 
         mAppView.onStart();
+
+        Auth.addAuthStateListener(mAppView);
+
+        dbCloud.onStart();
     }
 
     @Override
@@ -343,6 +354,10 @@ public class appController extends frmwrkActivity{
         super.onStop();
 
         mAppView.onStop();
+
+        Auth.removeAuthStateListener(mAppView);
+
+        dbCloud.onStop();
     }
 
     @Override

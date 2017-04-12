@@ -22,7 +22,7 @@ import static com.gtfp.workingmemory.settings.appSettings.getBoolean;
 /**
  * Created by Drawn on 2015-02-12.
  */
-public class appModel{
+public class appModel implements dbCloud.onLoginListener{
 
 
     private appView mAppView;
@@ -56,10 +56,12 @@ public class appModel{
         onDBSetup dbSetup = new onDBSetup();
 
         // Set a listener when the database is first created.
-        ((dbSQLlite)mDBHelper).setOnCreateListener(dbSetup);
-        ((dbSQLlite)mDBHelper).setOnConfigureListener(dbSetup);
+        ((dbSQLlite) mDBHelper).setOnCreateListener(dbSetup);
+        ((dbSQLlite) mDBHelper).setOnConfigureListener(dbSetup);
 
         m2ndDB = dbFireBase.getInstance(mAppView);
+
+        dbCloud.addOnLoginListener(this);
     }
 
 
@@ -108,12 +110,10 @@ public class appModel{
 
 
 
-
     public appView getView(){
 
         return mAppView;
     }
-
 
 
 
@@ -124,10 +124,11 @@ public class appModel{
 
 
 
-
     void close(){
 
         mDBHelper.close();
+
+        m2ndDB.close();
     }
 
 
@@ -144,8 +145,6 @@ public class appModel{
 
 
 
-
-
     public boolean save(ToDoItem itemToDo){
 
         boolean save = mDBHelper.save(itemToDo);
@@ -158,16 +157,19 @@ public class appModel{
 
                 String key = itemToDo.getKey();
 
+                // New if the key is empty.
+                itemToDo.newItem(key.isEmpty());
+
                 sync = m2ndDB.save(itemToDo);
 
                 if (sync){
 
-                    if(key.isEmpty()){
+                    if (key.isEmpty()){
 
                         mDBHelper.save(itemToDo);
                     }
 
-                    dbCloud.DataSync.insert(itemToDo.getKey(), "UPDATE");
+                    dbCloud.insert(itemToDo.getKey(), "UPDATE");
                 }
             }
 
@@ -185,22 +187,22 @@ public class appModel{
 
         long id = itemToDo.getId();
 
-        boolean delete =  delete(id);
+        boolean delete = delete(id);
 
         if (delete){
 
             itemToDo.isDeleted(true);
 
-            if (!m2ndDB.isOpen() || !((dbFireBase)m2ndDB).markRec(itemToDo.getKey())){
+            if (!m2ndDB.isOpen() || !((dbFireBase) m2ndDB).markRec(itemToDo.getKey())){
 
                 // Record the deletion for the next sync.
                 dbCloud.delete(id, itemToDo.getKey());
             }else{
 
-               if (dbCloud.DataSync.insert(itemToDo.getKey(), "DELETE")){
+                if (dbCloud.insert(itemToDo.getKey(), "DELETE")){
 
-                   itemToDo.setKey("");
-               }
+                    itemToDo.setKey("");
+                }
             }
         }
 
@@ -211,7 +213,7 @@ public class appModel{
 
     public boolean delete(long id){
 
-       return mDBHelper.markRec(id);
+        return mDBHelper.markRec(id);
     }
 
 
@@ -268,6 +270,16 @@ public class appModel{
 
         return mDBHelper.ToDoList(recs);
     }
+
+
+
+
+    @Override
+    public void onLogin(){
+
+        dbCloud.reSave(mDBHelper);
+    }
+
 
 
 
@@ -388,6 +400,7 @@ public class appModel{
 
         open();
 
+        // Signed either anonymously or Google or Facebook
         if(Auth.isSignedIn()){
 
             Auth.onStart();
@@ -397,16 +410,11 @@ public class appModel{
                 public void onDownload(ArrayList<HashMap<String, String>> dataArrayList){
 
                     dbCloud.sync(mDBHelper, m2ndDB);
-
-                    if(Auth.justLoggedIn() || ((dbSQLlite)mDBHelper).getDatabase().getVersion() == 1){
-
-                        dbCloud.resync();
-                    }
                 }
             });
         }else{
 
-            Auth.onStart(mAppView.getActivity(), new OnSuccessListener<AuthResult>(){
+            Auth.onStart(new OnSuccessListener<AuthResult>(){
 
                 public void onSuccess(AuthResult result){
 

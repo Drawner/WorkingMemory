@@ -258,7 +258,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
         records = runQuery(SELECT_LASTROWID);
 
-        long lastRowID = 0;
+        long lastRowID = 0L;
 
         // You've got to move the cursor's position pointer after the query.
         if (records.moveToFirst()){
@@ -269,12 +269,53 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
             }catch (RuntimeException ex){
 
-                lastRowID = 0;
+                lastRowID = 0L;
             }
         }
 
         return lastRowID;
     }
+
+
+
+
+    public Cursor getRec(String keyID){
+
+        String key = keyID.trim();
+
+        if(key.isEmpty()) return new MatrixCursor(new String[]{"empty"});
+
+        final String SQLStmt = "SELECT " + DBKEY_FIELD + " AS _id, * FROM " + DATABASE_NAME
+                + " WHERE ToDoKey = \"" + key + "\"";
+
+        return runQuery(SQLStmt);
+    }
+
+
+
+
+    public long getRecID(String keyID){
+
+        long rowID = 0L;
+
+        Cursor rec = getRec(keyID);
+
+        // You've got to move the cursor's position pointer after the query.
+        if (rec.moveToFirst()){
+
+            try{
+
+                rowID = rec.getLong(0);
+
+            }catch (Exception ex){
+
+                rowID = 0L;
+            }
+        }
+
+        return rowID;
+    }
+
 
 
 
@@ -303,7 +344,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
             for (String key : keys){
 
-                if (id && key.equals("_id")){
+                if (id && (key.equals("_id"))){
 
                     todoItem.setId(todoRec.get(key));
 
@@ -464,7 +505,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     }
 
 
-    private long insertRec(ToDoItem itemToDo){
+    public long insertRec(ToDoItem itemToDo){
 
         return insertRec(bindRecValues(itemToDo));
     }

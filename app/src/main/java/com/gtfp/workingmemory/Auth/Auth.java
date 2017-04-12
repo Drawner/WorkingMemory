@@ -21,15 +21,19 @@ import java.util.List;
 
 public class Auth{
 
+    private static Activity mActivity;
+
     private static FirebaseAuth mAuth;
 
     private static Task<AuthResult> mAuthResult;
 
-    private static boolean mSignedIn;
-
     private static FirebaseUser mUser;
 
     private static String mUserId;
+
+    private static FirebaseUser mPrevUser;
+
+    private static String mPrevUserId = "";
 
     private static String mToken;
 
@@ -41,25 +45,32 @@ public class Auth{
 
     private static Uri mPhotoUrl;
 
-    private static boolean mNowLoggedIn = false;
+    // Add its own listener
+    private static FirebaseAuth.AuthStateListener mAuthListener = new appAuthListener();
 
 
+    public static void onCreate(Activity activity){
 
-
-    public static void onCreate(){
+        mActivity = activity;
 
         onCreate(null, null);
     }
+
+
 
     public static void onCreate(FirebaseAuth auth){
 
         onCreate(auth, null);
     }
 
+
+
     public static void onCreate(FirebaseAuth.AuthStateListener listener){
 
         onCreate(null, listener);
     }
+
+
 
     public static void onCreate(FirebaseAuth auth, FirebaseAuth.AuthStateListener listener){
 
@@ -79,101 +90,22 @@ public class Auth{
     }
 
 
-    // Add its own listener
-    private static FirebaseAuth.AuthStateListener mAuthListener = new FirebaseAuth.AuthStateListener(){
 
-        @Override
-        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
+    public static void onStart(OnFailureListener listener){
 
-            FirebaseUser user = firebaseAuth.getCurrentUser();
-
-            if (user != null){
-
-                // User is signed in
-                mSignedIn = true;
-
-                List<String> providers = user.getProviders();
-
-
-//                        if (mAuthResult != null){
-//
-//                            FirebaseUser authUser = mAuthResult.getResult().getUser();
-//                        }
-
-//                        Task<GetTokenResult> tokenObj = user.getToken(true);
-//
-//                        tokenObj.addOnCompleteListener(new OnCompleteListener<GetTokenResult>(){
-//                            @Override
-//                            public  void onComplete (Task<GetTokenResult> task){
-//
-//                                String token = task.getResult().getToken();
-//
-//                                if (mToken == null || !mToken.equals(token)){
-//
-//                                    mToken = token;
-//                                }
-//                            }
-//                        });
-
-                boolean collectUser = false;
-
-                if (mUserId == null){
-
-                    collectUser = true;
-
-                }else if(!mUserId.equals(user.getUid())){
-
-                    collectUser = true;
-
-                    String provider = Auth.userProfile(user, "provider");
-
-                    // Google or Facebook
-                    if (!provider.equals("google.com") && !provider.equals("facebook.com")){
-
-                        mNowLoggedIn = true;
-                    }
-                }
-
-                 if(collectUser){
-
-                    mUser = user;
-
-                    mUserId = user.getUid();
-                }
-            }else{
-                // User is signed out
-
-                mSignedIn = false;
-            }
-        }
-    };
-
-
-
-
-    public static void onStart(Activity activity, OnFailureListener listener){
-
-        if (mAuth != null && mAuth.getCurrentUser() == null){
-
-            Auth.signIn(activity, listener);
-        }
+        Auth.signIn(listener);
 
         Auth.onStart();
     }
 
 
 
+    public static void onStart(OnSuccessListener<AuthResult> listener){
 
-    public static void onStart(Activity activity, OnSuccessListener<AuthResult> listener){
-
-        if (mAuth != null && mAuth.getCurrentUser() == null){
-
-            Auth.signIn(activity, listener);
-        }
+        Auth.signIn(listener);
 
         Auth.onStart();
     }
-
 
 
 
@@ -190,10 +122,11 @@ public class Auth{
 
 
 
-
     public static void onResume(Activity activity){
 
     }
+
+
 
     public static void onStop(){
 
@@ -205,8 +138,7 @@ public class Auth{
 
 
 
-
-    public static void  addAuthStateListener(FirebaseAuth.AuthStateListener listener){
+    public static void addAuthStateListener(FirebaseAuth.AuthStateListener listener){
 
         if (mAuth != null && listener != null){
 
@@ -219,49 +151,67 @@ public class Auth{
 
 
 
+    public static void removeAuthStateListener(FirebaseAuth.AuthStateListener listener){
 
-    public static void signIn(Activity activity){
+        if (mAuth != null && listener != null){
 
-        mAuthResult = mAuth.signInAnonymously()
-                .addOnCompleteListener(activity, getCompleteListener());
+            // Just in case it's there.
+            mAuth.removeAuthStateListener(listener);
+        }
     }
 
 
 
+    public static void signIn(){
 
-    public static void signIn(Activity activity, OnSuccessListener<AuthResult> listener){
+        if (mActivity != null && mAuth != null && mAuth.getCurrentUser() == null){
 
-        mAuthResult = mAuth.signInAnonymously()
-                .addOnCompleteListener(activity, getCompleteListener())
-                .addOnSuccessListener(activity, listener);
+            mAuthResult = mAuth.signInAnonymously()
+                    .addOnCompleteListener(mActivity, getCompleteListener());
+        }
     }
 
 
 
+    public static void signIn(OnSuccessListener<AuthResult> listener){
 
-    public static void signIn(Activity activity, OnFailureListener listener){
+        if (mActivity != null &&mAuth != null && mAuth.getCurrentUser() == null){
 
-        mAuthResult = mAuth.signInAnonymously()
-                .addOnCompleteListener(activity, getCompleteListener())
-                .addOnFailureListener(activity, listener);
+            mAuthResult = mAuth.signInAnonymously()
+                    .addOnCompleteListener(mActivity, getCompleteListener())
+                    .addOnSuccessListener(mActivity, listener);
+        }
     }
 
+
+
+    public static void signIn(OnFailureListener listener){
+
+        if (mActivity != null && mAuth != null && mAuth.getCurrentUser() == null){
+
+            mAuthResult = mAuth.signInAnonymously()
+                    .addOnCompleteListener(mActivity, getCompleteListener())
+                    .addOnFailureListener(mActivity, listener);
+        }
+    }
 
 
 
     private static OnCompleteListener<AuthResult> getCompleteListener(){
 
         return new OnCompleteListener<AuthResult>(){
+
             @Override
             public void onComplete(@NonNull Task<AuthResult> task){
 
+                int breakpoint;
+
                 if (task.isSuccessful()){
 
-                    mSignedIn = true;
-
+                    breakpoint = 0;
                 }else{
 
-                    mSignedIn = false;
+                    breakpoint = 0;
                 }
             }
         };
@@ -269,31 +219,28 @@ public class Auth{
 
 
 
-
     public static boolean isSignedIn(){
 
-        return mSignedIn || (mAuth != null && mAuth.getCurrentUser() != null);
+        return mAuth != null && mAuth.getCurrentUser() != null;
     }
 
+
+
+    public static boolean isLoggedIn(){
+
+        String provider = userProfile("provider");
+
+        return !provider.isEmpty() && !provider.equals("firebase");
+    }
 
 
 
     public static void signOut(){
 
         mAuth.signOut();
+
+        signIn();
     }
-
-
-
-    public static boolean justLoggedIn(){
-
-        boolean loggedIn = mNowLoggedIn;
-
-        mNowLoggedIn = false;
-
-        return loggedIn;
-    }
-
 
 
 
@@ -303,38 +250,75 @@ public class Auth{
 
 
 
-
     public static String getUid(){
 
-        if (mUserId == null){
+//        if (mUserId == null){
+//
+//            FirebaseUser user = getUser();
+//
+//            if (user != null){
+//
+//                mUserId = user.getUid();
+//            }
+//        }
+//        return mUserId;
 
-            FirebaseUser user = getUser();
+        String userId;
 
-            if (user != null){
+        FirebaseUser user = getUser();
 
-                mUserId = user.getUid();
-            }
+        if (user == null){
+
+            userId = null;
+        }else{
+
+            userId = user.getUid();
         }
-        return mUserId;
+
+        return userId;
     }
 
+
+
+    public static String getPrevUid(){
+
+        return mPrevUserId;
+    }
 
 
 
     public static FirebaseUser getUser(){
 
-        if (mUser == null && mAuth != null){
+//        if (mUser == null && mAuth != null){
+//
+//            FirebaseUser user = mAuth.getCurrentUser();
+//
+//            if (user != null){
+//
+//                mUser = user;
+//            }
+//        }
+//        return mUser;
 
-            FirebaseUser user = mAuth.getCurrentUser();
+        FirebaseUser user;
 
-            if (user != null){
+        if (mAuth == null){
 
-                mUser = user;
-            }
+            user = null;
+        }else{
+
+            user = mAuth.getCurrentUser();
         }
-        return mUser;
+
+        return user;
     }
 
+
+
+    public static FirebaseUser getPrevUser(){
+
+        return mPrevUser;
+    }
 
 
 
@@ -342,7 +326,6 @@ public class Auth{
 
         return userProfile(mUser, type);
     }
-
 
 
 
@@ -406,6 +389,7 @@ public class Auth{
     }
 
 
+
     private static void userProfile(){
 
         if (mUser == null){ return; }
@@ -426,12 +410,16 @@ public class Auth{
         }
     }
 
+
+
     public static String userProvider(){
 
         userProfile();
 
         return mProviderId;
     }
+
+
 
     public static String userEmail(){
 
@@ -440,12 +428,16 @@ public class Auth{
         return mUserEmail;
     }
 
+
+
     public static String userName(){
 
         userProfile();
 
         return mUserName;
     }
+
+
 
     public static Uri userPhoto(){
 
@@ -455,7 +447,10 @@ public class Auth{
     }
 
 
+
     public static void onDestroy(){
+
+        mActivity = null;
 
         mAuthResult = null;
 
@@ -470,5 +465,54 @@ public class Auth{
         mUser = null;
 
         mUserId = null;
+    }
+
+
+    private static class appAuthListener implements FirebaseAuth.AuthStateListener{
+
+        @Override
+        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
+
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+
+            if (user == null){
+
+                if (mUser != null){
+
+                    mPrevUser = mUser;
+
+                    mPrevUserId = mUserId;
+                }
+
+                mUser = null;
+
+                mUserId = null;
+            }else{
+
+                List<String> providers = user.getProviders();
+
+                boolean collectUser = false;
+
+                if (mUserId == null){
+
+                    collectUser = true;
+
+                }else if (!mUserId.equals(user.getUid())){
+
+                    collectUser = true;
+
+                    mPrevUser = mUser;
+
+                    mPrevUserId = mUserId;
+                }
+
+                if (collectUser){
+
+                    mUser = user;
+
+                    mUserId = user.getUid();
+                }
+            }
+        }
     }
 }

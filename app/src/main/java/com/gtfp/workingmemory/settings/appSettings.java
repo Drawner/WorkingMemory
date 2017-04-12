@@ -39,9 +39,12 @@ import android.widget.ListAdapter;
  */
 public class appSettings implements SharedPreferences.OnSharedPreferenceChangeListener{
 
+    public static final int REQUEST_PERMISSION_CODE = 0x11;
+
     private static final String TODOITEM = "item";
 
-    public static final int REQUEST_PERMISSION_CODE = 0x11;
+    // Important to KEEP up to date when access settings in STATIC environment.
+    static final private String PACKAGE_NAME = "com.gtfp.workingmemory";
 
     static private SharedPreferences mSettings;
 
@@ -49,8 +52,7 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
 
     static private Resources mResources;
 
-    // Important to KEEP up to date when access settings in STATIC environment.
-    static final private String PACKAGE_NAME = "com.gtfp.workingmemory";
+
 
     public appSettings(appView app){
 
@@ -63,28 +65,10 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
     }
 
 
-    // Here is the preference listener.
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key){
-
-// Example to dynamically change the preference text summary.
-//        if (key.equals(KEY_PREF_SYNC_CONN)) {
-//            Preference connectionPref = findPreference(key);
-//            // Set summary to be the user-description for the selected value
-//            connectionPref.setSummary(sharedPreferences.getString(key, ""));
-//        }
-
-        // Some external activities may call this.
-        if(mApp != null){
-
-            mApp.onSharedPreferenceChanged(sharedPreferences, key);
-        }
-    }
-
 
     public static SharedPreferences get(Context context){
 
-        if(mSettings == null){
+        if (mSettings == null){
 
             mSettings = context
                     .getSharedPreferences(PACKAGE_NAME + "_preferences", Context.MODE_PRIVATE);
@@ -97,6 +81,8 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
         return mSettings;
     }
 
+
+
     // Hopefully the other get() has already been called.
     public static SharedPreferences get(){
 
@@ -104,10 +90,12 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
     }
 
 
+
     static SharedPreferences.Editor getEditor(){
 
         return mSettings.edit();
     }
+
 
 
     static Preference findPreference(CharSequence key){
@@ -118,6 +106,7 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
 
         return appPreferences.mPreferenceManager.findPreference(key);
     }
+
 
 
     public static String getString(String key, String defaultValue){
@@ -131,6 +120,7 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
             return defaultValue;
         }
     }
+
 
 
     // Value from the resource, Strings.xml
@@ -155,6 +145,7 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
     }
 
 
+
     public static int getInt(String key, int defaultValue){
 
         try{
@@ -166,6 +157,7 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
             return defaultValue;
         }
     }
+
 
 
     static long getLong(String key, long defaultValue){
@@ -181,7 +173,9 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
     }
 
 
+
     static float getFloat(String key, float defaultValue){
+
         try{
 
             return mSettings.getFloat(key, defaultValue);
@@ -191,6 +185,7 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
             return defaultValue;
         }
     }
+
 
 
     public static boolean getBoolean(String key, boolean defaultValue){
@@ -204,6 +199,8 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
             return defaultValue;
         }
     }
+
+
 
     public static boolean withPermission(@NonNull String permission){
 
@@ -226,12 +223,147 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
     }
 
 
+
+    public static String get(String key, String defaultValue){
+
+        try{
+
+            return mSettings.getString(key, defaultValue);
+
+        }catch (RuntimeException ex){
+
+            return defaultValue;
+        }
+    }
+
+
+
+    public static void set(String key, String value){
+
+        getEditor().putString(key, value).apply();
+    }
+
+
+
+    public static void set(String key, boolean value){
+
+        getEditor().putBoolean(key, value).apply();
+
+    }
+
+
+
+    // Value from the resource, Strings.xml
+    public static String getResource(int key, String defaultValue){
+
+        if (mResources == null){ return defaultValue; }
+
+        String string;
+
+        try{
+
+            string = mResources.getString(key);
+
+        }catch (Resources.NotFoundException ex){
+
+            string = defaultValue;
+        }
+
+        return string;
+    }
+
+
+
+    public static int get(String key, int defaultValue){
+
+        try{
+
+            return mSettings.getInt(key, defaultValue);
+
+        }catch (RuntimeException ex){
+
+            return defaultValue;
+        }
+    }
+
+
+
+    public static void set(String key, int value){
+
+        getEditor().putInt(key, value).apply();
+    }
+
+
+
+    static long get(String key, long defaultValue){
+
+        try{
+
+            return mSettings.getLong(key, defaultValue);
+
+        }catch (RuntimeException ex){
+
+            return defaultValue;
+        }
+    }
+
+
+
+    static float get(String key, float defaultValue){
+
+        try{
+
+            return mSettings.getFloat(key, defaultValue);
+
+        }catch (RuntimeException ex){
+
+            return defaultValue;
+        }
+    }
+
+
+
+    public static boolean get(String key, boolean defaultValue){
+
+        try{
+
+            return mSettings.getBoolean(key, defaultValue);
+
+        }catch (RuntimeException ex){
+
+            return defaultValue;
+        }
+    }
+
+
+
+    // Here is the preference listener.
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key){
+
+// Example to dynamically change the preference text summary.
+//        if (key.equals(KEY_PREF_SYNC_CONN)) {
+//            Preference connectionPref = findPreference(key);
+//            // Set summary to be the user-description for the selected value
+//            connectionPref.setSummary(sharedPreferences.getString(key, ""));
+//        }
+
+        // Some external activities may call this.
+        if (mApp != null){
+
+            mApp.onSharedPreferenceChanged(sharedPreferences, key);
+        }
+    }
+
+
+
     public void onDestroy(){
 
         mApp = null;
 
         mSettings = null;
     }
+
 
 
     public static class appPreferences extends PreferenceFragment
@@ -263,6 +395,190 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
         private Intent mIntent;
 
         private ToDoItem mItemToDo;
+
+
+
+        /** Sets up the action bar for an {@link PreferenceScreen} */
+        public static void initializeActionBar(PreferenceScreen parentScreen,
+                PreferenceScreen preferenceScreen){
+
+            final Dialog dialog = preferenceScreen.getDialog();
+
+            if (dialog == null){
+
+                return;
+            }
+
+            // Inialize the action bar
+            ActionBar bar = dialog.getActionBar();
+
+            bar.setDisplayHomeAsUpEnabled(true);
+
+            // Apply custom home button area click listener to close the PreferenceScreen because PreferenceScreens are dialogs which swallow
+            // events instead of passing to the activity
+            // Related Issue: https://code.google.com/p/android/issues/detail?id=4611
+            View homeBtn = dialog.findViewById(android.R.id.home);
+
+            if (homeBtn != null){
+
+                View.OnClickListener dismissDialogClickListener = new View.OnClickListener(){
+
+                    @Override
+                    public void onClick(View v){
+
+                        dialog.cancel();
+                    }
+                };
+
+                // Prepare yourselves for some hacky programming
+                ViewParent homeBtnContainer = homeBtn.getParent();
+
+                // The home button is an ImageView inside a FrameLayout
+                if (homeBtnContainer instanceof FrameLayout){
+
+                    ViewGroup containerParent = (ViewGroup) homeBtnContainer.getParent();
+
+                    if (containerParent instanceof LinearLayout){
+
+                        View view = (View) containerParent.getParent();
+
+//                        if (view bar.getCustomView() ){
+
+//                        }else {
+
+                        // This view also contains the title text, set the whole view as clickable
+                        ((LinearLayout) containerParent)
+                                .setOnClickListener(dismissDialogClickListener);
+//                        }
+                    }else{
+
+                        // Just set it on the home button
+                        ((FrameLayout) homeBtnContainer)
+                                .setOnClickListener(dismissDialogClickListener);
+                    }
+                }else{
+
+                    // The 'If all else fails' default case
+                    homeBtn.setOnClickListener(dismissDialogClickListener);
+                }
+            }
+        }
+
+
+
+        public static Preference openPreference(String prefKey){
+
+//            Preference pref = findPreference(mPreferenceScreen, prefKey);
+//
+//            if (pref != null) {
+//
+//                mPreferenceScreen.onItemClick(null, null, mPosition, 0);
+//            }
+
+//            if(mPreferenceScreen == null){
+//
+//                mPreferenceScreen = getPreferenceScreen();
+//            }
+
+            final ListAdapter listAdapter = mPreferenceScreen.getRootAdapter();
+
+            String key;
+
+            Preference pref = null;
+
+            // Note, this just goes through the top level of preferences
+            for (int cnt = 0; cnt < listAdapter.getCount(); ++cnt){
+
+                Object item = listAdapter.getItem(cnt);
+
+                if (!(item instanceof Preference)){
+
+                    continue;
+                }
+
+                pref = ((Preference) item);
+
+                key = pref.getKey();
+
+                if (key != null && key.equals(prefKey)){
+
+                    // Preference has a *hidden* performClick()
+                    mPreferenceScreen.onItemClick(null, null, cnt, 0);
+                    break;
+                }
+            }
+
+            return pref;
+        }
+
+//        void initOnPreferenceChangeListeners(){
+//
+//            Intent intent = ((Activity) mPreferenceScreen.getContext()).getIntent();
+//
+//            if (!intent.hasExtra("item")) return;
+//
+//            ToDoItem itemToDo = (ToDoItem) intent.getSerializableExtra("item");
+//
+////            mLEDPreference.setOnPreferenceChangeListener(this);
+//
+////            mLEDPreference.setDefaultValue(appSettings.getInt("mLedArgb", 0xFF0000FF));
+//
+////            mLEDPreference.setPersistent(false);
+//
+//            setupToDoItemPreferences("popup_notification", itemToDo.showDialogue(appSettings.getBoolean("popup_notification", true)));
+//
+//            setupToDoItemPreferences("clear_notification", itemToDo.clearNotification(appSettings.getBoolean("clear_notification", false)));
+//
+//            setupToDoItemPreferences("use_LED", itemToDo.useLED(appSettings.getBoolean("use_LED", true)));
+//
+////            PreferenceManager.setDefaultValues(mPreferenceScreen.getContext(), R.xml.preferences, true);
+//        }
+
+
+
+        static Preference findPreference(PreferenceGroup group, String key){
+
+            mPosition = -1;
+
+            return PreferenceFind(group, key);
+        }
+
+
+
+        private static Preference PreferenceFind(PreferenceGroup group, String key){
+
+            final int preferenceCount = group.getPreferenceCount();
+
+            for (int i = 0; i < preferenceCount; i++){
+
+                final Preference preference = group.getPreference(i);
+
+                final String curKey = preference.getKey();
+
+                if (curKey != null && curKey.equals(key)){
+
+                    mPosition++;
+
+                    return preference;
+                }
+
+                if (preference instanceof PreferenceGroup){
+
+                    mPosition++;
+
+                    Preference returnedPreference = PreferenceFind(
+                            (PreferenceGroup) preference, key);
+
+                    if (returnedPreference != null){
+
+                        return returnedPreference;
+                    }
+                }
+            }
+
+            return null;
+        }
+
 
 
         @Override
@@ -304,17 +620,21 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
 //
 //            mSoundPreference.setOnPreferenceClickListener(this);
 
-            findPreference("remove_deleted")
-                    .setOnPreferenceClickListener(this);
+            Preference pref = findPreference("remove_deleted");
 
-            findPreference("remove_pastdue")
-                    .setOnPreferenceClickListener(this);
+             if(pref != null) pref.setOnPreferenceClickListener(this);
 
-            findPreference("export_records")
-                    .setOnPreferenceClickListener(this);
+            pref = findPreference("remove_pastdue");
 
-            findPreference("import_records")
-                    .setOnPreferenceClickListener(this);
+            if(pref != null) pref.setOnPreferenceClickListener(this);
+
+            pref = findPreference("export_records");
+
+            if(pref != null) pref.setOnPreferenceClickListener(this);
+
+            pref = findPreference("import_records");
+
+            if(pref != null) pref.setOnPreferenceClickListener(this);
 
             // Setup an number of listeners and update the preferences with appropriate default values
             mIntent = ((Activity) mPreferenceScreen.getContext()).getIntent();
@@ -356,34 +676,13 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
 
         @Override
         public void onActivityCreated(Bundle savedInstanceState){
+
             super.onActivityCreated(savedInstanceState);
 
             getView().setBackgroundColor(Color.BLACK);
             getView().setClickable(true);
         }
 
-//        void initOnPreferenceChangeListeners(){
-//
-//            Intent intent = ((Activity) mPreferenceScreen.getContext()).getIntent();
-//
-//            if (!intent.hasExtra("item")) return;
-//
-//            ToDoItem itemToDo = (ToDoItem) intent.getSerializableExtra("item");
-//
-////            mLEDPreference.setOnPreferenceChangeListener(this);
-//
-////            mLEDPreference.setDefaultValue(appSettings.getInt("mLedArgb", 0xFF0000FF));
-//
-////            mLEDPreference.setPersistent(false);
-//
-//            setupToDoItemPreferences("popup_notification", itemToDo.showDialogue(appSettings.getBoolean("popup_notification", true)));
-//
-//            setupToDoItemPreferences("clear_notification", itemToDo.clearNotification(appSettings.getBoolean("clear_notification", false)));
-//
-//            setupToDoItemPreferences("use_LED", itemToDo.useLED(appSettings.getBoolean("use_LED", true)));
-//
-////            PreferenceManager.setDefaultValues(mPreferenceScreen.getContext(), R.xml.preferences, true);
-//        }
 
 
         void setupToDoItemPreferences(CharSequence key, Object itemValue){
@@ -410,6 +709,8 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
             }
         }
 
+
+
         // Determine if certain preferences should be hidden or not
         void hidePreferences(){
 
@@ -435,6 +736,8 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
 
         }
 
+
+
         // Here is the preference listener.
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key){
@@ -445,6 +748,8 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
             }
         }
 
+
+
         // Set the preference summary
         void setMinutesSummary(){
 
@@ -454,6 +759,7 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
                         .setSummary(mSummary + " (" + mMinsPreference.getValue() + " minutes)");
             }
         }
+
 
 
         @Override
@@ -571,6 +877,35 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
             return mApp.onPreferenceClick(preference);
         }
 
+//        void SoundSettingsResult(Intent data){
+//
+//            Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+//
+//            if (uri == null) return;
+//
+//            ToDoItem itemToDo = getItemToDo(data);
+//
+//            if (itemToDo != null) {
+//
+//                itemToDo.setSound(uri);
+//
+//                return;
+//            }
+//
+//            if (!mSoundPreference.shouldCommit()) {
+//
+//               return;
+//            }
+//
+//            SharedPreferences.Editor editor = mSoundPreference.getEditor();
+//
+//            editor.putString(mSoundPreference.getKey(), uri.toString());
+//
+//            editor.apply();
+//        }
+
+
+
         // Set by setOnPreferenceChangeListener
         public boolean onPreferenceChange(Preference preference, Object newValue){
 
@@ -588,6 +923,7 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
 
             return true;
         }
+
 
 
         boolean setItemPreferences(Intent intent, Preference preference, Object newValue){
@@ -636,9 +972,11 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
         }
 
 
+
         // Return the results from another Activity
         @Override
         public void onActivityResult(int requestCode, int resultCode, Intent data){
+
             super.onActivityResult(requestCode, resultCode, data);
 
             // REQUEST_CODE is defined above
@@ -653,6 +991,7 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
 //                SoundSettingsResult(data);
             }
         }
+
 
 
         private void LEDSettingsResult(Intent data){
@@ -730,32 +1069,6 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
             }
         }
 
-//        void SoundSettingsResult(Intent data){
-//
-//            Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-//
-//            if (uri == null) return;
-//
-//            ToDoItem itemToDo = getItemToDo(data);
-//
-//            if (itemToDo != null) {
-//
-//                itemToDo.setSound(uri);
-//
-//                return;
-//            }
-//
-//            if (!mSoundPreference.shouldCommit()) {
-//
-//               return;
-//            }
-//
-//            SharedPreferences.Editor editor = mSoundPreference.getEditor();
-//
-//            editor.putString(mSoundPreference.getKey(), uri.toString());
-//
-//            editor.apply();
-//        }
 
 
         private ToDoItem getItemToDo(Intent data){
@@ -771,6 +1084,7 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
         }
 
 
+
         public void dialogResult(boolean result){
 
             if (result){
@@ -783,9 +1097,11 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
         }
 
 
+
         @Override
         public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                 @NonNull int[] grantResults){
+
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
             if (requestCode != REQUEST_PERMISSION_CODE){
@@ -802,6 +1118,8 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
             }
         }
 
+
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState){
@@ -809,9 +1127,12 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
             return super.onCreateView(inflater, container, savedInstanceState);
         }
 
+
+
         @Override
         public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
                 Preference preference){
+
             super.onPreferenceTreeClick(preferenceScreen, preference);
 
             // If the user has clicked on a preference screen, set up the action bar
@@ -822,161 +1143,6 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
 
             // Important to return false to continue the preferences.
             return false;
-        }
-
-
-        /** Sets up the action bar for an {@link PreferenceScreen} */
-        public static void initializeActionBar(PreferenceScreen parentScreen,
-                PreferenceScreen preferenceScreen){
-
-            final Dialog dialog = preferenceScreen.getDialog();
-
-            if (dialog == null){
-
-                return;
-            }
-
-            // Inialize the action bar
-            ActionBar bar = dialog.getActionBar();
-
-            bar.setDisplayHomeAsUpEnabled(true);
-
-            // Apply custom home button area click listener to close the PreferenceScreen because PreferenceScreens are dialogs which swallow
-            // events instead of passing to the activity
-            // Related Issue: https://code.google.com/p/android/issues/detail?id=4611
-            View homeBtn = dialog.findViewById(android.R.id.home);
-
-            if (homeBtn != null){
-
-                View.OnClickListener dismissDialogClickListener = new View.OnClickListener(){
-
-                    @Override
-                    public void onClick(View v){
-
-                        dialog.cancel();
-                    }
-                };
-
-                // Prepare yourselves for some hacky programming
-                ViewParent homeBtnContainer = homeBtn.getParent();
-
-                // The home button is an ImageView inside a FrameLayout
-                if (homeBtnContainer instanceof FrameLayout){
-
-                    ViewGroup containerParent = (ViewGroup) homeBtnContainer.getParent();
-
-                    if (containerParent instanceof LinearLayout){
-
-                        View view = (View) containerParent.getParent();
-
-//                        if (view bar.getCustomView() ){
-
-//                        }else {
-
-                        // This view also contains the title text, set the whole view as clickable
-                        ((LinearLayout) containerParent)
-                                .setOnClickListener(dismissDialogClickListener);
-//                        }
-                    }else{
-
-                        // Just set it on the home button
-                        ((FrameLayout) homeBtnContainer)
-                                .setOnClickListener(dismissDialogClickListener);
-                    }
-                }else{
-
-                    // The 'If all else fails' default case
-                    homeBtn.setOnClickListener(dismissDialogClickListener);
-                }
-            }
-        }
-
-
-        public static Preference openPreference(String prefKey){
-
-//            Preference pref = findPreference(mPreferenceScreen, prefKey);
-//
-//            if (pref != null) {
-//
-//                mPreferenceScreen.onItemClick(null, null, mPosition, 0);
-//            }
-
-//            if(mPreferenceScreen == null){
-//
-//                mPreferenceScreen = getPreferenceScreen();
-//            }
-
-            final ListAdapter listAdapter = mPreferenceScreen.getRootAdapter();
-
-            String key;
-
-            Preference pref = null;
-
-            // Note, this just goes through the top level of preferences
-            for (int cnt = 0; cnt < listAdapter.getCount(); ++cnt){
-
-                Object item = listAdapter.getItem(cnt);
-
-                if (!(item instanceof Preference)){
-
-                    continue;
-                }
-
-                pref = ((Preference) item);
-
-                key = pref.getKey();
-
-                if (key != null && key.equals(prefKey)){
-
-                    // Preference has a *hidden* performClick()
-                    mPreferenceScreen.onItemClick(null, null, cnt, 0);
-                    break;
-                }
-            }
-
-            return pref;
-        }
-
-        static Preference findPreference(PreferenceGroup group, String key){
-
-            mPosition = -1;
-
-            return PreferenceFind(group, key);
-        }
-
-
-        private static Preference PreferenceFind(PreferenceGroup group, String key){
-
-            final int preferenceCount = group.getPreferenceCount();
-
-            for (int i = 0; i < preferenceCount; i++){
-
-                final Preference preference = group.getPreference(i);
-
-                final String curKey = preference.getKey();
-
-                if (curKey != null && curKey.equals(key)){
-
-                    mPosition++;
-
-                    return preference;
-                }
-
-                if (preference instanceof PreferenceGroup){
-
-                    mPosition++;
-
-                    Preference returnedPreference = PreferenceFind(
-                            (PreferenceGroup) preference, key);
-
-                    if (returnedPreference != null){
-
-                        return returnedPreference;
-                    }
-                }
-            }
-
-            return null;
         }
 
 //        @Override
@@ -1004,11 +1170,13 @@ public class appSettings implements SharedPreferences.OnSharedPreferenceChangeLi
 //        }
 
 
+
         @Override
         public void onPause(){
 
             super.onPause();
         }
+
 
 
         @Override

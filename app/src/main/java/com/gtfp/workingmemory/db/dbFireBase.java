@@ -1,6 +1,7 @@
 package com.gtfp.workingmemory.db;
 
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -18,6 +19,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.support.annotation.NonNull;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -35,7 +37,7 @@ import java.util.Set;
  * Created by Drawn on 9/27/2016.
  */
 
-public class dbFireBase implements dbInterface{
+public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
 
     private static appView mAppView;
@@ -56,125 +58,16 @@ public class dbFireBase implements dbInterface{
 
     private static String[] mDataFields;
 
-//    private static ArrayList<HashMap<String, String>> recArrayList(DataSnapshot snapshot,
-//            boolean showDeleted){
-//
-//        ArrayList<HashMap<String, String>> list = new ArrayList<>();
-//
-//        if (snapshot == null){
-//
-//            return list;
-//        }
-//
-//        Tasks task;
-//
-//        DesiredField annotation;
-//
-//        Field[] fields = Tasks.class.getDeclaredFields();
-//
-//        Method[] methods = Tasks.class.getDeclaredMethods();
-//
-//        String value;
-//
-//        String fldName;
-//
-//        long number;
-//
-//        int integer;
-//
-//        boolean skip = false;
-//
-//        for (DataSnapshot shot : snapshot.getChildren()){
-//
-//            try{
-//
-//                task = shot.getValue(Tasks.class);
-//
-//            }catch (Exception ex){
-//
-//                ErrorHandler.logError(ex);
-//
-//                continue;
-//            }
-//
-//            HashMap<String, String> row = new HashMap<>();
-//
-//            row.put("key", shot.getKey());
-//
-//            for (int i = 0; i < fields.length; i++){
-//
-//                annotation = fields[i].getAnnotation(DesiredField.class);
-//
-//                if (annotation == null){
-//
-//                    continue;
-//                }
-//
-//                try{
-//
-//                    switch (methods[i].getReturnType().getName()){
-//                        case "long":
-//
-//                            number = (Long) methods[i].invoke(task);
-//
-//                            value = Long.toString(number);
-//
-//                            break;
-//
-//                        case "int":
-//
-//                            integer = (Integer) methods[i].invoke(task);
-//
-//                            value = String.valueOf(integer);
-//
-//                            break;
-//                        default:
-//
-//                            value = (String) methods[i].invoke(task);
-//                    }
-//
-//                    fldName = fields[i].getName();
-//
-//                    if (!showDeleted && fldName.equals("Deleted") && value.equals("1")){
-//
-//                        skip = true;
-//
-//                        break;
-//                    }
-//                }catch (Exception ex){
-//
-//                    ErrorHandler.logError(ex);
-//
-//                    continue;
-//                }
-//
-//                row.put(fldName, value);
-//            }
-//
-//            if (skip){
-//
-//                skip = false;
-//
-//                continue;
-//            }
-//
-//            list.add(row);
-//        }
-//
-//        return list;
-//    }
-
     private Context mContext;
-
-    private DatabaseReference mUserTasks;
-
-    private DataSnapshot mDataSnapshot;
 
     private ContentValues mRecValues;
 
     private String mLastRowID;
 
     private Set<OnDataListener> mOnDataListeners = new HashSet<>();
+
+    private dbTasksData mTaskData;
+
 
 
 
@@ -184,7 +77,12 @@ public class dbFireBase implements dbInterface{
 
         // Stores the record's contents.
         mRecValues = new ContentValues();
+
+        Auth.addAuthStateListener(this);
+
+        mTaskData = new dbTasksData();
     }
+
 
 
 
@@ -206,11 +104,13 @@ public class dbFireBase implements dbInterface{
 
 
 
+
     private static ArrayList<HashMap<String, String>> recArrayList(DataSnapshot snapshot){
 
         // Collected deleted records as well.
         return recArrayList(snapshot, true);
     }
+
 
 
 
@@ -228,13 +128,34 @@ public class dbFireBase implements dbInterface{
         Object fieldsObj = new Object();
 
         HashMap fldObj;
+        Object objFld;
 
         for (DataSnapshot shot : snapshot.getChildren()){
 
             try{
 
                 fldObj = (HashMap) shot.getValue(fieldsObj.getClass());
+                objFld =  shot.getValue(fieldsObj.getClass());
 
+                for (Object key : fldObj.keySet()){
+
+                    switch (fldObj.get(key).getClass().getName()){
+
+                        case "java.lang.Boolean":
+
+                            fldObj.put(key, (Boolean)fldObj.get(key) ? "true" : "false");
+
+                            break;
+                        case "java.lang.Long":
+
+                            fldObj.put(key, Long.toString((Long)fldObj.get(key)));
+
+                            break;
+                        case "java.lang.Double":
+
+                            fldObj.put(key, Double.toString((Double) fldObj.get(key)));
+                    }
+                }
             }catch (Exception ex){
 
                 ErrorHandler.logError(ex);
@@ -259,6 +180,7 @@ public class dbFireBase implements dbInterface{
 
 
 
+
     public static FirebaseDatabase getDatabase(){
 
         return mDatabase;
@@ -266,11 +188,71 @@ public class dbFireBase implements dbInterface{
 
 
 
-    static boolean isOnline(){
 
-        // Is connected to the Internet.
-        return mAppView.getController().NoConnectivity().isEmpty();
+     static DatabaseReference prevUserIdDBRef(){
+
+        String prevUserId = Auth.getPrevUid();
+
+        DatabaseReference DBRef;
+
+        if (prevUserId == null || prevUserId.isEmpty()){
+
+            DBRef = mDatabase.getReference().child("tasks").child("dummy");
+        }else{
+
+            DBRef = mDatabase.getReference().child("tasks").child(prevUserId);
+        }
+
+        return DBRef;
     }
+
+
+
+
+    private static DatabaseReference tasksRef(){
+
+        DatabaseReference DBRef;
+
+        String id = Auth.getUid();
+
+        if(id == null){
+
+            DBRef = mDatabase.getReference().child("tasks").child("dummy");
+        }else{
+
+            DBRef = mDatabase.getReference().child("tasks").child(id);
+        }
+
+        return DBRef;
+    }
+
+
+
+
+    private static boolean isOnline(){
+
+        boolean online;
+
+        online = mAppView != null;
+
+        if(online){
+
+            // Is connected to the Internet.
+            online = mAppView.getController().NoConnectivity().isEmpty();
+        }
+
+        return online;
+    }
+
+
+
+    public void onAuthStateChanged(@NonNull FirebaseAuth auth){
+
+        // Catch any changes  by other phones.
+        tasksRef().addValueEventListener(mTaskData);
+    }
+
+
 //    public boolean save(ToDoItem itemToDo){
 //
 //        String key = itemToDo.getKey();
@@ -305,26 +287,18 @@ public class dbFireBase implements dbInterface{
     @Override
     public dbInterface open(){
 
-        if (isOpen()){ return this; }
-
         // No internet connection is available.
-        if (!mAppView.getController().NoConnectivity().isEmpty()){return this;}
-
-        // TODO What happens when the connection is closed. Does that mean a requery??
-        mDatabase.goOnline();
+        if (!isOpen()){ return this; }
 
         try{
 
-            if (mUserTasks == null){
+            // TODO What happens when the connection is closed. Does that mean a requery??
+            mDatabase.goOnline();
 
-                mUserTasks = mDatabase.getReference().child("tasks").child(Auth.getUid());
+//            // Catch any changes  by other phones.
+//            tasksRef().addValueEventListener(mTaskData);
 
-                addUserTasksListener(mUserTasks);
-            }
-        }catch (Exception ex){
-
-            mUserTasks = null;
-        }
+        }finally{}
 
         return this;
     }
@@ -340,16 +314,23 @@ public class dbFireBase implements dbInterface{
 
 
 
+
     @Override
     public boolean isOpen(){
 
-        return isOnline() && mUserTasks != null;
+        return isOnline();
     }
 
 
 
     @Override
     public void close(){
+
+    }
+
+
+
+    public void goOffline(){
 
         if (mDatabase != null){
 
@@ -372,7 +353,7 @@ public class dbFireBase implements dbInterface{
         // Prevent an immediate query. Wait for onDataChange()
 //        mIgnoreTrigger = true;
 
-        Query queryRef = mUserTasks.orderByKey();
+        Query queryRef = tasksRef().orderByKey();
 
         if (queryRef == null){ return false; }
 
@@ -406,62 +387,6 @@ public class dbFireBase implements dbInterface{
         return true;
     }
 
-
-
-    // Catch any changes  by other phones.
-    private boolean addUserTasksListener(DatabaseReference dbRef){
-
-        if (dbRef == null){ return false; }
-
-        // Perform the retrieval right away.
-        mIgnoreTrigger = false;
-
-        dbRef.addValueEventListener(
-
-                new ValueEventListener(){
-
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot){
-
-                        if (snapshot == null){
-
-                            return;
-                        }
-
-                        // If these were my own changes ignore.
-                        if (mIgnoreTrigger){
-
-                            mIgnoreTrigger = false;
-
-                            return;
-                        }
-
-                        mDataArrayList = recArrayList(snapshot, mShowDeleted);
-
-                        if (mOnDataListeners != null){
-
-                            for (OnDataListener listener : mOnDataListeners){
-
-                                listener.onDownload(mDataArrayList);
-                            }
-                        }
-
-                        mAppView.onDataChange(snapshot);
-                    }
-
-
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError){
-
-                        String error = databaseError.getMessage();
-
-                        mAppView.onCancelled(databaseError);
-                    }
-                });
-
-        return true;
-    }
 
 
 
@@ -625,8 +550,10 @@ public class dbFireBase implements dbInterface{
             return true;
         }
 
+        final DatabaseReference tasksDB = tasksRef();
+
         // Query the user's tasks.
-        Query queryRef = mUserTasks.orderByKey();
+        Query queryRef = tasksDB.orderByKey();
 
         queryRef.addListenerForSingleValueEvent(new ValueEventListener(){
 
@@ -640,7 +567,7 @@ public class dbFireBase implements dbInterface{
 
                 try{
 
-                    DatabaseReference rec = mUserTasks.child(key);
+                    DatabaseReference rec =  tasksDB.child(key);
 
                     // Delete that record
                     rec.removeValue();
@@ -649,56 +576,6 @@ public class dbFireBase implements dbInterface{
 
                     ErrorHandler.logError(ex);
                 }
-
-//                // This is awesome! No middle man!
-//                Object fieldsObj = new Object();
-//
-//                HashMap fldObj = null;
-//
-//                for (DataSnapshot item : snapshot.getChildren()){
-//
-//                    if (item.getKey().equals(key)){
-//
-//                        try{
-//
-//                            fldObj = (HashMap) item.getValue(fieldsObj.getClass());
-//
-////                            Iterator it = fldObj.entrySet().iterator();
-////
-////                            while (it.hasNext()) {
-////
-////                                Map.Entry pair = (Map.Entry)it.next();
-////
-////                                System.out.println(pair.getKey() + " = " + pair.getValue());
-////
-////                                it.remove(); // avoids a ConcurrentModificationException
-////                            }
-//
-//                            break;
-//
-//                        }catch (Exception ex){
-//
-//                            break;
-//                        }
-//                    }
-//                }
-//
-//                if (fldObj == null || fldObj.size() == 0){ return; }
-//
-//                fldObj.put("Deleted", 1);
-//
-//                Map<String, Object> childUpdates = new HashMap<>();
-//
-//                childUpdates.put(key, fldObj);
-//
-//                try{
-//
-//                    mUserTasks.updateChildren(childUpdates);
-//
-//                }catch (Exception ex){
-//
-//                    ErrorHandler.logError(ex);
-//                }
             }
 
             @Override
@@ -708,7 +585,6 @@ public class dbFireBase implements dbInterface{
         // Assume it always works.
         return true;
     }
-
 
 
 
@@ -734,7 +610,7 @@ public class dbFireBase implements dbInterface{
 
                 mIgnoreTrigger = true;
 
-                mUserTasks.updateChildren(childUpdates);
+                tasksRef().updateChildren(childUpdates);
             }
 
         }catch (Exception ex){
@@ -765,21 +641,23 @@ public class dbFireBase implements dbInterface{
 
         String key = "";
 
+        DatabaseReference dbRef;
+
         try{
 
-            key = mUserTasks.push().getKey();
+            dbRef = tasksRef();
+
+            key =  dbRef.push().getKey();
 
             mLastRowID = key;
-//
+
             Map<String, Object> childUpdates = new HashMap<>();
-//
-////            childUpdates.put(Auth.getUid() + "/" + key, task);
 
             childUpdates.put(key, toMap(itemToDo));
 
             mIgnoreTrigger = true;
 
-            mUserTasks.updateChildren(childUpdates, new DatabaseReference.CompletionListener(){
+            dbRef.updateChildren(childUpdates, new DatabaseReference.CompletionListener(){
 
                 @Override
                 public void onComplete(DatabaseError databaseError,
@@ -787,7 +665,7 @@ public class dbFireBase implements dbInterface{
 
                     if (databaseError != null){
 
-                        ErrorHandler.logError("Not saved to Firebase!");
+                        ErrorHandler.logError(databaseError.toException());
                     }
                 }
             });
@@ -1106,7 +984,7 @@ public class dbFireBase implements dbInterface{
     @Override
     public void onDestroy(){
 
-        close();
+        goOffline();
 
         mAppView = null;
 
@@ -1117,6 +995,8 @@ public class dbFireBase implements dbInterface{
         mDatabase = null;
 
         mApp = null;
+
+        mOnDataListeners.clear();
 
         mOnDataListeners = null;
     }
@@ -1296,6 +1176,52 @@ public class dbFireBase implements dbInterface{
             result.put("Deleted", Deleted);
 
             return result;
+        }
+    }
+
+
+
+
+    class dbTasksData implements ValueEventListener{
+
+        @Override
+        public void onDataChange(DataSnapshot snapshot){
+
+            if (snapshot == null){
+
+                return;
+            }
+
+//                        // If these were my own changes ignore.
+//                        if (mIgnoreTrigger){
+//
+//                            mIgnoreTrigger = false;
+//
+//                            return;
+//                        }
+
+            // List Firebase data
+            mDataArrayList = recArrayList(snapshot, mShowDeleted);
+
+            if (mOnDataListeners != null){
+
+                for (OnDataListener listener : mOnDataListeners){
+
+                    listener.onDownload(mDataArrayList);
+                }
+            }
+
+            mAppView.onDataChange(snapshot);
+        }
+
+
+
+        @Override
+        public void onCancelled(DatabaseError databaseError){
+
+            String error = databaseError.getMessage();
+
+            mAppView.onCancelled(databaseError);
         }
     }
 }

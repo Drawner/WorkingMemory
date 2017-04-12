@@ -123,12 +123,14 @@ public class SignInActivity extends FragmentActivity
 
                     public void onCancel(){
 
+                        int breakpoint = 0;
                     }
 
 
 
                     public void onError(FacebookException error){
 
+                        int breakpoint = 0;
                     }
                 });
     }
@@ -159,9 +161,6 @@ public class SignInActivity extends FragmentActivity
                 GoogleSignInAccount account = result.getSignInAccount();
 
                 authFireBase(account);
-
-                // Close this activity.
-//                finish();
             }else{
 
             }

@@ -3,12 +3,12 @@
 
     <item
         is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\3b696461effbfb111b142b8f2ad27fbc4702f29b\output\jars\classes.jar"
+        jar="C:\Users\Drawn\.android\build-cache\b7c37e1e909512ce089d2294862c03b2774594e3\output\jars\classes.jar"
         jumboMode="false"
         optimize="true"
         revision="25.0.2"
-        sha1="d7c42c80f6509b9ea4db28ca7859ffae08ec5741">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_d1cb3f826391aac1e411dfa2b03c6eee674c70b2.jar" />
+        sha1="6a70160a70685ce25bda1c6e094c73676a399039">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_7a036695bf16420bfd470b138790412c18719d9b.jar" />
     </item>
     <item
         is-multidex="false"
@@ -16,35 +16,26 @@
         jumboMode="false"
         optimize="true"
         revision="25.0.2"
-        sha1="73391bcc66eec6a01999a7f3ecbc6f07c7f99e34">
+        sha1="e87bc8fd141f36349faae7aee724d69169955479">
         <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_613ffd0bfa396446bbfce18e7c97f2c561828447.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\28615b45818661465620699062e134d544544b31\output\jars\classes.jar"
+        jar="C:\Users\Drawn\.android\build-cache\b6eb3c78aeba13349fe68623e2eb2ad49e1950f9\output\jars\classes.jar"
         jumboMode="false"
         optimize="true"
         revision="25.0.2"
-        sha1="9935891f23923f39d002087085d9696568a9f657">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_e34d7ad57a857a7fe68604d1a53036627b82b773.jar" />
+        sha1="94ba691efc31bf53264db0716d9c9ec03843ea31">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_c422c1908b99528aa120a963f184e015b0592e18.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\74f5980c578ee1f816ec624b3d0fa456d3d7e4e7\output\jars\classes.jar"
+        jar="C:\Users\Drawn\.android\build-cache\a3b5b8ffc5d90e7510a5c684c0fded6df061eac5\output\jars\classes.jar"
         jumboMode="false"
         optimize="true"
         revision="25.0.2"
-        sha1="d29714cc76b38157e3cbd034c66e1ec808eb4c19">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_ef987f12ac823999ace07478187029e4c676aa86.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\39d9cd184cdc9e975052716576a8b9847fa25b50\output\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="18d31838aa4fcc768a8a0516e22cc13b94655d89">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_9c7c1ed9d180a50f2d8f215a02243adf2e3bbb6d.jar" />
+        sha1="8bc45ce1f63d1a391fd38b32a201be5a42f9c95d">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_87333bfccaba2d920fca3f1d01407a19c6b19c84.jar" />
     </item>
     <item
         is-multidex="false"
@@ -57,48 +48,12 @@
     </item>
     <item
         is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\6f4326e9cd177395c7b4b847c0b46f205c1aa88c\output\jars\classes.jar"
+        jar="C:\Users\Drawn\.android\build-cache\70cdb784b17bb6e3cbd6860aeb9db8108e307d31\output\jars\classes.jar"
         jumboMode="false"
         optimize="true"
         revision="25.0.2"
-        sha1="2e92aa0163544a804a0b34f169ca61801770839a">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_da06319b20146d50569224d4b199ec6e8f5c6f71.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\669c81584fcd7734802c4531edb8c8cf0e84cc11\output\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="cb2ef781533c3f11c4e80341cbaebad275c66586">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_37e230af2e414119e38357d0f94f5e92e7e6bc3a.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\61ed855bb74dd8459c928d73b5b71d1d4a2abc27\output\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="94ba691efc31bf53264db0716d9c9ec03843ea31">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_f91ce5629ef9de3c92803b9b29124c53be7cc6ef.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\36ec7c83a832224fdc0656731ae7bc27b6dd1a68\output\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="8df0e365e40beb151bc42dee20817721a6cab7b0">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_b28f0d33b9449788f7a478857f997744c9130dc7.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\6bbd6cc2d51340876a726a023e499bfed8828746\output\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="fcd01fd11233459f546c437ec927e9b61bf7caf1">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_275ce75f07d319ccf79464ebc463bf8e88c7bbff.jar" />
+        sha1="d29714cc76b38157e3cbd034c66e1ec808eb4c19">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_8487ab9af73bdce635287453550987dbfab9a11d.jar" />
     </item>
     <item
         is-multidex="false"
@@ -108,15 +63,6 @@
         revision="25.0.2"
         sha1="8ad21bf21784dacce5f2043afb97218cc377e835">
         <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\bolts-applinks-1.4.0_c175fbe6f7e01e1502d1ae6c9495d5d54d9ab744.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\6212ad01b79d00ca2db409562f9b7b4dc2a6253d\output\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="e176fd06c2ad5b50a2f5cb4de6000a83a7cb48f5">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_6f357a927dc9eaafc3b2b727eaace51e35c329a0.jar" />
     </item>
     <item
         is-multidex="false"
@@ -138,21 +84,21 @@
     </item>
     <item
         is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\fc441afe9ce5ee03907198697dea3d22c2360507\output\jars\classes.jar"
+        jar="C:\Users\Drawn\.android\build-cache\83b0a0fa26cc63fd21906fbcd46fb089d26054c1\output\jars\classes.jar"
         jumboMode="false"
         optimize="true"
         revision="25.0.2"
-        sha1="8bc45ce1f63d1a391fd38b32a201be5a42f9c95d">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_357a46165c059882716c2abcab112891aa2f4bcd.jar" />
+        sha1="e176fd06c2ad5b50a2f5cb4de6000a83a7cb48f5">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_4924ab7c576fe75cb419c27c60883873ddd0386d.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\381ddda19d62b3bf43af5ad083b0b1778837fbd3\output\jars\classes.jar"
+        jar="C:\Users\Drawn\.android\build-cache\05a00e0e491afad062d65cbd1c47b912db6373c5\output\jars\classes.jar"
         jumboMode="false"
         optimize="true"
         revision="25.0.2"
         sha1="53a420cd4f49274db6bd43475f8006ba67ef6bbd">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_e1f68b234c24dd36e30e4588369c6dc6e526786c.jar" />
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_3cfefc8b3b96976abe9583015562a349ed9bae87.jar" />
     </item>
 
 </items>

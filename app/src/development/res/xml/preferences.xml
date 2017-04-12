@@ -136,7 +136,7 @@
                     android:summary="@string/summary_advance_mins"
                     android:entries="@array/advance_minutes"
                     android:entryValues="@array/advance_minutes"/>
-            <CheckBoxPreference
+<!--            <CheckBoxPreference
                     android:key="data_online"
                     android:title="@string/data_online"
                     android:summary="@string/summary_data_online"/>
@@ -144,7 +144,7 @@
                     android:key="sync_data"
                     android:title="@string/sync_data"
                     android:summary="@string/summary_sync_data"/>
-            <PreferenceScreen
+--><!--            <PreferenceScreen
                     android:key="export_records"
                     android:title="@string/export_records"
                     android:summary="@string/summary_export_records"/>
@@ -152,7 +152,7 @@
                     android:key="import_records"
                     android:title="@string/import_records"
                     android:summary="@string/summary_import_records"/>
-        </PreferenceScreen>
+-->        </PreferenceScreen>
     </PreferenceCategory>
 </PreferenceScreen>
 

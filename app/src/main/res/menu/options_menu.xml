@@ -4,7 +4,9 @@
           android:title="@string/settings"/>
     <item android:id="@+id/login"
           android:title="@string/login"/>
-    <group android:id="@+id/error_group">
+    <item android:id="@+id/logout"
+          android:title="@string/logout"/>
+<!--    <group android:id="@+id/error_group">
         <item android:id="@+id/errors"
               android:title="@string/errors"/>
         <item android:id="@+id/throwError"
@@ -14,6 +16,7 @@
         <item android:id="@+id/deleteSync"
               android:title="@string/syncDelete"/>
     </group>
+-->
     <item
             android:id="@+id/legal"
             android:title="@string/legal"/>
