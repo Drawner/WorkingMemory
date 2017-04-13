@@ -301,21 +301,21 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 //                deleteSync();
 //
 //                return true;
-
-            case R.id.help:
-
-                text = "Help Context coming soon...";
-
-                try{
-
-                    mDialogue.showBox(text);
-
-                }catch (NullPointerException ex){
-
-                    return false;
-                }
-
-                return true;
+//
+//            case R.id.help:
+//
+//                text = "Help Context coming soon...";
+//
+//                try{
+//
+//                    mDialogue.showBox(text);
+//
+//                }catch (NullPointerException ex){
+//
+//                    return false;
+//                }
+//
+//                return true;
 
             case R.id.about:
 
