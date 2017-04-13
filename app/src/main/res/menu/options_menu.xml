@@ -16,12 +16,12 @@
         <item android:id="@+id/deleteSync"
               android:title="@string/syncDelete"/>
     </group>
--->
+
     <item
             android:id="@+id/legal"
             android:title="@string/legal"/>
     <item android:id="@+id/help"
           android:title="@string/help"/>
-    <item android:id="@+id/about"
+-->    <item android:id="@+id/about"
           android:title="@string/about"/>
 </menu>
