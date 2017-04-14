@@ -41,8 +41,6 @@ public class dbCloud{
 
     private static appModel mAppModel;
 
-    private static  asyncData mAsyncData;
-
 
 
 
@@ -63,8 +61,6 @@ public class dbCloud{
 
         // Recreate the table while developing.
         // recreate();
-
-        mAsyncData = new asyncData();
 
         DataSync.onCreate(app);
     }
@@ -772,6 +768,14 @@ public class dbCloud{
                     // Only want this to fire once.
                     syncINRef.removeEventListener(this);
 
+                    // Create a new instance every time as each can only be called once.
+                    asyncData task = new asyncData();
+
+                    if(task.isRunning()){
+
+                       return;
+                    }
+
                     HashMap<String, Object> params = new HashMap<>();
 
                     params.put("snapshot", snapshot);
@@ -780,7 +784,7 @@ public class dbCloud{
 
                     params.put("dbCloud", dbCloud);
 
-                   mAsyncData.execute(params);
+                    task.execute(params);
 
 //                    try{
 //
@@ -1344,6 +1348,27 @@ public class dbCloud{
 
     private static class asyncData extends AsyncTask<HashMap<String, Object>, Void, Boolean>{
 
+        static boolean mRunning = false;
+
+
+
+        // Ensure this task is not already running.
+        public boolean isRunning(){
+
+            return mRunning;
+        }
+
+
+
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+
+            mRunning = true;
+        }
+
+
+
         @Override
         protected Boolean doInBackground(HashMap<String, Object>... params){
 
@@ -1391,6 +1416,8 @@ public class dbCloud{
 
                 mAppModel.getView().refreshList();
             }
+
+            mRunning = false;
         }
     }
 }

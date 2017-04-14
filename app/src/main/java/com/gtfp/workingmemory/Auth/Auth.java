@@ -130,7 +130,8 @@ public class Auth{
 
     public static void onStop(){
 
-        if (mAuthListener != null){
+        // mAuth may be null
+        if (mAuthListener != null && mAuth != null){
 
             mAuth.removeAuthStateListener(mAuthListener);
         }
