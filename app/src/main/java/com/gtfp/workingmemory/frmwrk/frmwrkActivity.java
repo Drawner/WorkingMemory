@@ -1,7 +1,6 @@
 package com.gtfp.workingmemory.frmwrk;
 
 import com.gtfp.errorhandler.ErrorHandler;
-import com.gtfp.workingmemory.app.App;
 
 import android.app.Activity;
 import android.content.Context;
@@ -39,10 +38,7 @@ public class frmwrkActivity extends Activity{
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        if (App.inDebugger()){
-
-            ErrorHandler.toCatch(this);
-        }
+        ErrorHandler.toCatch(this);
 
         // SPECIAL CASE: Most times savedInstanceState is null.
         // Check whether we're recreating a previously destroyed instance

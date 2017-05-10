@@ -39,20 +39,24 @@ public class dbCloud{
 
     private static SQLiteHelper mDBHelper;
 
-    private static appModel mAppModel;
+    private appModel mAppModel;
+
+    private static dbCloud mThis;
 
 
+    private dbCloud(appController app){
 
-
-    private dbCloud(){
-
+        mAppModel = app.getModel();
     }
 
 
 
     public static void onCreate(appController app){
 
-        mAppModel = app.getModel();
+        if(mThis == null){
+
+            mThis = new dbCloud(app);
+        }
 
         mDBName = "sync";
 
@@ -366,9 +370,9 @@ public class dbCloud{
 
 
 
-    public static boolean sync(dbInterface dbLocal, dbInterface dbCloud){
+    public static boolean sync(dbInterface dbLocal, dbInterface dbCloud, appModel model){
 
-        DataSync.sync(dbLocal, dbCloud);
+        DataSync.sync(dbLocal, dbCloud, model);
 
         return true;
     }
@@ -445,7 +449,7 @@ public class dbCloud{
             // Clear the key to have it inserted in the new 'cloud' table.
 //            item.setKey("");
 
-            mAppModel.save(item);
+            mThis.mAppModel.save(item);
         }
 
         final String prevUid = Auth.getPrevUid();
@@ -509,9 +513,19 @@ public class dbCloud{
 
 
 
+
+    // Set the device entry in the cloud with an assigned timestamp.
+    public static void  setDeviceDirectory(){
+
+        DataSync.deviceDirectory(System.currentTimeMillis() / 1000);
+    }
+
+
+
+
     public static void onDestroy(){
 
-        mAppModel = null;
+        mThis = null;
 
         if (mDBHelper != null){
 
@@ -747,26 +761,26 @@ public class dbCloud{
 
 
 
-        static boolean sync(final dbInterface dbLocal, final dbInterface dbCloud){
+        static void sync(final dbInterface dbLocal, final dbInterface dbCloud, final appModel AppModel){
 
-            if (!isOnline()){return false;}
+            if (!isOnline()){return;}
 
             final DatabaseReference syncINRef = syncRef(Auth.getUid()).child("IN");
 
             // Process the online sync table records if any.
-            syncINRef.addValueEventListener(new ValueEventListener(){
+            syncINRef.addListenerForSingleValueEvent(new ValueEventListener(){
 
                 @SuppressWarnings("unchecked")
                 @Override
                 public void onDataChange(final DataSnapshot snapshot){
 
+                    // Only want this to fire once.
+                    syncINRef.removeEventListener(this);
+
                     if (snapshot == null){
 
                         return;
                     }
-
-                    // Only want this to fire once.
-                    syncINRef.removeEventListener(this);
 
                     // Create a new instance every time as each can only be called once.
                     asyncData task = new asyncData();
@@ -777,6 +791,8 @@ public class dbCloud{
                     }
 
                     HashMap<String, Object> params = new HashMap<>();
+
+                    params.put("model", AppModel);
 
                     params.put("snapshot", snapshot);
 
@@ -807,8 +823,6 @@ public class dbCloud{
                     String error = databaseError.getMessage();
                 }
             });
-
-            return true;
         }
 
 
@@ -979,49 +993,62 @@ public class dbCloud{
 
 
 
-        private static void deviceDirectory(){
+        static void deviceDirectory(final long timestamp){
 
-            final DatabaseReference deviceRef = getDevRef(Auth.getUid());
+            getDevRef(Auth.getUid()).setValue(timestamp, new DatabaseReference.CompletionListener(){
 
-            deviceRef.addValueEventListener(new ValueEventListener(){
+                public void onComplete(DatabaseError error,
+                        DatabaseReference ref){
 
-                @Override
-                public void onDataChange(DataSnapshot snapshot){
+                    if (error == null){
 
-                    if (snapshot == null){ return; }
+                    }else{
 
-                    if (snapshot.exists()){ return; }
-
-                    deviceRef.setValue("", new DatabaseReference.CompletionListener(){
-
-                        public void onComplete(DatabaseError error,
-                                DatabaseReference ref){
-
-                            if (error == null){
-
-                            }else{
-
-                            }
-                        }
-                    });
-                }
-
-
-
-                @Override
-                public void onCancelled(DatabaseError databaseError){
-
-                    String error = databaseError.getMessage();
+                    }
                 }
             });
+
+//            deviceRef.addListenerForSingleValueEvent(new ValueEventListener(){
+//
+//                @Override
+//                public void onDataChange(DataSnapshot snapshot){
+//
+//                    if (snapshot == null){ return; }
+//
+//// Allow the timestamp to be updated.
+////                    if (snapshot.exists()){ return; }
+//
+//                    deviceRef.setValue(timestamp, new DatabaseReference.CompletionListener(){
+//
+//                        public void onComplete(DatabaseError error,
+//                                DatabaseReference ref){
+//
+//                            if (error == null){
+//
+//                            }else{
+//
+//                            }
+//                        }
+//                    });
+//                }
+//
+//
+//
+//                @Override
+//                public void onCancelled(DatabaseError databaseError){
+//
+//                    String error = databaseError.getMessage();
+//                }
+//            });
         }
 
 
 
         public static boolean insert(final String key, final String action){
 
-            // Record this device up on the cloud if not already.
-            deviceDirectory();
+            // Record with a timestamp the time of this insertion. (to determine last used on server)
+            //System.currentTimeMillis() / 1000 / 86400  will give you days.
+            deviceDirectory(System.currentTimeMillis() / 1000);
 
             if (key == null || key.isEmpty()){ return false; }
 
@@ -1350,6 +1377,7 @@ public class dbCloud{
 
         static boolean mRunning = false;
 
+        private appModel mAppModel;
 
 
         // Ensure this task is not already running.
@@ -1382,6 +1410,8 @@ public class dbCloud{
 
                 dbInterface dbCloud = (dbInterface)params[0].get("dbCloud");
 
+                mAppModel = (appModel)params[0].get("model");
+
                 sync = snapshot != null && snapshot.hasChildren();
 
                 if(sync){
@@ -1389,9 +1419,11 @@ public class dbCloud{
                     DataSync.syncData(snapshot, dbLocal, dbCloud);
                 }
 
-                sync = getRecs().getCount() > 0;
+                // Local records updated
+                if(getRecs().getCount() > 0){
 
-                if(sync){
+                    // Should sync
+                    sync = true;
 
                     // Update the dbFirebase database now that there is online access.
                     DataSync.updateCloud(dbLocal, dbCloud);

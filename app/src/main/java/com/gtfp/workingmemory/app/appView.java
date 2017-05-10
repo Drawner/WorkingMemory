@@ -13,12 +13,11 @@ import com.gtfp.errorhandler.CrashFragment;
 import com.gtfp.errorhandler.ErrorHandler;
 import com.gtfp.workingmemory.Auth.Auth;
 import com.gtfp.workingmemory.R;
+import com.gtfp.workingmemory.db.dbFireBase;
 import com.gtfp.workingmemory.edit.appCRUD;
 import com.gtfp.workingmemory.edit.rowView;
 import com.gtfp.workingmemory.google.LegalNoticesActivity;
 import com.gtfp.workingmemory.google.SignInActivity;
-import com.gtfp.workingmemory.google.googleService;
-import com.gtfp.workingmemory.google.googleSignIn;
 import com.gtfp.workingmemory.settings.appSettings;
 import com.gtfp.workingmemory.todo.ToDoAlarm;
 import com.gtfp.workingmemory.todo.ToDoItem;
@@ -104,7 +103,7 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
     Context mContext;
 
-    private googleSignIn mGoogleSignIn;
+//    private googleSignIn mGoogleSignIn;
 
     private boolean mFirstCall = true;
 
@@ -149,7 +148,7 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         mFragMngr = mController.getFragmentManager();
 
         // Sign into Google.
-        mGoogleSignIn = new googleSignIn(mContext);
+//        mGoogleSignIn = new googleSignIn(mContext);
 
         mItemsOnWallpaper = new Wallpaper(app);
 
@@ -284,17 +283,17 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
                 return true;
 
+            case R.id.sync:
+
+                syncData("get");
+
+                return true;
 //            case R.id.errors:
 //
 //                listErrors();
 //
 //                return true;
 //
-//            case R.id.sync:
-//
-//                syncData("get");
-//
-//                return true;
 //
 //            case R.id.deleteSync:
 //
@@ -345,9 +344,13 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         if (App.inDebugger()){
 
             onErrorMenu(menu);
-        }else{
+        }
+
+        if(!Auth.isLoggedIn()){
 
             menu.removeItem(R.id.logout);
+
+            menu.removeItem(R.id.sync);
         }
 
         onThrowError(menu);
@@ -356,6 +359,9 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
         return true;
     }
+
+
+
 
     void onErrorMenu(Menu menu){
 
@@ -561,7 +567,7 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
             mAlarmManager.cancelAlarm(todoItem);
 
-            restoreSync();
+//            restoreSync();
         }
 
         return deleted;
@@ -1065,35 +1071,37 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
     // Sync with the data stored on your Google Drive
     private void syncData(String param){
 
-        String action;
+        dbFireBase.sync();
 
-        if (param == null || param.isEmpty()){
-
-            action = "get";
-        }else{
-
-            action = param;
-        }
-
-        String file = syncFileName();
-
-        if (file.isEmpty()){
-
-            return;
-        }
-
-//        Intent googleIntent  = new Intent(mController, googleActivity.class);
-        Intent googleIntent = new Intent(mController, googleService.class);
-
-        googleIntent.putExtra("filename", file);
-
-        googleIntent.putExtra("action", action);
-
-//        mController.startActivityForResult(googleIntent, GOOGLE_REQUEST);
-
-        mController.stopService(googleIntent);
-
-        mController.startService(googleIntent);
+//        String action;
+//
+//        if (param == null || param.isEmpty()){
+//
+//            action = "get";
+//        }else{
+//
+//            action = param;
+//        }
+//
+//        String file = syncFileName();
+//
+//        if (file.isEmpty()){
+//
+//            return;
+//        }
+//
+////        Intent googleIntent  = new Intent(mController, googleActivity.class);
+//        Intent googleIntent = new Intent(mController, googleService.class);
+//
+//        googleIntent.putExtra("filename", file);
+//
+//        googleIntent.putExtra("action", action);
+//
+////        mController.startActivityForResult(googleIntent, GOOGLE_REQUEST);
+//
+//        mController.stopService(googleIntent);
+//
+//        mController.startService(googleIntent);
     }
 
     public void restoreSync(){
@@ -1493,12 +1501,12 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
             mAlarmManager = null;
         }
 
-        if (mGoogleSignIn != null){
-
-            mGoogleSignIn.onDestroy();
-
-            mGoogleSignIn = null;
-        }
+//        if (mGoogleSignIn != null){
+//
+//            mGoogleSignIn.onDestroy();
+//
+//            mGoogleSignIn = null;
+//        }
 
 //        if (mItemsOnWallpaper != null)  {
 //
@@ -1542,8 +1550,6 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
                 // Sign in.
                 runActivity(SignInActivity.class);
             }else{
-
-                String provider = Auth.userProfile(user, "provider");
 
                 // Sign in.
                 runActivity(SignInActivity.class);

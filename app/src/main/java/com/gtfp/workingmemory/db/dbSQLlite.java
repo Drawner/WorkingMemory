@@ -10,7 +10,6 @@ import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,20 +22,6 @@ import java.util.Set;
  */
 public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
-    private static dbInterface mDBHelper;
-
-    private SQLiteDatabase mDB;
-
-    private Context mContext;
-
-    private Cursor mResultSet;
-
-    private ContentValues mRecValues;
-
-    private boolean mUseView;
-
-    public Cursor mDataRecs;
-
     private static final String DATABASE_NAME = "working";
 
     private static final String DATABASE_FILE = DATABASE_NAME + ".db";
@@ -44,18 +29,11 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     // ROWID is automatically added to all SQLite tables by default, and is a unique integer,
     private static final String DBKEY_FIELD = "rowid";
 
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
 
     // Ported to the file, create.sql
     private static final String DATABASE_CREATE = "CREATE TABLE IF NOT EXISTS " + DATABASE_NAME
             + "(ToDoItem VARCHAR, ToDoKey VARCHAR, ToDoDateTime VARCHAR, ToDoDateTimeEpoch Long, ToDoTimeZone VARCHAR, ToDoReminderEpoch Long, ToDoReminderChk integer default 0, ToDoLEDColor integer default 0, ToDoFired integer default 0, deleted integer default 0);";
-
-    // SQL statement used to upgrade the database.
-    private final String ALTER_TABLE = "ALTER TABLE " + DATABASE_NAME
-            + " ADD COLUMN ToDoFired integer default 0;";
-
-    private final String SELECT_ALL = "SELECT " + DBKEY_FIELD + " AS _id, * FROM " + DATABASE_NAME;
-    //  + " ORDER BY ToDoDateTimeEpoch ASC"
 
     private static final String DROP_TABLE = "DROP TABLE IF EXISTS " + DATABASE_NAME;
 
@@ -77,13 +55,40 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     private static final String SELECT_DELETED = "SELECT " + DBKEY_FIELD
             + " AS _id, * FROM temp.deleted";
 
+    private static final String SQL_DIR = "sql";
+
+    private static final String CREATEFILE = "create.sql";
+
+    private static final String UPGRADEFILE_PREFIX = "upgrade-";
+    //  + " ORDER BY ToDoDateTimeEpoch ASC"
+
+    private static final String UPGRADEFILE_SUFFIX = ".sql";
+
+    private static dbInterface mDBHelper;
+
+    // SQL statement used to upgrade the database.
+    private final String ALTER_TABLE = "ALTER TABLE " + DATABASE_NAME
+            + " ADD COLUMN ToDoFired integer default 0;";
+
+    private final String SELECT_ALL = "SELECT " + DBKEY_FIELD + " AS _id, * FROM " + DATABASE_NAME;
+
+    public Cursor mDataRecs;
+
+    private SQLiteDatabase mDB;
+
+    private Context mContext;
+
+    private Cursor mResultSet;
+
+    private ContentValues mRecValues;
+
+    private boolean mUseView;
+
     private Set<OnCreateListener> mOnCreateListeners = new HashSet<>();
 
     private Set<OnOpenListener> mOnOpenListeners = new HashSet<>();
 
     private Set<OnConfigureListener> mOnConfigureListeners = new HashSet<>();
-
-
 
 
     private dbSQLlite(Context controller){
@@ -96,6 +101,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     }
 
 
+
     public static dbInterface getInstance(Context controller){
 
         if (mDBHelper == null){
@@ -105,6 +111,43 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
         return mDBHelper;
     }
+
+
+
+    public static  int setBindRecInt(String value){
+
+        if (value == null || value.isEmpty()){
+            return 0;
+        }
+
+        try{
+
+            return Integer.parseInt(value);
+
+        }catch (NumberFormatException ex){
+
+            return 0;
+        }
+    }
+
+
+
+    public static long setBindRecLong(String value){
+
+        if (value == null || value.isEmpty()){
+            return 0L;
+        }
+
+        try{
+
+            return Long.parseLong(value, 10);
+
+        }catch (NumberFormatException ex){
+
+            return 0L;
+        }
+    }
+
 
 
     public boolean createCurrentRecs(){
@@ -122,6 +165,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
         return true;
     }
+
 
 
     public dbSQLlite open(){
@@ -150,10 +194,12 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     }
 
 
+
     public boolean isOpen(){
 
         return mDB != null && mDB.isOpen();
     }
+
 
 
     public void close(){
@@ -176,10 +222,12 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     }
 
 
+
     public SQLiteDatabase getDatabase(){
 
         return mDB;
     }
+
 
 
     public void clearResultSet(){
@@ -206,6 +254,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     }
 
 
+
     public boolean showDeleted(boolean showDeleted){
 
         // Show deleted records means NOT to use the view.
@@ -213,6 +262,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
         return showDeleted;
     }
+
 
 
     public Cursor runQuery(String sqlStmt){
@@ -233,20 +283,26 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     }
 
 
+
     public Cursor getRecs(){
 
         return runQuery(SELECT_ALL);
     }
+
+
 
     public Cursor getCurrentRecs(){
 
         return runQuery(SELECT_NOT_DELETED);
     }
 
+
+
     public Cursor getDeletedRecs(){
 
         return runQuery(SELECT_DELETED);
     }
+
 
 
     public Long getLastRowID(){
@@ -278,7 +334,6 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
 
 
-
     public Cursor getRec(String keyID){
 
         String key = keyID.trim();
@@ -290,7 +345,6 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
         return runQuery(SQLStmt);
     }
-
 
 
 
@@ -315,7 +369,6 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
         return rowID;
     }
-
 
 
 
@@ -404,6 +457,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     }
 
 
+
     // Dummy method
     public ArrayList<HashMap<String, String>> getDataArrayList(){
 
@@ -431,6 +485,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     }
 
 
+
     public boolean markRec(Long rowID){
 
         String id = Long.toString(rowID);
@@ -451,6 +506,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
         return true;
     }
+
 
 
     public boolean save(ToDoItem itemToDo){
@@ -481,10 +537,13 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     }
 
 
+
     public int updateRec(ToDoItem itemToDo){
 
         return updateRec(bindRecValues(itemToDo), itemToDo.getId());
     }
+
+
 
     public int updateRec(ContentValues recValues, long id){
         int result;
@@ -505,10 +564,12 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     }
 
 
+
     public long insertRec(ToDoItem itemToDo){
 
         return insertRec(bindRecValues(itemToDo));
     }
+
 
 
     public long insertRec(ContentValues recValues){
@@ -526,6 +587,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
         return result;
     }
+
 
 
     public ContentValues bindRecValues(ToDoItem itemToDo){
@@ -555,6 +617,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
         return mRecValues;
     }
+
 
 
     public void bindRecValues(String columnName, String value){
@@ -606,50 +669,19 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     }
 
 
+
     public ContentValues recValues(){
 
         return mRecValues;
     }
 
 
-    public static  int setBindRecInt(String value){
-
-        if (value == null || value.isEmpty()){
-            return 0;
-        }
-
-        try{
-
-            return Integer.parseInt(value);
-
-        }catch (NumberFormatException ex){
-
-            return 0;
-        }
-    }
-
-
-    public static long setBindRecLong(String value){
-
-        if (value == null || value.isEmpty()){
-            return 0L;
-        }
-
-        try{
-
-            return Long.parseLong(value, 10);
-
-        }catch (NumberFormatException ex){
-
-            return 0L;
-        }
-    }
-
 
     public boolean importRec(){
 
         return insertRec(mRecValues) > 0;
     }
+
 
 
     public boolean ifNewRec(){
@@ -669,6 +701,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
         return newRec;
     }
+
 
 
     public Cursor getRecs(String whereClause){
@@ -694,14 +727,12 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
 
 
-
     public Cursor getRecord(int rowId){
 
         String sqlStmt =   DBKEY_FIELD + " = " + rowId;
 
         return getRecs(sqlStmt);
     }
-
 
 
 
@@ -726,16 +757,19 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
     }
 
 
+
     public boolean createEmptyTemp(){
 
         return createTemp(DBKEY_FIELD + " = -1");
     }
 
 
+
     public long insertTempRec(){
 
         return insertTemptRec(mRecValues);
     }
+
 
 
     public Cursor getNewTempRecs(){
@@ -750,6 +784,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
         return records;
     }
+
 
 
     private long insertTemptRec(ContentValues recValues){
@@ -770,12 +805,10 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
 
 
-
     public boolean dropTable(){
 
         return dropTable(mDB);
     }
-
 
 
 
@@ -800,19 +833,23 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
 
 
-
     @Override
     public void onConfigure(SQLiteDatabase db){
 
         if (mOnConfigureListeners != null){
 
-            for (OnConfigureListener listener : mOnConfigureListeners){
+            try{
 
-                listener.onConfigure(db);
+                for (OnConfigureListener listener : mOnConfigureListeners){
+
+                    listener.onConfigure(db);
+                }
+            }catch(Exception ex){
+
+                ErrorHandler.logError(ex);
             }
         }
     }
-
 
 
 
@@ -821,13 +858,18 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
 
         if (mOnOpenListeners != null){
 
-            for (OnOpenListener listener : mOnOpenListeners){
+            try{
 
-                listener.onOpen(db);
+                for (OnOpenListener listener : mOnOpenListeners){
+
+                   listener.onOpen(db);
+                }
+            }catch(Exception ex){
+
+                ErrorHandler.logError(ex);
             }
         }
     }
-
 
 
 
@@ -849,13 +891,7 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
         }
     }
 
-    private static final String SQL_DIR = "sql";
 
-    private static final String CREATEFILE = "create.sql";
-
-    private static final String UPGRADEFILE_PREFIX = "upgrade-";
-
-    private static final String UPGRADEFILE_SUFFIX = ".sql";
 
     // Called when no database exists or if there is a new 'version' indicated.
     @Override
@@ -914,15 +950,17 @@ public class dbSQLlite extends SQLiteOpenHelper implements dbInterface{
         }catch (IOException ex){
 
             // TODO Modify ErrorHandler to log the error directly.
-            Log.e(mContext.getClass().getSimpleName(),
-                    "Database upgrade failed. Version " + oldVersion + " to " + newVersion);
+            ErrorHandler.logError("Database upgrade failed. Version " + oldVersion + " to " + newVersion);
+
+            ErrorHandler.logError(ex);
 
         }catch (RuntimeException ex){
 
             // TODO Modify ErrorHandler to log the error directly.
             // TODO Should notify the application the startup failed.
-            Log.e(mContext.getClass().getSimpleName(),
-                    "Database upgrade failed. Version " + oldVersion + " to " + newVersion);
+            ErrorHandler.logError("Database upgrade failed. Version " + oldVersion + " to " + newVersion);
+
+            ErrorHandler.logError(ex);
 
             // Be sure to throw the exception back up to be handled there as well.
             throw ex;

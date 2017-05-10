@@ -40,19 +40,17 @@ import java.util.Set;
 public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
 
-    private static appView mAppView;
+    private appView mAppView;
 
-    private static dbInterface mThis;
+    private static dbFireBase mThis;
 
-    private static FirebaseApp mApp;
+    private FirebaseApp mApp;
 
     private static FirebaseDatabase mDatabase;
 
     private static boolean mShowDeleted;
 
     private static ArrayList<HashMap<String, String>> mDataArrayList;
-
-    private static boolean mIgnoreTrigger = false;
 
     private static Cursor mResultSet;
 
@@ -71,9 +69,15 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
 
 
-    private dbFireBase(Context context){
+    private dbFireBase(appView mVc){
 
-        mContext = context;
+        mAppView = mVc;
+
+        mDatabase = FirebaseDatabase.getInstance();
+
+        mApp = mDatabase.getApp();
+
+        mContext = mVc.getContext();
 
         // Stores the record's contents.
         mRecValues = new ContentValues();
@@ -90,13 +94,7 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
         if (mThis == null){
 
-            mAppView = mVc;
-
-            mThis = new dbFireBase(mVc.getContext());
-
-            mDatabase = FirebaseDatabase.getInstance();
-
-            mApp = mDatabase.getApp();
+            mThis = new dbFireBase(mVc);
         }
 
         return mThis;
@@ -128,14 +126,17 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
         Object fieldsObj = new Object();
 
         HashMap fldObj;
-        Object objFld;
 
         for (DataSnapshot shot : snapshot.getChildren()){
+
+            if(!shot.hasChildren()){
+
+                continue;
+            }
 
             try{
 
                 fldObj = (HashMap) shot.getValue(fieldsObj.getClass());
-                objFld =  shot.getValue(fieldsObj.getClass());
 
                 for (Object key : fldObj.keySet()){
 
@@ -183,6 +184,11 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
     public static FirebaseDatabase getDatabase(){
 
+        if(mDatabase == null){
+
+            mDatabase = FirebaseDatabase.getInstance();
+        }
+
         return mDatabase;
     }
 
@@ -191,16 +197,16 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
      static DatabaseReference prevUserIdDBRef(){
 
-        String prevUserId = Auth.getPrevUid();
+         DatabaseReference DBRef;
 
-        DatabaseReference DBRef;
+         String prevUserId = Auth.getPrevUid();
 
         if (prevUserId == null || prevUserId.isEmpty()){
 
-            DBRef = mDatabase.getReference().child("tasks").child("dummy");
+            DBRef = getDatabase().getReference().child("tasks").child("dummy");
         }else{
 
-            DBRef = mDatabase.getReference().child("tasks").child(prevUserId);
+            DBRef = getDatabase().getReference().child("tasks").child(prevUserId);
         }
 
         return DBRef;
@@ -209,18 +215,26 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
 
 
-    private static DatabaseReference tasksRef(){
 
-        DatabaseReference DBRef;
+    private static DatabaseReference tasksRef(){
 
         String id = Auth.getUid();
 
+        return tasksRef(id);
+    }
+
+
+
+    private static DatabaseReference tasksRef(String id){
+
+        DatabaseReference DBRef;
+
         if(id == null){
 
-            DBRef = mDatabase.getReference().child("tasks").child("dummy");
+            DBRef = getDatabase().getReference().child("tasks").child("dummy");
         }else{
 
-            DBRef = mDatabase.getReference().child("tasks").child(id);
+            DBRef = getDatabase().getReference().child("tasks").child(id);
         }
 
         return DBRef;
@@ -233,12 +247,12 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
         boolean online;
 
-        online = mAppView != null;
+        online = mThis.mAppView != null;
 
         if(online){
 
             // Is connected to the Internet.
-            online = mAppView.getController().NoConnectivity().isEmpty();
+            online = mThis.mAppView.getController().NoConnectivity().isEmpty();
         }
 
         return online;
@@ -343,15 +357,10 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
     @Override
     public boolean createCurrentRecs(){
 
-        if (mIgnoreTrigger){
-
-            mIgnoreTrigger = false;
+        if (Semaphore.got()){
 
             return true;
         }
-
-        // Prevent an immediate query. Wait for onDataChange()
-//        mIgnoreTrigger = true;
 
         Query queryRef = tasksRef().orderByKey();
 
@@ -522,17 +531,26 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
     @Override
     public boolean save(ToDoItem itemToDo){
 
+        boolean save;
+
         if (itemToDo.newItem()){
 
             String key = insertRec(itemToDo);
 
             itemToDo.setKey(key);
 
-            return !key.isEmpty();
+            save = !key.isEmpty();
         }else{
 
-            return updateRec(itemToDo) > 0;
+            save = updateRec(itemToDo) > 0;
         }
+
+        if(save){
+
+            Semaphore.write();
+        }
+
+        return save;
     }
 
 
@@ -572,6 +590,9 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
                     // Delete that record
                     rec.removeValue();
 
+                    // Retain the semaphore.
+                    Semaphore.write();
+
                 }catch (Exception ex){
 
                     ErrorHandler.logError(ex);
@@ -608,14 +629,21 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
                 childUpdates.put(key, toMap(itemToDo));
 
-                mIgnoreTrigger = true;
+                tasksRef().updateChildren(childUpdates, new DatabaseReference.CompletionListener(){
 
-                tasksRef().updateChildren(childUpdates);
+                    @Override
+                    public void onComplete(DatabaseError databaseError,
+                            DatabaseReference databaseReference){
+
+                        if (databaseError != null){
+
+                            ErrorHandler.logError(databaseError.toException());
+                        }
+                    }
+                });
             }
 
         }catch (Exception ex){
-
-            mIgnoreTrigger = false;
 
             ErrorHandler.logError(ex);
 
@@ -655,8 +683,6 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
             childUpdates.put(key, toMap(itemToDo));
 
-            mIgnoreTrigger = true;
-
             dbRef.updateChildren(childUpdates, new DatabaseReference.CompletionListener(){
 
                 @Override
@@ -671,8 +697,6 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
             });
 
         }catch (Exception ex){
-
-            mIgnoreTrigger = false;
 
             key = "";
         }
@@ -876,9 +900,7 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
         ArrayList<ToDoItem> todoList = new ArrayList<>();
 
         // If these were my own changes ignore.
-        if (mIgnoreTrigger){
-
-            mIgnoreTrigger = false;
+        if (Semaphore.got()){
 
             return todoList;
         }
@@ -967,6 +989,7 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
 
 
+
     public boolean setOnDataListener(OnDataListener listener){
 
         return mOnDataListeners.add(listener);
@@ -974,10 +997,20 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
 
 
+
     public boolean removeOnDataListener(OnDataListener listener){
 
         return mOnDataListeners.remove(listener);
     }
+
+
+
+
+    public static void sync(){
+
+        Sync.data();
+    }
+
 
 
 
@@ -1000,6 +1033,7 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
         mOnDataListeners = null;
     }
+
 
 
 
@@ -1182,7 +1216,7 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
 
 
-    class dbTasksData implements ValueEventListener{
+    private class dbTasksData implements ValueEventListener{
 
         @Override
         public void onDataChange(DataSnapshot snapshot){
@@ -1192,13 +1226,11 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
                 return;
             }
 
-//                        // If these were my own changes ignore.
-//                        if (mIgnoreTrigger){
-//
-//                            mIgnoreTrigger = false;
-//
-//                            return;
-//                        }
+            // If these were my own changes ignore.
+            if (Semaphore.got(snapshot)){
+
+                 return;
+            }
 
             // List Firebase data
             mDataArrayList = recArrayList(snapshot, mShowDeleted);
@@ -1211,7 +1243,7 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
                 }
             }
 
-            mAppView.onDataChange(snapshot);
+            if(mAppView != null)  mAppView.onDataChange(snapshot);
         }
 
 
@@ -1221,7 +1253,17 @@ public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
             String error = databaseError.getMessage();
 
-            mAppView.onCancelled(databaseError);
+            if(mAppView != null)  mAppView.onCancelled(databaseError);
+        }
+    }
+
+
+
+
+    private static class Sync{
+
+        static void data(){
+
         }
     }
 }

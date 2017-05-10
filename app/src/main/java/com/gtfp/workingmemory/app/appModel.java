@@ -396,6 +396,13 @@ public class appModel implements dbCloud.onLoginListener{
 
 
 
+
+    private void sync(){
+
+        dbCloud.sync(mDBHelper, m2ndDB, this);
+    }
+
+
     protected void onStart(){
 
         open();
@@ -409,7 +416,7 @@ public class appModel implements dbCloud.onLoginListener{
 
                 public void onDownload(ArrayList<HashMap<String, String>> dataArrayList){
 
-                    dbCloud.sync(mDBHelper, m2ndDB);
+                    mAppView.getModel().sync();
                 }
             });
         }else{
@@ -422,7 +429,7 @@ public class appModel implements dbCloud.onLoginListener{
 
                         public void onDownload(ArrayList<HashMap<String, String>> dataArrayList){
 
-                            dbCloud.sync(mDBHelper, m2ndDB);
+                            mAppView.getModel().sync();
                         }
                     });
                 }
@@ -433,7 +440,7 @@ public class appModel implements dbCloud.onLoginListener{
 
 
     // The App might get destroyed with calling onDestroy, and so take no chances.
-    protected void onStop(){
+    void onStop(){
 
         // close the db connection...
         close();
@@ -471,13 +478,14 @@ public class appModel implements dbCloud.onLoginListener{
 
 
 
-    class onDBSetup implements dbSQLlite.OnCreateListener, dbSQLlite.OnConfigureListener{
+    private class onDBSetup implements dbSQLlite.OnCreateListener, dbSQLlite.OnConfigureListener{
 
         public void onCreate(SQLiteDatabase db){
 
             if(db.getVersion() == 0){
 
-                // Insert all the data from the cloud if any.
+                // A this device reference to the cloud.
+                dbCloud.setDeviceDirectory();
             }
         }
 
@@ -486,6 +494,11 @@ public class appModel implements dbCloud.onLoginListener{
         public void onConfigure(SQLiteDatabase db){
 
 //            db.setVersion(0);
+
+            if (!db.isReadOnly()) {
+                // Enable foreign key constraints
+                db.execSQL("PRAGMA foreign_keys=ON;");
+            }
         }
     }
 }

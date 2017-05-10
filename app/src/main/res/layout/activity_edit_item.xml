@@ -7,8 +7,7 @@
               android:orientation="vertical"
               android:weightSum="1"
               android:background="@drawable/rounded_corners"
-              tools:context="${relativePackage}.${activityClass}"
-        >
+              tools:context="${relativePackage}.${activityClass}">
     <com.gtfp.workingmemory.edit.EditedText
             android:id="@+id/txtToDoItem"
             android:layout_centerHorizontal="true"
@@ -23,8 +22,7 @@
             android:minLines="1"
             android:textSize="20sp"
             android:typeface="sans"
-            android:inputType="textCapSentences"
-            />
+            android:inputType="textCapSentences"/>
     <!--                 android:windowSoftInputMode="stateVisible" -->
     <TextView
             android:id="@+id/txtToDoTime"
@@ -36,8 +34,7 @@
             android:textSize="@dimen/smallTextSize"
             android:layout_below="@+id/txtToDoItem"
             android:layout_centerHorizontal="true"
-            android:gravity="center_horizontal"
-            />
+            android:gravity="center_horizontal"/>
     <LinearLayout
             android:id="@+id/ButtonsGroup"
             android:layout_below="@+id/txtToDoTime"
@@ -80,23 +77,19 @@
                 <RadioButton android:id="@+id/Min20"
                              android:layout_width="wrap_content"
                              android:layout_height="wrap_content"
-                             android:text="@string/twenty_min"
-                        />
+                             android:text="@string/twenty_min"/>
                 <RadioButton android:id="@+id/Min30"
                              android:layout_width="wrap_content"
                              android:layout_height="wrap_content"
-                             android:text="@string/thirty_min"
-                        />
+                             android:text="@string/thirty_min"/>
                 <RadioButton android:id="@+id/Min40"
                              android:layout_width="wrap_content"
                              android:layout_height="wrap_content"
-                             android:text="@string/forty_min"
-                        />
+                             android:text="@string/forty_min"/>
                 <RadioButton android:id="@+id/Min60"
                              android:layout_width="wrap_content"
                              android:layout_height="wrap_content"
-                             android:text="@string/sixty_min"
-                        />
+                             android:text="@string/sixty_min"/>
             </TableRow>
         </com.gtfp.workingmemory.edit.RadioGroupTableLayout>
         <ImageButton

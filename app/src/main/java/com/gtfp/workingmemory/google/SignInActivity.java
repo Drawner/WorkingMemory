@@ -24,6 +24,7 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.gtfp.errorhandler.ErrorHandler;
 import com.gtfp.workingmemory.R;
+import com.gtfp.workingmemory.utils.DownloadImageTask;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -31,6 +32,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -56,6 +58,15 @@ public class SignInActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.signin_layout);
+
+        setupSignInBtns();
+
+        setupSignInFields();
+    }
+
+
+
+    private void setupSignInBtns(){
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -135,6 +146,42 @@ public class SignInActivity extends FragmentActivity
                 });
     }
 
+
+
+    private void setupSignInFields(){
+
+        TextView txtName = (TextView) findViewById(R.id.name);
+
+        ImageView imgPhoto = (ImageView) findViewById(R.id.photo);
+
+        String name, photoUrl;
+
+        String provider = com.gtfp.workingmemory.Auth.Auth.userProfile("provider");
+
+        if(provider == null || provider.isEmpty() || provider.equals("firebase")){
+
+            txtName.setVisibility(View.INVISIBLE);
+
+            imgPhoto.setVisibility(View.INVISIBLE);
+        }else{
+
+            name = com.gtfp.workingmemory.Auth.Auth.userProfile("name");
+
+            if(name != null)
+            txtName.setText(name);
+
+            photoUrl =  com.gtfp.workingmemory.Auth.Auth.userProfile("photo");
+
+            if(photoUrl != null && !photoUrl.isEmpty()){
+
+                // show The Image in a ImageView
+                new DownloadImageTask(imgPhoto).execute(photoUrl);
+            }else{
+
+                imgPhoto.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
 
 
     @Override

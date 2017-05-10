@@ -6,13 +6,14 @@
           android:title="@string/login"/>
     <item android:id="@+id/logout"
           android:title="@string/logout"/>
+    <item android:id="@+id/sync"
+          android:title="@string/sync"/>
 <!--    <group android:id="@+id/error_group">
         <item android:id="@+id/errors"
               android:title="@string/errors"/>
         <item android:id="@+id/throwError"
               android:title="@string/throwError"/>
-        <item android:id="@+id/sync"
-              android:title="@string/sync"/>
+
         <item android:id="@+id/deleteSync"
               android:title="@string/syncDelete"/>
     </group>

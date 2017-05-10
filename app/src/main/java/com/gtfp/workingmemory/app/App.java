@@ -7,6 +7,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Debug;
 import android.os.Environment;
+import android.support.multidex.MultiDex;
 import android.util.Base64;
 
 import java.io.File;
@@ -52,6 +53,17 @@ public final class App extends Application{
 
 //        ACRA.init(this);
     }
+
+
+    @Override
+    protected void attachBaseContext(Context base) {
+
+        super.attachBaseContext(base);
+
+        // Oh my it worked! Upgraded to Android 25.
+        MultiDex.install(this);
+    }
+
 
 
     public static String setPackageName(Activity activity){
@@ -189,12 +201,28 @@ public final class App extends Application{
     }
 
 
+
+
     // Running in a IDE or out in production?
     public static boolean inDebugger(){
 
         //  If in Debugger Environment
        return  Debug.isDebuggerConnected();
     }
+
+
+
+
+    // Wait for the Debugger
+    // Suspend the execution of the application
+    public static void waitForDebugger(){
+
+        if(inDebugger()){
+
+            android.os.Debug.waitForDebugger();
+        }
+    }
+
 
 
 

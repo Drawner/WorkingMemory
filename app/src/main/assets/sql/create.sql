@@ -6,7 +6,8 @@ DROP TABLE IF EXISTS working;
 -- SQL Statement to create a new database.
 -- Note: if the database names change, change the code in appModel.ToDoList()
 CREATE TABLE IF NOT EXISTS working(
-ToDoItem VARCHAR
+rowid integer primary key autoincrement
+, ToDoItem VARCHAR
 , ToDoKey VARCHAR
 , ToDoDateTime VARCHAR
 , ToDoDateTimeEpoch Long
@@ -17,4 +18,13 @@ ToDoItem VARCHAR
 , ToDoFired integer default 0
 , ToDoSetAlarm integer default 1
 , deleted integer default 0
+);
+
+-- Drop the table first
+DROP TABLE IF EXISTS icons;
+
+CREATE TABLE IF NOT EXISTS icons(
+rowid integer primary key autoincrement
+, resid integer not null
+,FOREIGN KEY (resid) REFERENCES working(rowid)
 );
