@@ -203,14 +203,16 @@ public class ToDoAlarm extends BroadcastReceiver {
 
             long reminder;
 
-            if (BuildConfig.DEBUG) {
+            String time = "";
+
+//            if (BuildConfig.DEBUG) {
 
                 reminder = itemToDo.getReminderEpoch();
 
-                String time = ToDoItem.EpochToDateTime(reminder);
+                time = ToDoItem.EpochToDateTime(reminder);
 
                 time = null;
-            } else {
+  //          } else {
 
                 Calendar remDate = ToDoItem.EpochToCalendar(itemToDo.getReminderEpoch());
 
@@ -218,7 +220,7 @@ public class ToDoAlarm extends BroadcastReceiver {
                 remDate.add(Calendar.MINUTE, -1);
 
                 reminder = remDate.getTimeInMillis();
-            }
+   //         }
 
             mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, reminder, pendingIntent);
         }
@@ -258,11 +260,12 @@ public class ToDoAlarm extends BroadcastReceiver {
 
             long alarmTime = cal.getTimeInMillis();
 
+            String setTime = "";
+
             if (BuildConfig.DEBUG) {
 
-                String setTime = ToDoItem.EpochToDateTime(alarmTime);
+                setTime = ToDoItem.EpochToDateTime(alarmTime);
 
-                setTime = null;
             }
 
             mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent);

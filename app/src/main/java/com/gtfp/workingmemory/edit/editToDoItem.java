@@ -428,13 +428,16 @@ public class editToDoItem extends android.support.v4.app.FragmentActivity
             changeMade = mToDoItem.settingsChanged();
         }
 
+
         if (reminder != null) {
+
+            String remindstr = "";
 
             if (BuildConfig.DEBUG) {
 
-                String remindstr = getDateString(reminder);
+               remindstr = getDateString(reminder);
 
-                remindstr = null;
+                remindstr = "";
             }
 
             mToDoItem.setReminderEpoch(reminder);
