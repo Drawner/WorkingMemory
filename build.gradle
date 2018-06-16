@@ -2,11 +2,14 @@
 buildscript {
     repositories {
         jcenter()
-        mavenCentral()
+        google()
+        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
-        classpath 'com.google.gms:google-services:3.0.0'
+        classpath 'com.android.tools.build:gradle:3.1.3'
+//        classpath 'com.google.gms:google-services:3.2.0'
+        classpath 'com.google.gms:google-services:4.0.1'
+        classpath 'io.fabric.tools:gradle:1.25.4'
     }
 }
 
@@ -15,6 +18,10 @@ allprojects {
         jcenter()
         flatDir {
             dirs 'libs'
+        }
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
         }
     }
 }

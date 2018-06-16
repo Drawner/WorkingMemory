@@ -1,6 +1,25 @@
 package com.gtfp.workingmemory.app;
+
+
 /**
- * Created by Drawn on 2015-02-07.
+ * Copyright (C) 2015  Greg T. F. Perry
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or any later version.
+ *
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -9,8 +28,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
-import com.gtfp.errorhandler.CrashFragment;
-import com.gtfp.errorhandler.ErrorHandler;
+import com.andrioussolutions.errorhandler.ErrorHandler;
 import com.gtfp.workingmemory.Auth.Auth;
 import com.gtfp.workingmemory.R;
 import com.gtfp.workingmemory.db.dbFireBase;
@@ -160,6 +178,9 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         mSyncData = appSettings.getBoolean("sync_data", false);
     }
 
+
+
+
     // This is called when there is not activity available.
     public appView(Context context){
 
@@ -185,17 +206,26 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         App.setView(this);
     }
 
+
+
+
     // Used by external components.
     public static boolean showDialogue(){
 
         return appSettings.getBoolean("popup_notification", true);
     }
 
+
+
+
     // Used by external components.
     public static boolean clearNotification(){
 
         return mClearNotification;
     }
+
+
+
 
     // Called by the controller
     protected void onCreate(Bundle savedInstanceState){
@@ -246,6 +276,9 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 //        syncData();
     }
 
+
+
+
     // Called by the controller.
     boolean onCreateOptionsMenu(Menu menu){
 
@@ -258,6 +291,9 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 //        }
         return true;
     }
+
+
+
 
     // Called by the Controller.
     boolean onOptionsItemSelected(MenuItem item){
@@ -386,7 +422,7 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
         if (mErrorMenuItem != null){
 
-            int count = ErrorHandler.getErrorCount();
+            int count = 0; //ErrorHandler.getErrorCount();
 
             mErrorMenuItem.setVisible(count > 0);
 
@@ -472,6 +508,9 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         // In case it WAS marked as deleted.
         //itemToDo.isDeleted(false);
 
+        // Determine this now as it will be changed in save().
+        boolean newItem = itemToDo.newItem();
+
         boolean saved = mAppModel.save(itemToDo);
 
         if (!saved){
@@ -480,7 +519,7 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
         }
 
         // It's a new item
-        if (itemToDo.newItem()){
+        if (newItem){
 
             //           itemToDo.setId(mAppModel.getLastRowID());
 
@@ -1043,21 +1082,21 @@ public class appView implements SharedPreferences.OnSharedPreferenceChangeListen
 
     void listErrors(){
 
-//        Intent errIntent = new Intent(mController, CrashActivity.class);
+        Intent errIntent = new Intent(mController, ErrorHandler.class);
+
+        errIntent.putExtra("ERROR_LIST", true);
+
+        mController.startActivity(errIntent);
+
+//        Fragment fragment = new CrashFragment();
 //
-//        errIntent.putExtra("ERROR_LIST", true);
+//        final Bundle args = new Bundle();
 //
-//        mController.startActivity(errIntent);
-
-        Fragment fragment = new CrashFragment();
-
-        final Bundle args = new Bundle();
-
-        args.putBoolean("ERROR_LIST", true);
-
-        fragment.setArguments(args);
-
-        runFragment(fragment, android.R.id.content);
+//        args.putBoolean("ERROR_LIST", true);
+//
+//        fragment.setArguments(args);
+//
+//        runFragment(fragment, android.R.id.content);
     }
 
     public void syncData(){

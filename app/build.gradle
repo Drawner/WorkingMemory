@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+
+apply plugin: 'io.fabric'
+
+
 android {
 
     signingConfigs {
@@ -18,9 +22,9 @@ android {
         }
     }
 
-    compileSdkVersion 25
+    compileSdkVersion 26
 
-    buildToolsVersion '25.0.2'
+//    buildToolsVersion "26.0.2"
 
     defaultConfig {
 
@@ -30,30 +34,43 @@ android {
 
         applicationId "com.gtfp.workingmemory"
 
-        minSdkVersion 19
+        minSdkVersion 25
 
-        targetSdkVersion 25
+        targetSdkVersion 26
 
         resConfig "en"
 
         // Add  MultiDex.install(this); to Application Class.
-        multiDexEnabled  true
+        multiDexEnabled  false
+
+        // Tells Gradle to build all variants of the library. Note that this
+        // may increase build times because Gradle must build multiple AARs,
+        // instead of only one.
+        publishNonDefault true
     }
+
+    flavorDimensions "whatever"
 
     productFlavors {
 
         production {
+
+            dimension "whatever"
 
             versionName '2.5'
         }
 
         alpha {
 
+            dimension "whatever"
+
             versionName '2.5 - alpha'
         }
 
         development{
 
+            dimension "whatever"
+            
             versionName '2.5 - development'
         }
     }
@@ -118,67 +135,66 @@ android {
 
 dependencies {
 
-    compile fileTree(dir: 'libs', include: '*.jar')
+    implementation fileTree(dir: 'libs', include: '*.jar')
 
  //   compile 'ch.acra:acra:4.9.0'
 
     //https://github.com/code-troopers/android-betterpickers
-    compile 'com.code-troopers.betterpickers:library:2.5.1'
-    compile 'com.android.support:support-v4:23.2.0'
+//    compile 'com.code-troopers.betterpickers:library:2.5.1'
+    implementation 'com.code-troopers.betterpickers:library:3.1.0'
+    implementation 'com.android.support:support-v4:26.1.0'
 
     //Realtime database
-    compile 'com.google.firebase:firebase-database:9.8.0'
-    compile 'com.google.firebase:firebase-crash:9.8.0'
-    compile 'com.google.firebase:firebase-auth:9.8.0'
-    compile 'com.google.firebase:firebase-core:9.8.0'
+    implementation 'com.google.firebase:firebase-database:16.0.1'
+//    implementation 'com.google.firebase:firebase-crash:9.8.0'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.3'
 
-    compile 'com.google.android.gms:play-services-auth:9.8.0'
-    compile 'com.google.android.gms:play-services-drive:9.8.0'
+    implementation 'com.google.firebase:firebase-auth:16.0.2'
+    implementation 'com.google.firebase:firebase-core:16.0.1'
 
-    compile 'joda-time:joda-time:2.3'
-    compile files('../../../libs/opencsv/opencsv-3.3.jar')
-    compile 'org.apache.commons:commons-lang3:3.0'
-    compile 'commons-io:commons-io:2.0.1'
-    // Depend on another module(project)
+    implementation 'com.google.android.gms:play-services-auth:15.0.1'
+    implementation 'com.google.android.gms:play-services-drive:15.0.1'
+
+    implementation 'joda-time:joda-time:2.3'
+    implementation files('../../../libs/opencsv/opencsv-3.3.jar')
+    implementation 'org.apache.commons:commons-lang3:3.0'
+    implementation 'commons-io:commons-io:2.0.1'
 
 //// **    Then the library will be built in the same mode as the app
- //   compile project(':ErrorHandler')
-    debugCompile project(path: ':ErrorHandler', configuration: "debug")
-    releaseCompile project(path: ':ErrorHandler', configuration: "release")
+    //// Deprecated.
+//    debugCompile project(path: ':ErrorFirebase', configuration: "debug")
+//    releaseCompile project(path: ':ErrorFirebase', configuration: "release")
+    implementation project(':ErrorFirebase')
 
-    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+//     compile project(':ErrorDatabase')
+////    debugCompile project(path: ':ErrorDatabase', configuration: "debug")
+////    releaseCompile project(path: ':ErrorDatabase', configuration: "release")
 
-    compile 'com.android.support:cardview-v7:25.3.1'
+//    compile project(':ErrorDisplay')
+////    debugCompile project(path: ':ErrorDisplay', configuration: "debug")
+////    releaseCompile project(path: ':ErrorDisplay', configuration: "release")
 
-    compile 'com.android.support:multidex:1.0.1'
+    //// Deprecated.
+//    compile project(':ErrorHandler')
+//    debugCompile project(path: ':ErrorHandler', configuration: "debug")
+//    releaseCompile project(path: ':ErrorHandler', configuration: "release")
+    implementation project(':ErrorHandler')
 
-    compile('com.google.api-client:google-api-client-android:1.22.0') {
-        exclude group: 'org.apache.httpcomponents'
-    }
-    compile('com.google.apis:google-api-services-calendar:v3-rev243-1.22.0') {
-        exclude group: 'org.apache.httpcomponents'
-    }
+//    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+    implementation 'com.facebook.android:facebook-android-sdk:4.26.0'
+
+//    compile 'com.android.support:cardview-v7:25.3.1'
+//
+    implementation 'com.android.support:multidex:1.0.1'
+//
+//    compile('com.google.api-client:google-api-client-android:1.22.0') {
+//        exclude group: 'org.apache.httpcomponents'
+//    }
+//    compile('com.google.apis:google-api-services-calendar:v3-rev243-1.22.0') {
+//        exclude group: 'org.apache.httpcomponents'
+//    }
 }
 
-
-//android {
-//    packagingOptions {
-//        exclude '.readme'
-//        exclude 'LICENSE.txt'
-//        exclude 'META-INF/DEPENDENCIES'
-//        exclude 'META-INF/DEPENDENCIES.txt'
-//        exclude 'META-INF/LGPL2.1'
-//        exclude 'META-INF/LICENSE'
-//        exclude 'META-INF/LICENSE.txt'
-//        exclude 'META-INF/NOTICE'
-//        exclude 'META-INF/NOTICE.txt'
-//        exclude 'META-INF/README.txt'
-//        exclude 'META-INF/dependencies.txt'
-//        exclude 'META-INF/license.txt'
-//        exclude 'META-INF/notice.txt'
-//        exclude 'META-INF/services/javax.annotation.processing.Processor'
-//    }
-//}
 
 // Add to the bottom of the file
 apply plugin: 'com.google.gms.google-services'

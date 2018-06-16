@@ -22,7 +22,7 @@ import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 
-import com.gtfp.errorhandler.ErrorHandler;
+import com.andrioussolutions.errorhandler.ErrorHandler;;
 import com.gtfp.workingmemory.R;
 import com.gtfp.workingmemory.app.App;
 
@@ -35,8 +35,26 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.concurrent.CountDownLatch;
 
+
 /**
- * Created by Drawn on 2016-01-22.
+ * Copyright (C) 2016  Greg T. F. Perry
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or any later version.
+ *
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 public class googleAPI {
 

@@ -10,7 +10,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import com.gtfp.errorhandler.ErrorHandler;
+import com.andrioussolutions.errorhandler.ErrorHandler;
 import com.gtfp.workingmemory.Auth.Auth;
 import com.gtfp.workingmemory.app.appView;
 import com.gtfp.workingmemory.todo.ToDoItem;
@@ -33,10 +33,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by Drawn on 9/27/2016.
- */
 
+/**
+ * Copyright (C) 2016  Greg T. F. Perry
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or any later version.
+ *
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 public class dbFireBase implements dbInterface, FirebaseAuth.AuthStateListener{
 
 

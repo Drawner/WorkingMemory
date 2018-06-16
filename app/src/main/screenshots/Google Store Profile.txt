@@ -1,0 +1,19 @@
+Functions & Features:
+
+The app always opens with a the current list of entered event items. 
+
+A large button to create an new event item allowing for a right-handed or left-handed person.
+
+A comprehensive Date/Time picker to quickly assign a date and time to an event item.
+
+Assign the alarm/notification to fire a specific number of minutes before the event item.
+
+Settings option to list event items by date either in descending or ascending order.
+
+Settings option uses a colour wheel to assign a colour for the phone's LED.
+
+Assign a default colour for any new event item or assign a unique colour to each individual event item.
+
+Settings option to assign a notification sound to an event item.
+
+Assign a default sound for any new event item or assign a unique sound to each individual event item.

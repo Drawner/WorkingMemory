@@ -1,10 +1,8 @@
+#Working Memory Project
+
 #Root Files & Folders
 .gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-/backup
-/build
+backup/
 /*.txt
 
 # Windows image file caches
@@ -51,16 +49,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-
-*.iml
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.DS_Store
-/build
-/captures
-.externalNativeBuild
 
 # Built application files
 *.apk

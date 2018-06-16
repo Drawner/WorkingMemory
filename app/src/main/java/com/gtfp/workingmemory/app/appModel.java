@@ -1,5 +1,25 @@
 package com.gtfp.workingmemory.app;
 
+/**
+ * Copyright (C) 2015  Greg T. F. Perry
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or any later version.
+ *
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 
@@ -10,7 +30,6 @@ import com.gtfp.workingmemory.db.dbInterface;
 import com.gtfp.workingmemory.db.dbSQLlite;
 import com.gtfp.workingmemory.todo.ToDoItem;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -19,15 +38,10 @@ import java.util.HashMap;
 
 import static com.gtfp.workingmemory.settings.appSettings.getBoolean;
 
-/**
- * Created by Drawn on 2015-02-12.
- */
 public class appModel implements dbCloud.onLoginListener{
 
 
     private appView mAppView;
-
-    private Context mContext;
 
     // Variable to hold the database instance
     private dbInterface mDBHelper;
@@ -39,15 +53,15 @@ public class appModel implements dbCloud.onLoginListener{
 
     private boolean mShowDeleted;
 
-    private boolean mOnlineData;
 
 
 
-    public appModel(appView mVc){
+
+    appModel(appView mVc){
 
         mAppView = mVc;
 
-        mContext = mAppView.getContext();
+//        mContext = mAppView.getContext();
 
 //        mDBHelper = getDBHelper(mVc);
 
@@ -73,7 +87,7 @@ public class appModel implements dbCloud.onLoginListener{
 
 
 
-    public dbInterface resetDBHelper(){
+    dbInterface resetDBHelper(){
 
         if (mAppView == null){ return null; }
 
@@ -218,7 +232,7 @@ public class appModel implements dbCloud.onLoginListener{
 
 
 
-    public boolean trueDelete(ToDoItem itemToDo){
+    boolean trueDelete(ToDoItem itemToDo){
 
         return mDBHelper.deleteRec(itemToDo.getId()) > 0;
     }
@@ -231,7 +245,7 @@ public class appModel implements dbCloud.onLoginListener{
 
 
 
-    public boolean showDeleted(){
+    boolean showDeleted(){
 
         return mShowDeleted;
     }
@@ -347,7 +361,7 @@ public class appModel implements dbCloud.onLoginListener{
 
 
 
-    public void importRec(String columnName, String value){
+    void importRec(String columnName, String value){
 
         mDBHelper.bindRecValues(columnName, value);
     }
@@ -361,21 +375,21 @@ public class appModel implements dbCloud.onLoginListener{
 
 
 
-    public boolean createEmptyTemp(){
+    boolean createEmptyTemp(){
 
         return mDBHelper.createEmptyTemp();
     }
 
 
 
-    public boolean insertTempRec(){
+    boolean insertTempRec(){
 
         return mDBHelper.insertTempRec() > 0;
     }
 
 
 
-    public Cursor getNewTempRecs(){
+    Cursor getNewTempRecs(){
 
         return mDBHelper.getNewTempRecs();
     }
@@ -397,9 +411,21 @@ public class appModel implements dbCloud.onLoginListener{
 
 
 
-    private void sync(){
+    private void sync(ArrayList<HashMap<String, String>> dataArrayList){
 
         dbCloud.sync(mDBHelper, m2ndDB, this);
+
+//         if(dataArrayList.size() > 0 && mDBHelper.getRecs().getCount() == 0){
+//
+//             ArrayList<ToDoItem> items = mDBHelper.ToDoList(dataArrayList);
+//
+//             mAppView.mToDoListAdapter.setItems(items);
+//
+//             for(ToDoItem item : items){
+//
+//                 save(item);
+//             }
+//         }
     }
 
 
@@ -416,7 +442,7 @@ public class appModel implements dbCloud.onLoginListener{
 
                 public void onDownload(ArrayList<HashMap<String, String>> dataArrayList){
 
-                    mAppView.getModel().sync();
+                    mAppView.getModel().sync(dataArrayList);
                 }
             });
         }else{
@@ -429,7 +455,7 @@ public class appModel implements dbCloud.onLoginListener{
 
                         public void onDownload(ArrayList<HashMap<String, String>> dataArrayList){
 
-                            mAppView.getModel().sync();
+                            mAppView.getModel().sync(dataArrayList);
                         }
                     });
                 }
@@ -450,7 +476,7 @@ public class appModel implements dbCloud.onLoginListener{
 
 
 
-    protected void onRestart(){
+    void onRestart(){
 
         // db likely closed.
         //       open();
@@ -462,7 +488,7 @@ public class appModel implements dbCloud.onLoginListener{
 
         mAppView = null;
 
-        mContext = null;
+//        mContext = null;
 
         mDBHelper.onDestroy();
 
@@ -484,7 +510,7 @@ public class appModel implements dbCloud.onLoginListener{
 
             if(db.getVersion() == 0){
 
-                // A this device reference to the cloud.
+                // Add this device reference to the cloud.
                 dbCloud.setDeviceDirectory();
             }
         }
