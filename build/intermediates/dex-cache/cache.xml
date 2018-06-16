@@ -3,102 +3,291 @@
 
     <item
         is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\b7c37e1e909512ce089d2294862c03b2774594e3\output\jars\classes.jar"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.google.http-client\google-http-client-jackson2\1.22.0\cc014d64ae11117e159d334c99d9c246d9b36f44\google-http-client-jackson2-1.22.0.jar"
         jumboMode="false"
         optimize="true"
-        revision="25.0.2"
-        sha1="6a70160a70685ce25bda1c6e094c73676a399039">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_7a036695bf16420bfd470b138790412c18719d9b.jar" />
+        revision="26.0.2"
+        sha1="cc014d64ae11117e159d334c99d9c246d9b36f44">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\google-http-client-jackson2-1.22.0_544424131a01ccbf713e0479092d0366ad5ff6c0.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="C:\Programs\Tools\Projects\libs\ErrorHandler\app\build\intermediates\bundles\debug\classes.jar"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\commons-io\commons-io\2.0.1\7ffdb02f95af1c1a208544e076cea5b8e66e731a\commons-io-2.0.1.jar"
         jumboMode="false"
         optimize="true"
-        revision="25.0.2"
-        sha1="e87bc8fd141f36349faae7aee724d69169955479">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_613ffd0bfa396446bbfce18e7c97f2c561828447.jar" />
+        revision="26.0.2"
+        sha1="7ffdb02f95af1c1a208544e076cea5b8e66e731a">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\commons-io-2.0.1_49cc8aa0ad57651098dc0795816082e0cba7045e.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\b6eb3c78aeba13349fe68623e2eb2ad49e1950f9\output\jars\classes.jar"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\org.apache.commons\commons-lang3\3.0\8873bd0bb5cb9ee37f1b04578eb7e26fcdd44cb0\commons-lang3-3.0.jar"
         jumboMode="false"
         optimize="true"
-        revision="25.0.2"
-        sha1="94ba691efc31bf53264db0716d9c9ec03843ea31">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_c422c1908b99528aa120a963f184e015b0592e18.jar" />
+        revision="26.0.2"
+        sha1="8873bd0bb5cb9ee37f1b04578eb7e26fcdd44cb0">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\commons-lang3-3.0_8f414753625b68f01224750350077549ecd0f601.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\a3b5b8ffc5d90e7510a5c684c0fded6df061eac5\output\jars\classes.jar"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.google.api-client\google-api-client\1.22.0\244350c0c845c583717ade13f5666a452fd0cfa\google-api-client-1.22.0.jar"
         jumboMode="false"
         optimize="true"
-        revision="25.0.2"
-        sha1="8bc45ce1f63d1a391fd38b32a201be5a42f9c95d">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_87333bfccaba2d920fca3f1d01407a19c6b19c84.jar" />
+        revision="26.0.2"
+        sha1="0244350c0c845c583717ade13f5666a452fd0cfa">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\google-api-client-1.22.0_9f945df0ce8dfc01f33aca3fec36883c1188ce7e.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="C:\Programs\Tools\AndroidSDK\extras\android\m2repository\com\android\support\support-annotations\26.0.0-alpha1\support-annotations-26.0.0-alpha1.jar"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.google.api-client\google-api-client-android\1.22.0\7a0fe12b7d8189a821934d6f9d6586d00180e461\google-api-client-android-1.22.0.jar"
         jumboMode="false"
         optimize="true"
-        revision="25.0.2"
-        sha1="023ee503b631f69511e335a061ea008f8da60f40">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\support-annotations-26.0.0-alpha1_a3ebb8cd7f76f7406256c486f472927e1c9c145e.jar" />
+        revision="26.0.2"
+        sha1="7a0fe12b7d8189a821934d6f9d6586d00180e461">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\google-api-client-android-1.22.0_f7baba0ac99496339e78292f96446040cf366e8a.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\70cdb784b17bb6e3cbd6860aeb9db8108e307d31\output\jars\classes.jar"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\joda-time\joda-time\2.3\56498efd17752898cfcc3868c1b6211a07b12b8f\joda-time-2.3.jar"
         jumboMode="false"
         optimize="true"
-        revision="25.0.2"
-        sha1="d29714cc76b38157e3cbd034c66e1ec808eb4c19">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_8487ab9af73bdce635287453550987dbfab9a11d.jar" />
+        revision="26.0.2"
+        sha1="56498efd17752898cfcc3868c1b6211a07b12b8f">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\joda-time-2.3_c4106232a7f6a368f497dfbb2c263f157cc7a51d.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.google.zxing\core\3.3.0\73c49077166faa4c3c0059c5f583d1d7bd1475fe\core-3.3.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="73c49077166faa4c3c0059c5f583d1d7bd1475fe">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\core-3.3.0_a10e526de37aa216788d80a6c1123adf30843a6b.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.nineoldandroids\library\2.4.0\e9b63380f3a242dbdbf103a2355ad7e43bad17cb\library-2.4.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="e9b63380f3a242dbdbf103a2355ad7e43bad17cb">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\library-2.4.0_e86c533f704d0d8182e024c4c6ef08f7522708eb.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.fasterxml.jackson.core\jackson-core\2.1.3\f6c3aed1cdfa21b5c1737c915186ea93a95a58bd\jackson-core-2.1.3.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="f6c3aed1cdfa21b5c1737c915186ea93a95a58bd">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\jackson-core-2.1.3_460dc18b36023ece5504e430483e59c5521c399f.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.google.http-client\google-http-client-android\1.22.0\6d1e1a76a16a244ab2f41775791be1dd0ec2878a\google-http-client-android-1.22.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="6d1e1a76a16a244ab2f41775791be1dd0ec2878a">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\google-http-client-android-1.22.0_fb4bd30978a8a273fede5a1fdd5e8bb53162c0ae.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.android\build-cache\462699e655fe370986d033164e7d47737b069707\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="2482bfd874e8b3927f4141105674ad392ff83698">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_c392eca633d0a1860d21402baf822e20b43dae90.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.android\build-cache\36973aa8f0c3f937157c8aac297ba4aaac3d80dd\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="b8b26b28aae0ba8e2db55ad9fe0ebc770530c5ef">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_4d5fdbeab77c3bb265845fe8c581b46fdaaffc36.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Programs\Tools\Projects\libs\ErrorHandler\firebase\build\intermediates\bundles\debug\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="c65387e00819c50d8a6dc087cfc0ec523f4bcbaa">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_675dc491d790aa2cb0da2ac4f4428fc8e71cf360.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.android\build-cache\1c6eee28155034814717ac4d3c2d53e256cf7760\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="78ea232052df889856dcb7b7b542707c89bb3bfb">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_687f9c3c1e6ae7403582bd2ec75c32f6326de591.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.android\build-cache\e223ca35b507027e451ad5a8be8333822836ec0c\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="dc83ab7a5ce1e0296cf18a52a6edbcfef815e6cf">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_1b487a0d1a1d01b1d2e6102bfaf91cdea7173e0d.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.google.http-client\google-http-client\1.22.0\d441fc58329c4a4c067acec04ac361627f66ecc8\google-http-client-1.22.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="d441fc58329c4a4c067acec04ac361627f66ecc8">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\google-http-client-1.22.0_ba43c646e768c0c01490055d0709e2b395e3a299.jar" />
     </item>
     <item
         is-multidex="false"
         jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.parse.bolts\bolts-applinks\1.4.0\8ad21bf21784dacce5f2043afb97218cc377e835\bolts-applinks-1.4.0.jar"
         jumboMode="false"
         optimize="true"
-        revision="25.0.2"
+        revision="26.0.2"
         sha1="8ad21bf21784dacce5f2043afb97218cc377e835">
         <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\bolts-applinks-1.4.0_c175fbe6f7e01e1502d1ae6c9495d5d54d9ab744.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.google.apis\google-api-services-calendar\v3-rev243-1.22.0\50f1ec3187c4af21f80e078e3b1e048624eb5822\google-api-services-calendar-v3-rev243-1.22.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="50f1ec3187c4af21f80e078e3b1e048624eb5822">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\google-api-services-calendar-v3-rev243-1.22.0_6c9afc9df4f9aec69fe25be020f9e0ec9a350324.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.android\build-cache\cd90b765d7b03bf606f7aa0e05bd836234788595\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="807751a24cf96566fd8675517c94d8463cf364db">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_ae9e8a58867203fe83d4d461945fc0a390d72db7.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.android\build-cache\12e807704d04ceac4d21ce5a5e8209702eae51ca\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="82ea5a937ab84229fbd2f3fc8cf2a72cbdf0ee0f">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_74e81289f384b51aad2f15c4ddbe18587233753c.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.android\build-cache\a963723a4a3d5f9207875cc9b2fac2e1a35c25cd\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="53e8932b1ac8c7dfc35cfeda1f9efbc9822ceaf3">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_52dc92a15c984dd58aa4f8296d9e1aedaddc0096.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.android\build-cache\94fc9458e26512542a834704e48c6c0b45f62253\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="914f5d3e3ace66080e59613708f06d129a222e25">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_91721d036a676ae64be5af292df3579c4e72892c.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.android\build-cache\ecd43a9f54dc91a6b7b4a8a27e097ad3135c67ff\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="287f4dec8dc2d40a238b12562b437438499cd2fb">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_0a8dac6e2022bfacccb6126825ca896196b6507f.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.android\build-cache\016a955861d4e9a6aa41bbe5603178d627210b96\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="ab6e491b5d7bda2f47991a30f6bfe9a8b134ff8b">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_a8ef31698935b21f462f56a45aedb324d8945c95.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.google.guava\guava-jdk5\17.0\463f8378feba44df7ba7cd9272d01837dad62b36\guava-jdk5-17.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="463f8378feba44df7ba7cd9272d01837dad62b36">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\guava-jdk5-17.0_5f05275976b766c1699c93bef56d3aec11ce2d5f.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.google.oauth-client\google-oauth-client\1.22.0\1d63f369ac78e4838a3197147012026e791008cb\google-oauth-client-1.22.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="1d63f369ac78e4838a3197147012026e791008cb">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\google-oauth-client-1.22.0_7fe40add43ffa57ec87369a3a3771aa439df39d9.jar" />
     </item>
     <item
         is-multidex="false"
         jar="C:\Programs\Tools\Projects\libs\opencsv\opencsv-3.3.jar"
         jumboMode="false"
         optimize="true"
-        revision="25.0.2"
+        revision="26.0.2"
         sha1="2858373af0681aafd3d79fdd533cc9127959c9ea">
         <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\opencsv-3.3_f9ad8d64226ddbb64ea0977c18bc9d154a579dfb.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.android\build-cache\3f7bc62a3f3ac39c859d4df88b482091d6325fdf\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="0d394688dd7030b83dea8eed3fa483410c24afe0">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_196a87e7eaa8d9e4d475a905304a8738090caa21.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.android\build-cache\17f407c4feb69f962248044cdd2574623a2ab677\output\jars\classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="55d764fefc3262b18baf0f933fa67c107e40ceab">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_b3480083794de21b8158e5ee9aebcfacfa3b66af.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.google.code.findbugs\jsr305\1.3.9\40719ea6961c0cb6afaeb6a921eaa1f6afd4cfdf\jsr305-1.3.9.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="40719ea6961c0cb6afaeb6a921eaa1f6afd4cfdf">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\jsr305-1.3.9_fd71dc153a356d1fca82ce0db3a840ee4d6470c8.jar" />
     </item>
     <item
         is-multidex="false"
         jar="C:\Users\Drawn\.gradle\caches\modules-2\files-2.1\com.parse.bolts\bolts-tasks\1.4.0\d85884acf6810a3bbbecb587f239005cbc846dc4\bolts-tasks-1.4.0.jar"
         jumboMode="false"
         optimize="true"
-        revision="25.0.2"
+        revision="26.0.2"
         sha1="d85884acf6810a3bbbecb587f239005cbc846dc4">
         <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\bolts-tasks-1.4.0_4e8aa559e0e0442a626221c4fbd243156709504b.jar" />
     </item>
     <item
         is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\83b0a0fa26cc63fd21906fbcd46fb089d26054c1\output\jars\classes.jar"
+        jar="C:\Programs\Tools\Projects\libs\ErrorHandler\ErrorHandler\build\intermediates\bundles\debug\classes.jar"
         jumboMode="false"
         optimize="true"
-        revision="25.0.2"
-        sha1="e176fd06c2ad5b50a2f5cb4de6000a83a7cb48f5">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_4924ab7c576fe75cb419c27c60883873ddd0386d.jar" />
-    </item>
-    <item
-        is-multidex="false"
-        jar="C:\Users\Drawn\.android\build-cache\05a00e0e491afad062d65cbd1c47b912db6373c5\output\jars\classes.jar"
-        jumboMode="false"
-        optimize="true"
-        revision="25.0.2"
-        sha1="53a420cd4f49274db6bd43475f8006ba67ef6bbd">
-        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_3cfefc8b3b96976abe9583015562a349ed9bae87.jar" />
+        revision="26.0.2"
+        sha1="831fe6eeb1222273f6dcc80648a74f766321cb70">
+        <dex dex="C:\Programs\Tools\Projects\reminders\WorkingMemory\app\build\intermediates\pre-dexed\development\debug\classes_de223adc4619723f70c03495f67244dff02e99b4.jar" />
     </item>
 
 </items>

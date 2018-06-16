@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../../libs/ErrorHandler/app/ErrorHandler.iml" filepath="$PROJECT_DIR$/../../libs/ErrorHandler/app/ErrorHandler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../libs/ErrorHandler/firebase/ErrorFirebase.iml" filepath="$PROJECT_DIR$/../../libs/ErrorHandler/firebase/ErrorFirebase.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../libs/ErrorHandler/ErrorHandler/ErrorHandler.iml" filepath="$PROJECT_DIR$/../../libs/ErrorHandler/ErrorHandler/ErrorHandler.iml" />
       <module fileurl="file://$PROJECT_DIR$/WorkingMemory.iml" filepath="$PROJECT_DIR$/WorkingMemory.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/libs/libs.iml" filepath="$PROJECT_DIR$/app/libs/libs.iml" />
